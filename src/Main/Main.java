@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args){
-        
+        // use GUI AWT
         Scanner sc = new Scanner(System.in);
         while(true){
             System.out.println("Welcome to APU Car Sales System!");
