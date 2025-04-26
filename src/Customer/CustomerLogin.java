@@ -1,6 +1,7 @@
 package Customer;
 
 import javax.swing.*;
+import utils.*;
 
 public class CustomerLogin extends JFrame{
     public CustomerLogin(){
@@ -10,5 +11,8 @@ public class CustomerLogin extends JFrame{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);  // temporarily 
         this.setLayout(null);
         this.setResizable(false);
+        
+        BackButton.addToFrame(this);
+        this.setVisible(true);;
     }
 }

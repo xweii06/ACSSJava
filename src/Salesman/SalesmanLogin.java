@@ -1,6 +1,7 @@
 package Salesman;
 
 import javax.swing.*;
+import utils.*;
 
 public class SalesmanLogin extends JFrame{
     public SalesmanLogin(){
@@ -10,5 +11,8 @@ public class SalesmanLogin extends JFrame{
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);  // temporarily 
         this.setLayout(null);
         this.setResizable(false);
+        
+        BackButton.addToFrame(this);
+        this.setVisible(true);
     }
 }
