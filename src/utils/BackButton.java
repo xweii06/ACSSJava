@@ -8,7 +8,7 @@ public class BackButton extends JButton {
     
     public BackButton() {
         this.initializeButton();
-        this.addActionListener(e -> FrameManager.navigateBack());
+        this.addActionListener(event -> FrameManager.goBack());
     }
     
     private void initializeButton() {

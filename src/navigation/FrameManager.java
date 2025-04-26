@@ -1,29 +1,23 @@
 package navigation;
 
 import javax.swing.JFrame;
+import java.util.Stack;
 
 public class FrameManager {
-    private static FrameNavigator navigator;
-
-    private FrameManager() {
-        // Private constructor to prevent instantiation
-    }
-
-    public static void initialize(JFrame initialFrame) {
-        navigator = new FrameNavigator(initialFrame);
-    }
-
-    public static void navigateTo(JFrame newFrame) {
-        if (navigator == null) {
-            throw new IllegalStateException("FrameManager not initialized. Call initialize() first.");
+    private static Stack<JFrame> frameStack = new Stack<>();
+    
+    public static void showFrame(JFrame newFrame) {
+        if (!frameStack.isEmpty()) {
+            frameStack.peek().setVisible(false); // Hide instead of dispose
         }
-        navigator.navigateTo(newFrame);
+        frameStack.push(newFrame);
+        newFrame.setVisible(true);
     }
-
-    public static void navigateBack() {
-        if (navigator == null) {
-            throw new IllegalStateException("FrameManager not initialized. Call initialize() first.");
+    
+    public static void goBack() {
+        if (frameStack.size() > 1) {
+            frameStack.pop().dispose(); // Dispose current frame
+            frameStack.peek().setVisible(true); // Show previous frame
         }
-        navigator.navigateBack();
     }
 }
