@@ -22,7 +22,7 @@ public class StaffLogin extends JFrame implements ActionListener{
         menuButton.setFocusable(false);
         menuButton.addActionListener(this);
         
-        BackButton.addToFrame(this);
+        MainMenuButton.addToFrame(this);
         this.add(menuButton);
         this.setVisible(true);
     }

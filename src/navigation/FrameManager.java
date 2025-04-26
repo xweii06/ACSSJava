@@ -1,5 +1,6 @@
 package navigation;
 
+import Main.MainMenu;
 import javax.swing.JFrame;
 import java.util.Stack;
 
@@ -18,6 +19,14 @@ public class FrameManager {
         if (frameStack.size() > 1) {
             frameStack.pop().dispose(); // Dispose current frame
             frameStack.peek().setVisible(true); // Show previous frame
+        }
+    }
+    
+    public static void backToMain() {
+        if (frameStack.size() > 1) {
+            frameStack.pop().dispose();
+            frameStack.clear();
+            FrameManager.showFrame(new MainMenu());
         }
     }
 }

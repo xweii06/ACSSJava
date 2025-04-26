@@ -12,7 +12,7 @@ public class CustomerLogin extends JFrame{
         this.setLayout(null);
         this.setResizable(false);
         
-        BackButton.addToFrame(this);
+        MainMenuButton.addToFrame(this);
         this.setVisible(true);;
     }
 }
