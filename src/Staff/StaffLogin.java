@@ -5,10 +5,8 @@ import javax.swing.*;
 import navigation.FrameManager;
 import utils.*;
 
-public class StaffLogin extends JFrame implements ActionListener{
-    
-    JButton menuButton;
-    
+public class StaffLogin extends JFrame{
+  
     public StaffLogin(){
         // Frame setup
         this.setTitle("APU Car Sales System");
@@ -17,21 +15,7 @@ public class StaffLogin extends JFrame implements ActionListener{
         this.setLayout(null);
         this.setResizable(false);
         
-        menuButton = new JButton("Menu");
-        menuButton.setBounds(100, 100, 80, 30);
-        menuButton.setFocusable(false);
-        menuButton.addActionListener(this);
-        
         MainMenuButton.addToFrame(this);
-        this.add(menuButton);
         this.setVisible(true);
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==menuButton){
-            FrameManager.showFrame(new StaffMenu());
-        }
-    }
-    
 }
