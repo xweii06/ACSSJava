@@ -1,5 +1,6 @@
 package Main;
 
+import navigation.*;
 import Customer.CustomerLogin;
 import Salesman.SalesmanLogin;
 import Staff.StaffLogin;
@@ -46,23 +47,23 @@ public class MainMenu extends JFrame {
         
         // Set button positions and sizes
         customerButton.setBounds(40, 100, 120, 40);
+        customerButton.setFocusable(false);
         salesmanButton.setBounds(180, 100, 120, 40);
+        salesmanButton.setFocusable(false);
         staffButton.setBounds(320, 100, 120, 40);
+        staffButton.setFocusable(false);
         
         // Actions
         customerButton.addActionListener(e -> {
-            this.dispose(); // Close current window
-            new CustomerLogin().setVisible(true); // Open customer frame
+            FrameManager.showFrame(new CustomerLogin());
         });
         
         salesmanButton.addActionListener(e -> {
-            this.dispose(); 
-            new SalesmanLogin().setVisible(true);
+            FrameManager.showFrame(new SalesmanLogin());
         });
         
         staffButton.addActionListener(e -> {
-            this.dispose(); 
-            new StaffLogin().setVisible(true);
+            FrameManager.showFrame(new StaffLogin());
         });
         
         // Add labels
@@ -78,6 +79,6 @@ public class MainMenu extends JFrame {
     }
     
     public static void main(String[] args) {
-        new MainMenu();
+        FrameManager.showFrame(new MainMenu()); 
     }
 }
