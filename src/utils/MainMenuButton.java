@@ -12,8 +12,8 @@ public class MainMenuButton extends JButton{
     
     private void customizeButton() {
         this.setText("Main Menu");
-        this.setBounds(10, 10, 120, 30);
-        this.setFont(new Font("Arial", Font.PLAIN, 14));
+        this.setBounds(10, 10, 100, 30);
+        this.setFont(new Font("Arial", Font.PLAIN, 12));
         this.setFocusable(false);
     }
     
