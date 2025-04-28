@@ -52,7 +52,7 @@ public class StaffLogin extends JFrame{
         loginButton = new JButton("Login");
         loginButton.setBounds(180, 160, 90, 30);
         loginButton.setFocusable(false);
-        loginButton.setForeground(new Color(0xFFFFFF));
+        loginButton.setForeground(Color.white);
         loginButton.setBackground(new Color(0x08A045));
         
         loginButton.addActionListener(e -> attemptLogin());
@@ -88,6 +88,7 @@ public class StaffLogin extends JFrame{
             if (staffName != null) {
                 JOptionPane.showMessageDialog(this, 
                         "Welocome back, " + staffName);
+                System.out.println("StaffID [" + staffID + "] login successfully.");
                 FrameManager.showFrame(new StaffMenu());
                 this.dispose();
             } else {

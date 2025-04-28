@@ -3,63 +3,137 @@ package Staff;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import navigation.FrameManager;
 
 public class StaffMenu extends JFrame {
+    
+    private JPanel mainPanel, sidebar, contentPanel;
+    private JLabel pageTitle;
     
     public StaffMenu() {
         // Frame setup
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLocationRelativeTo(null);
         
-        // Main panel
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        // side bar
-        JPanel sidebar = new JPanel();
+        // Main panel with BorderLayout
+        mainPanel = new JPanel(new BorderLayout());
+        
+        // Create sidebar
+        sidebar = createSidebar();
+        mainPanel.add(sidebar, BorderLayout.WEST);
+        
+        // Create content area
+        contentPanel = new JPanel();
+        contentPanel.setBackground(Color.white);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        
+        // Set default content
+        showDefaultContent(contentPanel);
+        
+        this.add(mainPanel);
+        this.setVisible(true);
+    }
+    
+    private JPanel createSidebar() {
+        sidebar = new JPanel();
         sidebar.setPreferredSize(new Dimension(250, getHeight()));
         sidebar.setBackground(Color.black);
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         
         // Header
-        JLabel pageTitle = new JLabel("Staff Dashboard");
+        pageTitle = new JLabel("Staff Dashboard");
         pageTitle.setFont(new Font("Arial", Font.BOLD, 18));
         pageTitle.setForeground(new Color(0x2A74FF));
         pageTitle.setBorder(BorderFactory.createEmptyBorder(20, 20, 30, 20));
         sidebar.add(pageTitle);
         
         // Menu Items
-        String[] menuItems = {"Staff Management", "Salesman Management", "Customers Management", 
-            "Car Management", "Payment & Feedback Analysis", "Reports", "Back"};
+        String[] menuItems = {"Staff Management", "Salesman Management", "Customers Management", "Car Management", 
+        "Payment & Feedback Analysis", "Reports","End Program"};
+        
         for (String menuItem : menuItems) {
             JButton menuButton = new JButton(menuItem);
             styleMenuButton(menuButton);
             sidebar.add(menuButton);
-            
-            // Action
-            menuButton.addActionListener(e -> {
-                // Switch content based on button clicked
-                JPanel contentPanel = (JPanel) ((BorderLayout) getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
-                
-                // Simple content switching - replace with actual components
-                contentPanel.add(new JLabel(menuItem + " Content", SwingConstants.CENTER));
-                
-                contentPanel.revalidate();
-                contentPanel.repaint();
-            });
-            
-        sidebar.add(menuButton);
-
-        // content
-        JPanel contentPanel = new JPanel();
-        contentPanel.setBackground(Color.white);
-        contentPanel.add(new JLabel("Select a menu option", SwingConstants.CENTER));
-
-        // Add components to main panel
-        mainPanel.add(sidebar, BorderLayout.WEST);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-
-        this.add(mainPanel);
+            menuButton.addActionListener(e -> switchContent(menuItem));
         }
+        
+        sidebar.add(Box.createVerticalGlue()); 
+        JButton logoutBtn = new JButton("Logout");
+        styleMenuButton(logoutBtn);
+        logoutBtn.addActionListener(e -> {
+            FrameManager.goBack();
+            dispose();
+        });
+        sidebar.add(logoutBtn);
+        
+        return sidebar;
+    }
+    
+    private void switchContent(String menuItem) {
+        contentPanel.removeAll();
+        
+        switch(menuItem) {
+            case "Staff Management":
+                contentPanel.add(new JLabel("Staff Management Content", SwingConstants.CENTER));
+                break;
+            case "Salesman Management":
+                contentPanel.add(new JLabel("Salesman Management Content", SwingConstants.CENTER));
+                break;
+            case "Customers Management":
+                contentPanel.add(new JLabel("Customers Management Content", SwingConstants.CENTER));
+                break;
+            case "Car Management":
+                contentPanel.add(new JLabel("Car Management Content", SwingConstants.CENTER));
+                break;
+            case "Payment & Feedback Analysis":
+                contentPanel.add(new JLabel("Payment Analysis Content", SwingConstants.CENTER));
+                break;
+            case "Reports":
+                contentPanel.add(new JLabel("Reports Content", SwingConstants.CENTER));
+                break;
+            case "End Program":
+                String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
+                
+                if (exitPIN == null){
+                    break;
+                }
+                
+                try {
+                    boolean validation = checkExitPIN(exitPIN);
+                    if (validation) {
+                        int confirmation 
+                                = JOptionPane.showConfirmDialog(null,"Are you sure?",
+                                        "Confirmation",JOptionPane.YES_NO_OPTION);
+                        if (confirmation == 0) {
+                            System.exit(0);
+                        }
+                    } else if (!validation) {
+                        JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
+                    }
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this,
+                        "Error accessing records",
+                        "System Error",
+                        JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+                break;
+        }
+        
+        contentPanel.revalidate();
+        contentPanel.repaint();
+    }
+    
+    private void showDefaultContent(JPanel contentPanel) {
+        contentPanel.add(new JLabel("Select a menu option", SwingConstants.CENTER));
     }
     
     private void styleMenuButton(JButton button) {
@@ -81,5 +155,19 @@ public class StaffMenu extends JFrame {
                 button.setBackground(Color.black);
             }
         });
+    }
+    
+    private boolean checkExitPIN(String exitPIN) throws IOException{
+        String filePath = getClass().getResource("/resources/exitPIN.txt").getPath(); 
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
+            String savedExitPIN = reader.readLine();
+            if (savedExitPIN != null){
+                if (savedExitPIN.equals(exitPIN)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
