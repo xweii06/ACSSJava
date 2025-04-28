@@ -3,7 +3,6 @@ package Staff;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import navigation.FrameManager;
 
 public class StaffMenu extends JFrame {
     
@@ -29,8 +28,8 @@ public class StaffMenu extends JFrame {
         sidebar.add(pageTitle);
         
         // Menu Items
-        String[] menuItems = {"Staff Management", "Salesman Management", 
-            "Customers Management", "Car Management", "Payment & Feedback Analysis", "Reports"};
+        String[] menuItems = {"Staff Management", "Salesman Management", "Customers Management", 
+            "Car Management", "Payment & Feedback Analysis", "Reports", "Back"};
         for (String menuItem : menuItems) {
             JButton menuButton = new JButton(menuItem);
             styleMenuButton(menuButton);
@@ -59,7 +58,7 @@ public class StaffMenu extends JFrame {
         mainPanel.add(sidebar, BorderLayout.WEST);
         mainPanel.add(contentPanel, BorderLayout.CENTER);
 
-        add(mainPanel);
+        this.add(mainPanel);
         }
     }
     

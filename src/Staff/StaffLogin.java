@@ -13,8 +13,8 @@ public class StaffLogin extends JFrame{
     private JLabel instructionText, idLabel, pwLabel;
     private JTextField staffIDField;
     private JPasswordField staffPWField;
-    private int loginAttempts = 0;
-    private long lockoutEndTime = 0;    
+    private static int loginAttempts = 0;
+    private static long lockoutEndTime = 0;    
   
     public StaffLogin(){
         // Frame setup
