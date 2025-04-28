@@ -13,6 +13,7 @@ public class FrameManager {
         }
         frameStack.push(newFrame);
         newFrame.setVisible(true);
+        newFrame.setLocationRelativeTo(null);
     }
     
     public static void goBack() {
