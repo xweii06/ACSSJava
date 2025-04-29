@@ -89,7 +89,7 @@ public class StaffLogin extends JFrame{
                 JOptionPane.showMessageDialog(this, 
                         "Welocome back, " + staffName);
                 System.out.println("StaffID [" + staffID + "] login successfully.");
-                FrameManager.showFrame(new StaffMenu());
+                FrameManager.showFrame(new StaffMenu(staffName));
                 this.dispose();
             } else {
                 loginAttempts++;

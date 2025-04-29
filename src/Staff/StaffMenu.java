@@ -6,16 +6,14 @@ import java.awt.event.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import navigation.FrameManager;
 
 public class StaffMenu extends JFrame {
     
-    private JPanel mainPanel, sidebar, contentPanel;
-    private JLabel pageTitle;
+    private JPanel mainPanel, sidebar, contentPanel, subMenuPanel;
+    private JLabel pageTitle, instructionText;
     
-    public StaffMenu() {
+    public StaffMenu(String staffName) {
         // Frame setup
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
@@ -35,7 +33,7 @@ public class StaffMenu extends JFrame {
         mainPanel.add(contentPanel, BorderLayout.CENTER);
         
         // Set default content
-        showDefaultContent(contentPanel);
+        showDefaultContent(contentPanel,staffName);
         
         this.add(mainPanel);
         this.setVisible(true);
@@ -56,7 +54,7 @@ public class StaffMenu extends JFrame {
         
         // Menu Items
         String[] menuItems = {"Staff Management", "Salesman Management", "Customers Management", "Car Management", 
-        "Payment & Feedback Analysis", "Reports","End Program"};
+        "Payment & Feedback Analysis", "Reports", "End Program"};
         
         for (String menuItem : menuItems) {
             JButton menuButton = new JButton(menuItem);
@@ -73,16 +71,23 @@ public class StaffMenu extends JFrame {
             dispose();
         });
         sidebar.add(logoutBtn);
-        
         return sidebar;
     }
     
     private void switchContent(String menuItem) {
         contentPanel.removeAll();
+        contentPanel.setLayout(new BorderLayout());
+        
+        subMenuPanel = new JPanel(new GridLayout(0,1,0,10));
+        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
         
         switch(menuItem) {
+            
             case "Staff Management":
-                contentPanel.add(new JLabel("Staff Management Content", SwingConstants.CENTER));
+                addSubMenuButton(subMenuPanel, "Add New Staff"); // +
+                addSubMenuButton(subMenuPanel, "Delete Staff"); // X
+                addSubMenuButton(subMenuPanel, "Search Staff"); // magnifying glass
+                addSubMenuButton(subMenuPanel, "Update Staff"); // idk
                 break;
             case "Salesman Management":
                 contentPanel.add(new JLabel("Salesman Management Content", SwingConstants.CENTER));
@@ -102,40 +107,52 @@ public class StaffMenu extends JFrame {
             case "End Program":
                 String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
                 
-                if (exitPIN == null){
-                    break;
-                }
-                
-                try {
-                    boolean validation = checkExitPIN(exitPIN);
-                    if (validation) {
-                        int confirmation 
-                                = JOptionPane.showConfirmDialog(null,"Are you sure?",
-                                        "Confirmation",JOptionPane.YES_NO_OPTION);
-                        if (confirmation == 0) {
-                            System.exit(0);
+                if (exitPIN != null){
+                    try {
+                        boolean validation = checkExitPIN(exitPIN);
+                        if (validation) {
+                            int confirmation 
+                                    = JOptionPane.showConfirmDialog(null,"Are you sure?",
+                                            "Confirmation",JOptionPane.YES_NO_OPTION);
+                            if (confirmation == 0) {
+                                System.exit(0);
+                            }
+                        } else if (!validation) {
+                            JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
                         }
-                    } else if (!validation) {
-                        JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(this,
+                            "Error accessing records",
+                            "System Error",
+                            JOptionPane.ERROR_MESSAGE);
+                        ex.printStackTrace();
                     }
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this,
-                        "Error accessing records",
-                        "System Error",
-                        JOptionPane.ERROR_MESSAGE);
-                    ex.printStackTrace();
                 }
                 break;
         }
         
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        centerPanel.add(subMenuPanel);
+        contentPanel.add(centerPanel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
     }
     
-    private void showDefaultContent(JPanel contentPanel) {
-        contentPanel.add(new JLabel("Select a menu option", SwingConstants.CENTER));
+    private void showDefaultContent(JPanel contentPanel, String staffName) {
+        contentPanel.removeAll();
+        contentPanel.setLayout(new BorderLayout());
+
+        JLabel instructionText = new JLabel(
+                "Welcome back " + staffName +"! Please select a menu option", 
+                SwingConstants.CENTER);
+        instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
+        instructionText.setForeground(new Color(150,150,150));
+        
+        contentPanel.add(instructionText, BorderLayout.CENTER);
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
-    
+
     private void styleMenuButton(JButton button) {
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setMaximumSize(new Dimension(250, 50));
@@ -155,6 +172,14 @@ public class StaffMenu extends JFrame {
                 button.setBackground(Color.black);
             }
         });
+    }
+    
+    private void addSubMenuButton(JPanel panel, String text) {
+        JButton button = new JButton(text);
+        button.setPreferredSize(new Dimension(200, 40));
+        button.setFont(new Font("Arial", Font.PLAIN, 14));
+        //button.addActionListener(action);
+        panel.add(button);
     }
     
     private boolean checkExitPIN(String exitPIN) throws IOException{
