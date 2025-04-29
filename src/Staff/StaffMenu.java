@@ -3,15 +3,14 @@ package Staff;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import navigation.FrameManager;
 
 public class StaffMenu extends JFrame {
     
     private JPanel mainPanel, sidebar, contentPanel, subMenuPanel;
     private JLabel pageTitle, instructionText;
+    private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
         // Frame setup
@@ -78,8 +77,30 @@ public class StaffMenu extends JFrame {
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
-        subMenuPanel = new JPanel(new GridLayout(0,1,0,10));
-        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        titlePanel.setBackground(new Color(240, 240, 240));
+
+        JLabel titleLabel = new JLabel(menuItem);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setForeground(new Color(0x2A74FF));
+
+        JSeparator divider = new JSeparator();
+        divider.setForeground(new Color(200, 200, 200));
+
+        titlePanel.add(titleLabel, BorderLayout.CENTER);
+        titlePanel.add(divider, BorderLayout.SOUTH);
+
+        contentPanel.add(titlePanel, BorderLayout.NORTH);
+
+        // Create sub-menu panel with card-like buttons
+        JPanel subMenuPanel = new JPanel();
+        subMenuPanel.setLayout(new BoxLayout(subMenuPanel, BoxLayout.Y_AXIS));
+        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Add some vertical spacing
+        subMenuPanel.add(Box.createVerticalStrut(10));
+        
         
         switch(menuItem) {
             
@@ -158,19 +179,20 @@ public class StaffMenu extends JFrame {
         button.setMaximumSize(new Dimension(250, 50));
         button.setPreferredSize(new Dimension(250, 50));
         button.setBackground(Color.black);
-        button.setForeground(Color.white);
+        button.setForeground(Color.white)   ;
         button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setFocusPainted(false);
         
-        // Hover effects
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(new Color(30, 30, 40));
+        button.addActionListener(e -> {
+        if (currentlySelectedButton != null) {
+            currentlySelectedButton.setBackground(Color.black);
+            currentlySelectedButton.setForeground(Color.white);
             }
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(Color.black);
-            }
+            button.setBackground(Color.white); // Your blue color
+            button.setForeground(Color.black);
+
+            currentlySelectedButton = button;
         });
     }
     
