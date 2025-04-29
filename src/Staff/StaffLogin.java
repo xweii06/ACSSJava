@@ -13,6 +13,7 @@ public class StaffLogin extends JFrame{
     private JLabel instructionText, idLabel, pwLabel;
     private JTextField staffIDField;
     private JPasswordField staffPWField;
+    private JCheckBox showPW;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
   
@@ -25,29 +26,35 @@ public class StaffLogin extends JFrame{
         this.setResizable(false);
         
         instructionText = new JLabel("Enter your StaffID and StaffPW");
-        instructionText.setBounds(50, 30, 400, 20);
+        instructionText.setBounds(50, 20, 400, 20);
         instructionText.setFont(new Font("Arial", Font.BOLD, 14)); // font can change
         instructionText.setHorizontalAlignment(JLabel.CENTER); 
         
         // Staff ID Label
         idLabel = new JLabel("Staff ID:");
-        idLabel.setBounds(100, 80, 100, 20);
+        idLabel.setBounds(100, 60, 100, 20);
         idLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Staff ID Text Field
         staffIDField = new JTextField();
-        staffIDField.setBounds(200, 80, 200, 25);
+        staffIDField.setBounds(200, 60, 200, 25);
         staffIDField.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Password Label
         pwLabel = new JLabel("Password:");
-        pwLabel.setBounds(100, 120, 100, 20);
+        pwLabel.setBounds(100, 100, 100, 20);
         pwLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Password Field
         staffPWField = new JPasswordField();
-        staffPWField.setBounds(200, 120, 200, 25);
+        staffPWField.setBounds(200, 100, 200, 25);
         staffPWField.setFont(new Font("Arial", Font.PLAIN, 14));
+        
+        showPW = new JCheckBox("Show Password");
+        showPW.setBounds(200,125,150,20);
+        showPW.setFont(new Font("Arial", Font.PLAIN, 12));
+        showPW.setFocusPainted(false);
+        showPW.addActionListener(e -> passwordVisibility());
         
         loginButton = new JButton("Login");
         loginButton.setBounds(180, 160, 90, 30);
@@ -62,9 +69,18 @@ public class StaffLogin extends JFrame{
         this.add(staffIDField);
         this.add(pwLabel);
         this.add(staffPWField);
+        this.add(showPW);
         this.add(loginButton);
         MainMenuButton.addToFrame(this);
         this.setVisible(true);
+    }
+    
+    private void passwordVisibility() {
+        if (showPW.isSelected()) {
+            staffPWField.setEchoChar((char)0);
+        } else {
+            staffPWField.setEchoChar('•'); 
+        }
     }
     
     private void attemptLogin() {
