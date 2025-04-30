@@ -4,12 +4,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import javax.swing.border.Border;
 import navigation.FrameManager;
+import utils.*;
 
 public class StaffMenu extends JFrame {
     
+    private static final String EXITPIN_FILE = "/resources/exitPIN.txt";
+    private static final String ADDUSER_PNG = "add_user.png";
+    private static final String DELUSER_PNG = "del_user.png";
+    private static final String SEARCHUSER_PNG = "user_search.png";
+    private static final String UPDATEUSER_PNG = "user_edit.png";
+    
+    
     private JPanel mainPanel, sidebar, contentPanel, subMenuPanel;
-    private JLabel pageTitle, instructionText;
+    private JLabel pageTitle;
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
@@ -78,52 +87,43 @@ public class StaffMenu extends JFrame {
         contentPanel.setLayout(new BorderLayout());
         
         JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
-        titlePanel.setBackground(new Color(240, 240, 240));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
+        titlePanel.setBackground(Color.lightGray);
 
         JLabel titleLabel = new JLabel(menuItem);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setForeground(new Color(0x2A74FF));
-
-        JSeparator divider = new JSeparator();
-        divider.setForeground(new Color(200, 200, 200));
+        titleLabel.setFont(new Font("MV Boli", Font.BOLD, 30));
+        titleLabel.setForeground(Color.black);
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
 
         titlePanel.add(titleLabel, BorderLayout.CENTER);
-        titlePanel.add(divider, BorderLayout.SOUTH);
-
         contentPanel.add(titlePanel, BorderLayout.NORTH);
-
-        // Create sub-menu panel with card-like buttons
-        JPanel subMenuPanel = new JPanel();
-        subMenuPanel.setLayout(new BoxLayout(subMenuPanel, BoxLayout.Y_AXIS));
-        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        // Add some vertical spacing
-        subMenuPanel.add(Box.createVerticalStrut(10));
         
+        JPanel subMenuPanel = new JPanel();
+        subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
+        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 15, 20));
+        subMenuPanel.setBackground(Color.white);
         
         switch(menuItem) {
-            
             case "Staff Management":
-                addSubMenuButton(subMenuPanel, "Add New Staff"); // +
-                addSubMenuButton(subMenuPanel, "Delete Staff"); // X
-                addSubMenuButton(subMenuPanel, "Search Staff"); // magnifying glass
-                addSubMenuButton(subMenuPanel, "Update Staff"); // idk
+                addSubMenuButton(subMenuPanel, "Add New Staff",DataIO.loadIcon(ADDUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete Staff",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search Staff",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update Staff Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Salesman Management":
-                contentPanel.add(new JLabel("Salesman Management Content", SwingConstants.CENTER));
+                contentPanel.add(new JLabel("Salesman Management Content", JLabel.CENTER));
                 break;
             case "Customers Management":
-                contentPanel.add(new JLabel("Customers Management Content", SwingConstants.CENTER));
+                contentPanel.add(new JLabel("Customers Management Content", JLabel.CENTER));
                 break;
             case "Car Management":
-                contentPanel.add(new JLabel("Car Management Content", SwingConstants.CENTER));
+                contentPanel.add(new JLabel("Car Management Content", JLabel.CENTER));
                 break;
             case "Payment & Feedback Analysis":
-                contentPanel.add(new JLabel("Payment Analysis Content", SwingConstants.CENTER));
+                contentPanel.add(new JLabel("Payment Analysis Content", JLabel.CENTER));
                 break;
             case "Reports":
-                contentPanel.add(new JLabel("Reports Content", SwingConstants.CENTER));
+                contentPanel.add(new JLabel("Reports Content", JLabel.CENTER));
                 break;
             case "End Program":
                 String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
@@ -152,9 +152,11 @@ public class StaffMenu extends JFrame {
                 break;
         }
         
-        JPanel centerPanel = new JPanel(new GridBagLayout());
-        centerPanel.add(subMenuPanel);
-        contentPanel.add(centerPanel, BorderLayout.CENTER);
+        JPanel wrapperPanel = new JPanel(new GridBagLayout());
+        wrapperPanel.setBackground(Color.white);
+        wrapperPanel.add(subMenuPanel);
+
+        contentPanel.add(wrapperPanel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
     }
@@ -165,7 +167,7 @@ public class StaffMenu extends JFrame {
 
         JLabel instructionText = new JLabel(
                 "Welcome back " + staffName +"! Please select a menu option", 
-                SwingConstants.CENTER);
+                JLabel.CENTER);
         instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
         instructionText.setForeground(new Color(150,150,150));
         
@@ -181,7 +183,7 @@ public class StaffMenu extends JFrame {
         button.setBackground(Color.black);
         button.setForeground(Color.white)   ;
         button.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setHorizontalAlignment(JLabel.LEFT);
         button.setFocusPainted(false);
         
         button.addActionListener(e -> {
@@ -196,25 +198,52 @@ public class StaffMenu extends JFrame {
         });
     }
     
-    private void addSubMenuButton(JPanel panel, String text) {
-        JButton button = new JButton(text);
-        button.setPreferredSize(new Dimension(200, 40));
-        button.setFont(new Font("Arial", Font.PLAIN, 14));
+    private void addSubMenuButton(JPanel panel, String text, ImageIcon icon) {
+        JButton button = new JButton();
+        button.setText(text);
+        button.setIcon(icon);
+        
+        button.setVerticalTextPosition(JLabel.BOTTOM);
+        button.setHorizontalTextPosition(JLabel.CENTER);
+        
+        button.setFont(new Font("Arial", Font.BOLD, 14));
+        button.setPreferredSize(new Dimension(120, 500));
+        
+        button.setOpaque(false);
+        button.setContentAreaFilled(false);
+        button.setFocusPainted(false);
+        
+        Border btnBorder = BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(Color.black),
+            BorderFactory.createEmptyBorder(120,20,120,20));
+        button.setBorder(btnBorder);
+        
+        // Hover effects
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setContentAreaFilled(true);
+                button.setBackground(new Color(230, 240, 255));
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setContentAreaFilled(false);
+            }
+        });
+        
+        button.setIconTextGap(10); 
+        
         //button.addActionListener(action);
         panel.add(button);
     }
     
     private boolean checkExitPIN(String exitPIN) throws IOException{
-        String filePath = getClass().getResource("/resources/exitPIN.txt").getPath(); 
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
-            String savedExitPIN = reader.readLine();
+        String savedExitPIN = DataIO.readFile(EXITPIN_FILE);
             if (savedExitPIN != null){
                 if (savedExitPIN.equals(exitPIN)){
                     return true;
                 }
             }
-        }
         return false;
     }
 }

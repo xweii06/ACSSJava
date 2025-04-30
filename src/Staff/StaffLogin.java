@@ -1,13 +1,14 @@
 package Staff;
 
 import java.awt.*;
-import java.io.*;
 import java.util.Arrays;
 import javax.swing.*;
 import navigation.FrameManager;
 import utils.*;
 
 public class StaffLogin extends JFrame{
+    
+    private static final String STAFF_FILE = "/resources/staff.txt";
     
     private JButton loginButton;
     private JLabel instructionText, idLabel, pwLabel;
@@ -99,57 +100,49 @@ public class StaffLogin extends JFrame{
             return;
         }
         
-        try {
-            String staffName = validate(staffID, staffPW);
-            if (staffName != null) {
-                JOptionPane.showMessageDialog(this, 
-                        "Welocome back, " + staffName);
-                System.out.println("StaffID [" + staffID + "] login successfully.");
-                FrameManager.showFrame(new StaffMenu(staffName));
-                this.dispose();
+        String staffName = validate(staffID, staffPW);
+        if (staffName != null) {
+            JOptionPane.showMessageDialog(this, 
+                    "Welcome back, " + staffName);
+            System.out.println("StaffID [" + staffID + "] login successfully.");
+            FrameManager.showFrame(new StaffMenu(staffName));
+            this.dispose();
+        } else {
+            loginAttempts++;
+            if (loginAttempts >= 3) {
+                lockoutEndTime = currentTime + (5 * 60 * 1000); 
+                System.out.println("StaffID [" + staffID + "] locked out for 5 minutes.");
+                JOptionPane.showMessageDialog(this,
+                    "Too many failed attempts. Locked for 5 minutes.",
+                    "Locked Out",
+                    JOptionPane.ERROR_MESSAGE);
             } else {
-                loginAttempts++;
-                if (loginAttempts >= 3) {
-                    lockoutEndTime = currentTime + (5 * 60 * 1000); 
-                    System.out.println("StaffID [" + staffID + "] locked out for 5 minutes.");
-                    JOptionPane.showMessageDialog(this,
-                        "Too many failed attempts. Locked for 5 minutes.",
-                        "Locked Out",
-                        JOptionPane.ERROR_MESSAGE);
-                } else {
-                    JOptionPane.showMessageDialog(this, 
-                        "Invalid Staff ID or Password.",
-                        "Login Failed",
-                        JOptionPane.ERROR_MESSAGE);
-                }
+                JOptionPane.showMessageDialog(this, 
+                    "Invalid Staff ID or Password.",
+                    "Login Failed",
+                    JOptionPane.ERROR_MESSAGE);
             }
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this,
-                "Error accessing staff records",
-                "System Error",
-                JOptionPane.ERROR_MESSAGE);
-            ex.printStackTrace();
-        } finally {
-            Arrays.fill(staffPW, '0');
-            staffPWField.setText("");
         }
+        Arrays.fill(staffPW, '0');
+        staffPWField.setText("");
     }
     
-    private String validate(String staffID, char[] staffPW) throws IOException {
-        String filePath = getClass().getResource("/resources/staff.txt").getPath();
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))){
-            String line;
-            while ((line = reader.readLine()) != null) {
+    private String validate(String staffID, char[] staffPW) {
+        String staffData = DataIO.readFile(STAFF_FILE);
+
+        if (staffData != null) {
+            String[] lines = staffData.split("\n");
+            for (String line : lines) {
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
-                    String savedStaffID = parts[0].trim();
-                    String savedStaffPW = parts[1].trim();
+                    String savedID = parts[0].trim();
+                    String savedPW = parts[1].trim();
                     String staffName = parts[2].trim();
                     
-                    if (savedStaffID.equals(staffID) && 
-                        savedStaffPW.equals(new String(staffPW))) {
-                        return staffName;   
+                    if (savedID.equals(staffID)) {
+                        if (savedPW.equals(new String(staffPW))) {
+                            return staffName; // Login successful!
+                        }
                     }
                 }
             }
