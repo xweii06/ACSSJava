@@ -14,11 +14,15 @@ public class StaffMenu extends JFrame {
     private static final String ADDUSER_PNG = "add_user.png";
     private static final String DELUSER_PNG = "del_user.png";
     private static final String SEARCHUSER_PNG = "user_search.png";
-    private static final String UPDATEUSER_PNG = "user_edit.png";
+    private static final String UPDATEUSER_PNG = "edit_user.png";
+    private static final String APPROVEUSER_PNG = "approve_user.png";
+    private static final String ADDCAR_PNG = "add_car.png";
+    private static final String DELCAR_PNG = "del_car.png";
+    private static final String UPDATECAR_PNG = "edit_car.png";
+    private static final String SEARCHCAR_PNG = "search_car.png";
     
-    
-    private JPanel mainPanel, sidebar, contentPanel, subMenuPanel;
-    private JLabel pageTitle;
+    private JPanel mainPanel, sidebar, contentPanel, subMenuPanel, welcomePanel;
+    private JLabel pageTitle, welcomeText, instructionText;
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
@@ -27,6 +31,7 @@ public class StaffMenu extends JFrame {
         this.setSize(1000, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
+        this.setResizable(false);
         
         // Main panel with BorderLayout
         mainPanel = new JPanel(new BorderLayout());
@@ -105,19 +110,28 @@ public class StaffMenu extends JFrame {
         
         switch(menuItem) {
             case "Staff Management":
-                addSubMenuButton(subMenuPanel, "Add New Staff",DataIO.loadIcon(ADDUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete Staff",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search Staff",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update Staff Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Salesman Management":
-                contentPanel.add(new JLabel("Salesman Management Content", JLabel.CENTER));
+                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Customers Management":
-                contentPanel.add(new JLabel("Customers Management Content", JLabel.CENTER));
+                addSubMenuButton(subMenuPanel, "Approve",DataIO.loadIcon(APPROVEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Car Management":
-                contentPanel.add(new JLabel("Car Management Content", JLabel.CENTER));
+                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATECAR_PNG));
                 break;
             case "Payment & Feedback Analysis":
                 contentPanel.add(new JLabel("Payment Analysis Content", JLabel.CENTER));
@@ -164,14 +178,21 @@ public class StaffMenu extends JFrame {
     private void showDefaultContent(JPanel contentPanel, String staffName) {
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
-
-        JLabel instructionText = new JLabel(
-                "Welcome back " + staffName +"! Please select a menu option", 
-                JLabel.CENTER);
+        
+        welcomePanel = new JPanel(new GridLayout(6,1));
+        welcomePanel.setBorder(BorderFactory.createEmptyBorder(200,10,100,10));
+        
+        welcomeText = new JLabel("Welcome "+ staffName+ "! \\(@^0^@)/",JLabel.CENTER);
+        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
+        welcomeText.setForeground(new Color(150,150,150));
+        
+        instructionText = new JLabel("-Please select a menu option-",JLabel.CENTER);
         instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
         instructionText.setForeground(new Color(150,150,150));
         
-        contentPanel.add(instructionText, BorderLayout.CENTER);
+        welcomePanel.add(welcomeText);
+        welcomePanel.add(instructionText);
+        contentPanel.add(welcomePanel);
         contentPanel.revalidate();
         contentPanel.repaint();
     }
@@ -207,7 +228,7 @@ public class StaffMenu extends JFrame {
         button.setHorizontalTextPosition(JLabel.CENTER);
         
         button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setPreferredSize(new Dimension(120, 500));
+        button.setPreferredSize(new Dimension(120, 400));
         
         button.setOpaque(false);
         button.setContentAreaFilled(false);
@@ -215,7 +236,7 @@ public class StaffMenu extends JFrame {
         
         Border btnBorder = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.black),
-            BorderFactory.createEmptyBorder(120,20,120,20));
+            BorderFactory.createEmptyBorder(100,40,100,40));
         button.setBorder(btnBorder);
         
         // Hover effects

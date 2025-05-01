@@ -12,8 +12,8 @@ public class StaffLogin extends JFrame{
     
     private JButton loginButton;
     private JLabel instructionText, idLabel, pwLabel;
-    private JTextField staffIDField;
-    private JPasswordField staffPWField;
+    private JTextField idField;
+    private JPasswordField pwField;
     private JCheckBox showPW;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
@@ -37,9 +37,9 @@ public class StaffLogin extends JFrame{
         idLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Staff ID Text Field
-        staffIDField = new JTextField();
-        staffIDField.setBounds(200, 60, 200, 25);
-        staffIDField.setFont(new Font("Arial", Font.PLAIN, 14));
+        idField = new JTextField();
+        idField.setBounds(200, 60, 200, 25);
+        idField.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Password Label
         pwLabel = new JLabel("Password:");
@@ -47,9 +47,9 @@ public class StaffLogin extends JFrame{
         pwLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
         // Password Field
-        staffPWField = new JPasswordField();
-        staffPWField.setBounds(200, 100, 200, 25);
-        staffPWField.setFont(new Font("Arial", Font.PLAIN, 14));
+        pwField = new JPasswordField();
+        pwField.setBounds(200, 100, 200, 25);
+        pwField.setFont(new Font("Arial", Font.PLAIN, 14));
         
         showPW = new JCheckBox("Show Password");
         showPW.setBounds(200,125,150,20);
@@ -67,9 +67,9 @@ public class StaffLogin extends JFrame{
         
         this.add(instructionText);
         this.add(idLabel);
-        this.add(staffIDField);
+        this.add(idField);
         this.add(pwLabel);
-        this.add(staffPWField);
+        this.add(pwField);
         this.add(showPW);
         this.add(loginButton);
         MainMenuButton.addToFrame(this);
@@ -78,15 +78,15 @@ public class StaffLogin extends JFrame{
     
     private void passwordVisibility() {
         if (showPW.isSelected()) {
-            staffPWField.setEchoChar((char)0);
+            pwField.setEchoChar((char)0);
         } else {
-            staffPWField.setEchoChar('•'); 
+            pwField.setEchoChar('•'); 
         }
     }
     
     private void attemptLogin() {
-        String staffID = staffIDField.getText().trim().toUpperCase();
-        char[] staffPW = staffPWField.getPassword();
+        String staffID = idField.getText().trim().toUpperCase();
+        char[] staffPW = pwField.getPassword();
         
         long currentTime = System.currentTimeMillis();
     
@@ -96,7 +96,7 @@ public class StaffLogin extends JFrame{
                 "Locked Out",
                 JOptionPane.WARNING_MESSAGE);
             Arrays.fill(staffPW, '0');
-            staffPWField.setText("");
+            pwField.setText("");
             return;
         }
         
@@ -124,7 +124,7 @@ public class StaffLogin extends JFrame{
             }
         }
         Arrays.fill(staffPW, '0');
-        staffPWField.setText("");
+        pwField.setText("");
     }
     
     private String validate(String staffID, char[] staffPW) {
@@ -136,11 +136,11 @@ public class StaffLogin extends JFrame{
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
                     String savedID = parts[0].trim();
-                    String savedPW = parts[1].trim();
+                    String savedpw = parts[1].trim();
                     String staffName = parts[2].trim();
                     
                     if (savedID.equals(staffID)) {
-                        if (savedPW.equals(new String(staffPW))) {
+                        if (savedpw.equals(new String(staffPW))) {
                             return staffName; // Login successful!
                         }
                     }
