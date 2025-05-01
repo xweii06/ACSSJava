@@ -1,4 +1,4 @@
-package Customer;
+package Customer; //Customer.java is the data — it stores customer information like name, email, password, etc.: Think of it like a form or profile card.
 
 import java.io.Serializable;
 

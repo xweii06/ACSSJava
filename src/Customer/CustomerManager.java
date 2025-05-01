@@ -1,4 +1,4 @@
-package Customer;
+package Customer; //CustomerManager.java is the logic — it handles loading, saving, registering, and logging in.: Think of it like a manager or helper behind the scenes.
 
 import java.io.*;
 import java.util.*;
