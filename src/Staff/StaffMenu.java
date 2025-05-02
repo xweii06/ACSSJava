@@ -105,39 +105,45 @@ public class StaffMenu extends JFrame {
         
         JPanel subMenuPanel = new JPanel();
         subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
-        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 15, 20));
+        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 15, 10));
         subMenuPanel.setBackground(Color.white);
         
         switch(menuItem) {
             case "Staff Management":
-                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Salesman Management":
-                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Customers Management":
-                addSubMenuButton(subMenuPanel, "Approve",DataIO.loadIcon(APPROVEUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Approve User",DataIO.loadIcon(APPROVEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
                 break;
             case "Car Management":
-                addSubMenuButton(subMenuPanel, "Add New",DataIO.loadIcon(ADDCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Delete",DataIO.loadIcon(DELCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Search",DataIO.loadIcon(SEARCHCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Update Info",DataIO.loadIcon(UPDATECAR_PNG));
+                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Delete Car",DataIO.loadIcon(DELCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Search Car",DataIO.loadIcon(SEARCHCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Update Car Info",DataIO.loadIcon(UPDATECAR_PNG));
                 break;
             case "Payment & Feedback Analysis":
-                contentPanel.add(new JLabel("Payment Analysis Content", JLabel.CENTER));
+                addSubMenuButton(subMenuPanel, "Payment Records",DataIO.loadIcon(ADDCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Pending Payments",DataIO.loadIcon(DELCAR_PNG));
+                addSubMenuButton(subMenuPanel, "User Feedback",DataIO.loadIcon(SEARCHCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Rating Analysis",DataIO.loadIcon(UPDATECAR_PNG));
                 break;
             case "Reports":
-                contentPanel.add(new JLabel("Reports Content", JLabel.CENTER));
+                addSubMenuButton(subMenuPanel, "Sales Records",DataIO.loadIcon(ADDCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Sales Analysis",DataIO.loadIcon(DELCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Sales by Salesman",DataIO.loadIcon(SEARCHCAR_PNG));
+                addSubMenuButton(subMenuPanel, "Revenue Analysis",DataIO.loadIcon(UPDATECAR_PNG));
                 break;
             case "End Program":
                 String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
@@ -227,8 +233,10 @@ public class StaffMenu extends JFrame {
         button.setVerticalTextPosition(JLabel.BOTTOM);
         button.setHorizontalTextPosition(JLabel.CENTER);
         
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setPreferredSize(new Dimension(120, 400));
+        button.setFont(new Font("Arial Narrow", Font.BOLD, 14));
+        button.setPreferredSize(new Dimension(160, 350));
+        button.setMaximumSize(new Dimension(160, 350));
+        button.setMinimumSize(new Dimension(160, 350));
         
         button.setOpaque(false);
         button.setContentAreaFilled(false);
@@ -236,10 +244,10 @@ public class StaffMenu extends JFrame {
         
         Border btnBorder = BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.black),
-            BorderFactory.createEmptyBorder(100,40,100,40));
+            BorderFactory.createEmptyBorder(100,20,100,20));
         button.setBorder(btnBorder);
+        button.setIconTextGap(10); 
         
-        // Hover effects
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -251,8 +259,6 @@ public class StaffMenu extends JFrame {
                 button.setContentAreaFilled(false);
             }
         });
-        
-        button.setIconTextGap(10); 
         
         //button.addActionListener(action);
         panel.add(button);

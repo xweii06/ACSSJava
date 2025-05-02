@@ -25,6 +25,16 @@ public class DataIO {
         }
     }
     
+    // for addding records
+    public static void appendToFile(String filename, String data) throws IOException {
+        String filePath = "src/main/resources/" + filename; // Path for writing
+        try (FileWriter fw = new FileWriter(filePath, true);
+             BufferedWriter writer = new BufferedWriter(fw)) {
+            writer.write(data);
+            writer.newLine();
+        }
+    }
+    
     // for icons
     public static ImageIcon loadIcon(String filename) {
         try {

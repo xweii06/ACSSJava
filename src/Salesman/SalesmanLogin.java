@@ -153,5 +153,3 @@ public class SalesmanLogin extends JFrame {
         }
     }
 }
-
-//
