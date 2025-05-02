@@ -8,7 +8,7 @@ import utils.*;
 
 public class StaffLogin extends JFrame{
     
-    private static final String STAFF_FILE = "/resources/staff.txt";
+    private static final String STAFF_FILE = "staff.txt";
     
     private JButton loginButton;
     private JLabel instructionText, idLabel, pwLabel;

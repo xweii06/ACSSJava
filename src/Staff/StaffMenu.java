@@ -10,7 +10,8 @@ import utils.*;
 
 public class StaffMenu extends JFrame {
     
-    private static final String EXITPIN_FILE = "/resources/exitPIN.txt";
+    private static final String EXITPIN_FILE = "exitPIN.txt";
+    
     private static final String ADDUSER_PNG = "add_user.png";
     private static final String DELUSER_PNG = "del_user.png";
     private static final String SEARCHUSER_PNG = "user_search.png";
