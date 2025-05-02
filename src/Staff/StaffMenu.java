@@ -1,26 +1,21 @@
 package Staff;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import javax.swing.*;
 import javax.swing.border.Border;
 import navigation.FrameManager;
 import utils.*;
 
 public class StaffMenu extends JFrame {
     
-    private static final String EXITPIN_FILE = "exitPIN.txt";
+    private static final String EXITPIN_FILE = "/data/exitPIN.txt";
     
-    private static final String ADDUSER_PNG = "add_user.png";
-    private static final String DELUSER_PNG = "del_user.png";
-    private static final String SEARCHUSER_PNG = "user_search.png";
-    private static final String UPDATEUSER_PNG = "edit_user.png";
-    private static final String APPROVEUSER_PNG = "approve_user.png";
-    private static final String ADDCAR_PNG = "add_car.png";
-    private static final String DELCAR_PNG = "del_car.png";
-    private static final String UPDATECAR_PNG = "edit_car.png";
-    private static final String SEARCHCAR_PNG = "search_car.png";
+    private static final String ADDUSER_PNG = "add_user.png", DELUSER_PNG = "del_user.png",
+            SEARCHUSER_PNG = "user_search.png", UPDATEUSER_PNG = "edit_user.png", 
+            APPROVEUSER_PNG = "approve_user.png", ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
+            UPDATECAR_PNG = "edit_car.png", SEARCHCAR_PNG = "search_car.png";
     
     private JPanel mainPanel, sidebar, contentPanel, subMenuPanel, welcomePanel;
     private JLabel pageTitle, welcomeText, instructionText;
@@ -111,40 +106,35 @@ public class StaffMenu extends JFrame {
         
         switch(menuItem) {
             case "Staff Management":
-                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
-                break;
             case "Salesman Management":
-                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG),StaffActions.addAction(menuItem));
+                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
             case "Customers Management":
-                addSubMenuButton(subMenuPanel, "Approve User",DataIO.loadIcon(APPROVEUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG));
-                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG));
+                addSubMenuButton(subMenuPanel, "Approve User",DataIO.loadIcon(APPROVEUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
             case "Car Management":
-                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Delete Car",DataIO.loadIcon(DELCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Search Car",DataIO.loadIcon(SEARCHCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Update Car Info",DataIO.loadIcon(UPDATECAR_PNG));
+                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Delete Car",DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search Car",DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update Car Info",DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "Payment & Feedback Analysis":
-                addSubMenuButton(subMenuPanel, "Payment Records",DataIO.loadIcon(ADDCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Pending Payments",DataIO.loadIcon(DELCAR_PNG));
-                addSubMenuButton(subMenuPanel, "User Feedback",DataIO.loadIcon(SEARCHCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Rating Analysis",DataIO.loadIcon(UPDATECAR_PNG));
+                addSubMenuButton(subMenuPanel, "Payment Records",DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Pending Payments",DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "User Feedback",DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Rating Analysis",DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "Reports":
-                addSubMenuButton(subMenuPanel, "Sales Records",DataIO.loadIcon(ADDCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Sales Analysis",DataIO.loadIcon(DELCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Sales by Salesman",DataIO.loadIcon(SEARCHCAR_PNG));
-                addSubMenuButton(subMenuPanel, "Revenue Analysis",DataIO.loadIcon(UPDATECAR_PNG));
+                addSubMenuButton(subMenuPanel, "Sales Records",DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Sales Analysis",DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Sales by Salesman",DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Revenue Analysis",DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "End Program":
                 String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
@@ -226,9 +216,8 @@ public class StaffMenu extends JFrame {
         });
     }
     
-    private void addSubMenuButton(JPanel panel, String text, ImageIcon icon) {
-        JButton button = new JButton();
-        button.setText(text);
+    private void addSubMenuButton(JPanel panel, String text, ImageIcon icon, ActionListener action) {
+        JButton button = new JButton(text);
         button.setIcon(icon);
         
         button.setVerticalTextPosition(JLabel.BOTTOM);
@@ -261,7 +250,7 @@ public class StaffMenu extends JFrame {
             }
         });
         
-        //button.addActionListener(action);
+        button.addActionListener(action);
         panel.add(button);
     }
     

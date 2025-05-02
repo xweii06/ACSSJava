@@ -8,17 +8,20 @@ import javax.swing.*;
 public class DataIO {
     
     // for reading files
-    public static String readFile(String filePath) {
+    public static String readFile(String filename) {
         String content = "";
-        Path path = Paths.get("data", filePath);
+        Path filePath = Paths.get("data", filename);
         
-        try (BufferedReader reader = Files.newBufferedReader(path)) {
+        try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             String line;
             while ((line = reader.readLine()) != null) {
                 content += line + "\n";
             }
             return content.trim();
-        } catch (Exception ex) {
+        } catch (FileNotFoundException ex) {
+            System.out.println( filePath + " not found: " + ex.getMessage());
+            return null;
+        } catch (IOException ex) {
             System.out.println("Error reading " + filePath + ": " + ex.getMessage());
             return null;
         }
@@ -26,11 +29,16 @@ public class DataIO {
     
     // for adding records
     public static void appendToFile(String filename, String data) throws IOException {
-        String filePath = "src/main/resources/" + filename;
-        try (FileWriter fw = new FileWriter(filePath, true);
-             BufferedWriter writer = new BufferedWriter(fw)) {
-            writer.write(data);
-            writer.newLine();
+        Path filePath = Paths.get("data", filename);
+        if (Files.notExists(filePath.getParent())) {
+            Files.createDirectories(filePath.getParent());
+        }
+
+        try (PrintWriter writer = new PrintWriter(
+                new FileWriter(filePath.toFile(), true))) {
+            writer.println(data);
+        } catch (IOException ex) {
+            System.out.println("Error reading " + filePath + ": " + ex.getMessage());
         }
     }
     
@@ -41,8 +49,8 @@ public class DataIO {
             if (is != null) {
                 return new ImageIcon(ImageIO.read(is));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
         return new ImageIcon();
     }

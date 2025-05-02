@@ -6,7 +6,7 @@ import javax.swing.*;
 import navigation.FrameManager;
 import utils.*;
 
-public class StaffLogin extends JFrame{
+public class StaffLogin extends JFrame {
     
     private static final String STAFF_FILE = "staff.txt";
     
@@ -18,11 +18,10 @@ public class StaffLogin extends JFrame{
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
   
-    public StaffLogin(){
+    public StaffLogin() {
         // Frame setup
-        this.setTitle("Staff Login");
+        this.setTitle("Staff Menu");
         this.setSize(500, 250);
-        this.setDefaultCloseOperation(EXIT_ON_CLOSE); // temporarily
         this.setLayout(null);
         this.setResizable(false);
         

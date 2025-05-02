@@ -3,6 +3,7 @@ package navigation;
 import Main.MainMenu;
 import javax.swing.JFrame;
 import java.util.Stack;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class FrameManager {
     private static Stack<JFrame> frameStack = new Stack<>();
@@ -13,6 +14,7 @@ public class FrameManager {
         }
         frameStack.push(newFrame);
         newFrame.setVisible(true);
+        newFrame.setDefaultCloseOperation(EXIT_ON_CLOSE); // temporarily
         newFrame.setLocationRelativeTo(null);
     }
     
