@@ -25,6 +25,22 @@ public class CustomerManager {
         return null;
     }
 
+    public static Customer authenticateBy(String method, String input, String password) {
+        for (Customer customer : customers) {
+            boolean matched = switch (method) {
+                case "Customer ID" -> customer.getId().equalsIgnoreCase(input);
+                case "Username" -> customer.getName().equalsIgnoreCase(input);
+                case "Email" -> customer.getEmail().equalsIgnoreCase(input);
+                default -> false;
+            };
+
+            if (matched && customer.getPassword().equals(password)) {
+                return customer;
+            }
+        }
+        return null;
+    }
+
     public static void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
             for (Customer customer : customers) {

@@ -2,12 +2,15 @@ package Customer;
 
 import javax.swing.*;
 import java.awt.*;
+import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import navigation.FrameManager;
 import utils.MainMenuButton;
 
 public class CustomerLogin extends JFrame {
-    private JTextField idField;
+    private JTextField inputField;
     private JPasswordField passwordField;
+    private JComboBox<String> loginMethodBox;
+    private JLabel inputLabel;
     private JCheckBox showPW;
     private JButton loginButton, registerButton;
 
@@ -18,76 +21,99 @@ public class CustomerLogin extends JFrame {
 
     public CustomerLogin() {
         setTitle("Customer Login");
-        setSize(500, 250);
+        setSize(500, 300);
         setLayout(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
 
-        // Title Label
-        JLabel titleLabel = new JLabel("Enter your Customer ID and Password");
-        titleLabel.setBounds(50, 20, 400, 20);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        add(titleLabel);
+        JLabel instructionLabel = new JLabel("Select login method and enter your credentials");
+        instructionLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        instructionLabel.setBounds(50, 20, 400, 25);
+        instructionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(instructionLabel);
 
-        // Customer ID Label
-        JLabel idLabel = new JLabel("Customer ID:");
-        idLabel.setBounds(100, 60, 100, 20);
-        idLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(idLabel);
+        JLabel methodLabel = new JLabel("Login with:");
+        methodLabel.setBounds(100, 60, 100, 25);
+        methodLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        add(methodLabel);
 
-        // Customer ID Field
-        idField = new JTextField();
-        idField.setBounds(200, 60, 200, 25);
-        idField.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(idField);
+        loginMethodBox = new JComboBox<>(new String[]{"Customer ID", "Username", "Email"});
+        loginMethodBox.setBounds(200, 60, 200, 25);
+        loginMethodBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        loginMethodBox.addActionListener(e -> updateInputLabel());
+        add(loginMethodBox);
 
-        // Password Label
-        JLabel passLabel = new JLabel("Password:");
-        passLabel.setBounds(100, 100, 100, 20);
-        passLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        add(passLabel);
+        inputLabel = new JLabel("Enter your Customer ID:");
+        inputLabel.setBounds(100, 100, 200, 25);
+        inputLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        add(inputLabel);
 
-        // Password Field
+        inputField = new JTextField();
+        inputField.setBounds(100, 125, 300, 25);
+        inputField.setFont(new Font("Arial", Font.PLAIN, 14));
+        add(inputField);
+
+        JLabel pwLabel = new JLabel("Password:");
+        pwLabel.setBounds(100, 160, 100, 25);
+        pwLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        add(pwLabel);
+
         passwordField = new JPasswordField();
-        passwordField.setBounds(200, 100, 200, 25);
+        passwordField.setBounds(200, 160, 200, 25);
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
         add(passwordField);
 
-        // Show Password Checkbox
         showPW = new JCheckBox("Show Password");
-        showPW.setBounds(200, 125, 150, 20);
+        showPW.setBounds(200, 190, 150, 20);
         showPW.setFont(new Font("Arial", Font.PLAIN, 12));
         showPW.setFocusPainted(false);
         showPW.addActionListener(e -> {
-            if (showPW.isSelected()) {
-                passwordField.setEchoChar((char) 0); // Show
-            } else {
-                passwordField.setEchoChar('•');      // Hide
-            }
+            passwordField.setEchoChar(showPW.isSelected() ? (char) 0 : '•');
         });
         add(showPW);
 
+        // BACK Button
+        JButton BACKButton = new JButton("BACK");
+        BACKButton.setBounds(80, 220, 100, 30);
+        BACKButton.setFont(new Font("Arial", Font.BOLD, 14));
+        BACKButton.setBackground(new Color(0x999999));
+        BACKButton.setForeground(Color.WHITE);
+        BACKButton.setFocusable(false);
+        BACKButton.addActionListener(e -> FrameManager.showFrame(new Main.MainMenu()));
+        add(BACKButton);
+
         // Login Button
         loginButton = new JButton("Login");
-        loginButton.setBounds(180, 160, 90, 30);
-        loginButton.setFocusable(false);
+        loginButton.setBounds(190, 220, 100, 30);
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        loginButton.setBackground(new Color(0x08A045));
         loginButton.setForeground(Color.WHITE);
-        loginButton.setBackground(new Color(0x08A045)); // Green
+        loginButton.setFocusable(false);
         loginButton.addActionListener(e -> handleLogin());
         add(loginButton);
 
-        // Register Button (Styled Blue-Grey)
+        // Register Button
         registerButton = new JButton("Register");
-        registerButton.setBounds(280, 160, 90, 30);
-        registerButton.setFocusable(false);
+        registerButton.setBounds(300, 220, 100, 30);
+        registerButton.setFont(new Font("Arial", Font.BOLD, 14));
+        registerButton.setBackground(new Color(0x3465A4));
         registerButton.setForeground(Color.WHITE);
-        registerButton.setBackground(new Color(0x3465A4)); // Blue-grey
+        registerButton.setFocusable(false);
         registerButton.addActionListener(e -> FrameManager.showFrame(new CustomerRegister()));
         add(registerButton);
 
-        MainMenuButton.addToFrame(this);
         setVisible(true);
+    }
+
+    private void updateInputLabel() {
+        String method = (String) loginMethodBox.getSelectedItem();
+        if (method != null) {
+            switch (method) {
+                case "Username" -> inputLabel.setText("Enter your Username:");
+                case "Email" -> inputLabel.setText("Enter your Email Address:");
+                default -> inputLabel.setText("Enter your Customer ID:");
+            }
+        }
     }
 
     private void handleLogin() {
@@ -101,10 +127,11 @@ public class CustomerLogin extends JFrame {
             return;
         }
 
-        String id = idField.getText().trim();
+        String method = (String) loginMethodBox.getSelectedItem();
+        String input = inputField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        Customer customer = CustomerManager.authenticate(id, password);
+        Customer customer = CustomerManager.authenticateBy(method, input, password);
         if (customer != null) {
             JOptionPane.showMessageDialog(this, "Login successful!");
             loginAttempts = 0;
@@ -120,13 +147,12 @@ public class CustomerLogin extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(this,
-                        "Invalid ID or Password. Attempts left: " + (MAX_ATTEMPTS - loginAttempts),
+                        "Invalid credentials. Attempts left: " + (MAX_ATTEMPTS - loginAttempts),
                         "Login Failed",
                         JOptionPane.ERROR_MESSAGE);
             }
         }
 
-        // Clear password field to avoid reuse or exposure
         passwordField.setText("");
     }
 }
