@@ -10,11 +10,11 @@ public class StaffLogin extends JFrame {
     
     private static final String STAFF_FILE = "staff.txt";
     
-    private JButton loginButton;
-    private JLabel instructionText, idLabel, pwLabel;
-    private JTextField idField;
-    private JPasswordField pwField;
-    private JCheckBox showPW;
+    private static JButton loginButton, backButton;
+    private static JLabel instructionText, idLabel, pwLabel;
+    private static JTextField idField;
+    private static JPasswordField pwField;
+    private static JCheckBox showPW;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
   
@@ -57,12 +57,20 @@ public class StaffLogin extends JFrame {
         showPW.addActionListener(e -> passwordVisibility());
         
         loginButton = new JButton("Login");
-        loginButton.setBounds(180, 160, 90, 30);
+        loginButton.setBounds(260, 160, 100, 30);
         loginButton.setFocusable(false);
         loginButton.setForeground(Color.white);
         loginButton.setBackground(new Color(0x08A045));
         
         loginButton.addActionListener(e -> attemptLogin());
+        
+        backButton = new JButton("Back");
+        backButton.setBounds(140, 160, 100, 30);
+        backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setBackground(new Color(0x999999));
+        backButton.setForeground(Color.black);
+        backButton.setFocusable(false);
+        backButton.addActionListener(e -> FrameManager.goBack());
         
         this.add(instructionText);
         this.add(idLabel);
@@ -71,11 +79,11 @@ public class StaffLogin extends JFrame {
         this.add(pwField);
         this.add(showPW);
         this.add(loginButton);
-        MainMenuButton.addToFrame(this);
+        this.add(backButton);
         this.setVisible(true);
     }
     
-    private void passwordVisibility() {
+    public static void passwordVisibility() {
         if (showPW.isSelected()) {
             pwField.setEchoChar((char)0);
         } else {

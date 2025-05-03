@@ -107,7 +107,7 @@ public class StaffMenu extends JFrame {
         switch(menuItem) {
             case "Staff Management":
             case "Salesman Management":
-                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG),StaffActions.addAction(menuItem));
+                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG),AddNew.addNew(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG),null);
                 addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG),null);
                 addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
@@ -119,7 +119,7 @@ public class StaffMenu extends JFrame {
                 addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
             case "Car Management":
-                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG),AddNew.addNew(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete Car",DataIO.loadIcon(DELCAR_PNG),null);
                 addSubMenuButton(subMenuPanel, "Search Car",DataIO.loadIcon(SEARCHCAR_PNG),null);
                 addSubMenuButton(subMenuPanel, "Update Car Info",DataIO.loadIcon(UPDATECAR_PNG),null);
@@ -250,6 +250,9 @@ public class StaffMenu extends JFrame {
             }
         });
         
+        if (action == null) {
+            button.setEnabled(false);
+        }
         button.addActionListener(action);
         panel.add(button);
     }

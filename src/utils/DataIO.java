@@ -17,7 +17,7 @@ public class DataIO {
             while ((line = reader.readLine()) != null) {
                 content += line + "\n";
             }
-            return content.trim();
+            return content;
         } catch (FileNotFoundException ex) {
             System.out.println( filePath + " not found: " + ex.getMessage());
             return null;
@@ -38,7 +38,7 @@ public class DataIO {
                 new FileWriter(filePath.toFile(), true))) {
             writer.println(data);
         } catch (IOException ex) {
-            System.out.println("Error reading " + filePath + ": " + ex.getMessage());
+            System.err.println("Error writing " + filePath + ": " + ex.getMessage());
         }
     }
     
