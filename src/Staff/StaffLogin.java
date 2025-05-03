@@ -10,16 +10,16 @@ public class StaffLogin extends JFrame {
     
     private static final String STAFF_FILE = "staff.txt";
     
-    private static JButton loginButton, backButton;
-    private static JLabel instructionText, idLabel, pwLabel;
-    private static JTextField idField;
+    private JButton loginButton, backButton;
+    private JLabel instructionText, idLabel, pwLabel;
+    private JTextField idField;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
   
     public StaffLogin() {
-        // Frame setup
+        
         this.setTitle("Staff Menu");
         this.setSize(500, 250);
         this.setLayout(null);
@@ -27,25 +27,21 @@ public class StaffLogin extends JFrame {
         
         instructionText = new JLabel("Enter your StaffID and StaffPW");
         instructionText.setBounds(50, 20, 400, 20);
-        instructionText.setFont(new Font("Arial", Font.BOLD, 14)); // font can change
+        instructionText.setFont(new Font("Arial", Font.BOLD, 14));
         instructionText.setHorizontalAlignment(JLabel.CENTER); 
-        
-        // Staff ID Label
+
         idLabel = new JLabel("Staff ID:");
         idLabel.setBounds(100, 60, 100, 20);
         idLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
-        // Staff ID Text Field
         idField = new JTextField();
         idField.setBounds(200, 60, 200, 25);
         idField.setFont(new Font("Arial", Font.PLAIN, 14));
         
-        // Password Label
         pwLabel = new JLabel("Password:");
         pwLabel.setBounds(100, 100, 100, 20);
         pwLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
-        // Password Field
         pwField = new JPasswordField();
         pwField.setBounds(200, 100, 200, 25);
         pwField.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -61,15 +57,13 @@ public class StaffLogin extends JFrame {
         loginButton.setFocusable(false);
         loginButton.setForeground(Color.white);
         loginButton.setBackground(new Color(0x08A045));
-        
         loginButton.addActionListener(e -> attemptLogin());
         
         backButton = new JButton("Back");
         backButton.setBounds(140, 160, 100, 30);
-        backButton.setFont(new Font("Arial", Font.BOLD, 14));
-        backButton.setBackground(new Color(0x999999));
-        backButton.setForeground(Color.black);
         backButton.setFocusable(false);
+        backButton.setForeground(Color.black);
+        backButton.setBackground(new Color(0x999999));
         backButton.addActionListener(e -> FrameManager.goBack());
         
         this.add(instructionText);
@@ -84,6 +78,7 @@ public class StaffLogin extends JFrame {
     }
     
     public static void passwordVisibility() {
+        
         if (showPW.isSelected()) {
             pwField.setEchoChar((char)0);
         } else {
@@ -92,6 +87,7 @@ public class StaffLogin extends JFrame {
     }
     
     private void attemptLogin() {
+        
         String staffID = idField.getText().trim().toUpperCase();
         char[] staffPW = pwField.getPassword();
         
@@ -135,6 +131,7 @@ public class StaffLogin extends JFrame {
     }
     
     private String validate(String staffID, char[] staffPW) {
+        
         String staffData = DataIO.readFile(STAFF_FILE);
 
         if (staffData != null) {

@@ -5,14 +5,12 @@ import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import java.util.*;
-import java.util.List;
 import navigation.FrameManager;
 import utils.DataIO;
 
 public class AddNew {
     
-    private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt", 
-            CUSTOMER_FILE = "customers.txt", PENDING_CUS_FILE = "pendingCustomers.txt",
+    private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt",
             CAR_FILE = "car.txt";
     
     private static String filename;
@@ -20,14 +18,12 @@ public class AddNew {
     private static LinkedHashMap<String, JComponent> fields;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
-    private static JComboBox availabilityBox, staffRolesBox;
+    private static JComboBox availabilityBox;
     private static JButton submitBtn, cancelBtn;
     private static JPanel panel;
     
     public static ActionListener addNew(String menuItem) {
-        return e -> {
-            FrameManager.showFrame(formFrame(menuItem));
-        };
+        return e -> FrameManager.showFrame(formFrame(menuItem));
     }
     
     private static JFrame formFrame(String menuItem) {
@@ -49,7 +45,6 @@ public class AddNew {
         showPW.setFocusPainted(false);
         showPW.addActionListener(e -> passwordVisibility());
 
-        staffRolesBox = new JComboBox<>(new String[]{"Manager", "Super Admin"});
         availabilityBox = new JComboBox<>(new String[]{"Available", "Booked", "Paid", "Cancelled"});
 
         switch (menuItem) {
@@ -58,7 +53,6 @@ public class AddNew {
                         generateID("M",getFilename(menuItem))));
                 fields.put("Password",pwField);
                 fields.put("Name",createTextField("none"));
-                fields.put("Role",staffRolesBox);
                 break;
 
             case "Salesman Management":
@@ -66,13 +60,8 @@ public class AddNew {
                         generateID("S",getFilename(menuItem))));
                 fields.put("Password",pwField);
                 fields.put("Name",createTextField("none"));
-                break;
-
-            case "Customers Management":
-                fields.put("Customer ID", createTextField("C"));
-                fields.put("Name", createTextField("none"));
                 fields.put("Phone",createTextField("none"));
-                fields.put("Email", createTextField("none"));
+                fields.put("Email",createTextField("none"));
                 break;
 
             case "Car Management":
@@ -185,6 +174,8 @@ public class AddNew {
                 case "Salesman Management":
                     validatePW(((JPasswordField) fields.get("Password")).getPassword());
                     validateName(((JTextField) fields.get("Name")).getText());
+                    validatePhone(((JTextField) fields.get("Phone")).getText());
+                    validateEmail(((JTextField) fields.get("Email")).getText());
                     break;
 
                 case "Customers Management":
@@ -292,24 +283,18 @@ public class AddNew {
     }
 
     private static String buildRecord(String menuItem, LinkedHashMap<String, JComponent> fields) {
-        List<String> data = new ArrayList<>();
+        ArrayList<String> data = new ArrayList<>();
 
         switch (menuItem) {
             case "Staff Management":
                 data.add(((JLabel) fields.get("ID")).getText());
                 data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
                 data.add(((JTextField) fields.get("Name")).getText());
-                data.add(((JComboBox<?>) fields.get("Role")).getSelectedItem().toString());
                 break;
 
             case "Salesman Management":
                 data.add(((JLabel) fields.get("ID")).getText().trim());
                 data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
-                data.add(((JTextField) fields.get("Name")).getText());
-                break;
-
-            case "Customers Management":
-                data.add(((JTextField) fields.get("Customer ID")).getText().trim());
                 data.add(((JTextField) fields.get("Name")).getText());
                 data.add(((JTextField) fields.get("Phone")).getText());
                 data.add(((JTextField) fields.get("Email")).getText());
@@ -330,7 +315,6 @@ public class AddNew {
             case "Staff Management": filename = STAFF_FILE; break;
             case "Salesman Management": filename = SALESMAN_FILE; break;
             case "Car Management": filename = CAR_FILE; break;
-            case "Customer Management": filename = CUSTOMER_FILE; break;
         } return filename;
     }
 }

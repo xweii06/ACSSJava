@@ -1,3 +1,4 @@
+S00,8888,SuperAdmin
 M01,1234,XW
 M02,2345,Tian
 M03,3456,Sha

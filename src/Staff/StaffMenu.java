@@ -3,6 +3,7 @@ package Staff;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.Border;
 import navigation.FrameManager;
@@ -17,53 +18,62 @@ public class StaffMenu extends JFrame {
             APPROVEUSER_PNG = "approve_user.png", ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
             UPDATECAR_PNG = "edit_car.png", SEARCHCAR_PNG = "search_car.png";
     
-    private JPanel mainPanel, sidebar, contentPanel, subMenuPanel, welcomePanel;
-    private JLabel pageTitle, welcomeText, instructionText;
+    private JPanel mainPanel, sidebar, contentPanel, titlePanel, subMenuPanel;
+    private JLabel pageTitle, titleLabel;
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
-        // Frame setup
+        
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
-        this.setResizable(false);
         
-        // Main panel with BorderLayout
         mainPanel = new JPanel(new BorderLayout());
         
-        // Create sidebar
-        sidebar = createSidebar();
-        mainPanel.add(sidebar, BorderLayout.WEST);
+        JPanel sidebarContent = createSidebar(staffName);
+        JScrollPane sidebarScroll = new JScrollPane(sidebarContent);
+        sidebarScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        sidebarScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        sidebarScroll.setBorder(null);
+        mainPanel.add(sidebarScroll, BorderLayout.WEST);
         
-        // Create content area
         contentPanel = new JPanel();
         contentPanel.setBackground(Color.white);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-        
-        // Set default content
-        showDefaultContent(contentPanel,staffName);
+        JScrollPane contentScroll = new JScrollPane(contentPanel);
+        contentScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        contentScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mainPanel.add(contentScroll, BorderLayout.CENTER);
         
         this.add(mainPanel);
+        showDefaultContent(contentPanel, staffName);
         this.setVisible(true);
     }
     
-    private JPanel createSidebar() {
-        sidebar = new JPanel();
-        sidebar.setPreferredSize(new Dimension(250, getHeight()));
-        sidebar.setBackground(Color.black);
-        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+    private JPanel createSidebar(String staffName) {
         
-        // Header
+        sidebar = new JPanel();
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setBackground(Color.black);
+        sidebar.setMaximumSize(new Dimension(180, 600));
+    
         pageTitle = new JLabel("Staff Dashboard");
         pageTitle.setFont(new Font("Arial", Font.BOLD, 18));
         pageTitle.setForeground(new Color(0x2A74FF));
         pageTitle.setBorder(BorderFactory.createEmptyBorder(20, 20, 30, 20));
         sidebar.add(pageTitle);
         
-        // Menu Items
-        String[] menuItems = {"Staff Management", "Salesman Management", "Customers Management", "Car Management", 
-        "Payment & Feedback Analysis", "Reports", "End Program"};
+        ArrayList<String> menuItems = new ArrayList<>();
+        if (staffName.equals("SuperAdmin")){
+            menuItems.add("Staff Management"); 
+            menuItems.add("End Program");
+        } else {
+            menuItems.add("Salesman Management");
+            menuItems.add("Customers Management"); 
+            menuItems.add("Car Management");
+            menuItems.add("Payment & Feedback Analysis");
+            menuItems.add("Reports");
+            menuItems.add("End Program");
+        }
         
         for (String menuItem : menuItems) {
             JButton menuButton = new JButton(menuItem);
@@ -77,21 +87,22 @@ public class StaffMenu extends JFrame {
         styleMenuButton(logoutBtn);
         logoutBtn.addActionListener(e -> {
             FrameManager.goBack();
-            dispose();
+            this.dispose();
         });
         sidebar.add(logoutBtn);
         return sidebar;
     }
     
     private void switchContent(String menuItem) {
+        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
-        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel = new JPanel(new BorderLayout());
         titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
         titlePanel.setBackground(Color.lightGray);
 
-        JLabel titleLabel = new JLabel(menuItem);
+        titleLabel = new JLabel(menuItem);
         titleLabel.setFont(new Font("MV Boli", Font.BOLD, 30));
         titleLabel.setForeground(Color.black);
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -99,42 +110,62 @@ public class StaffMenu extends JFrame {
         titlePanel.add(titleLabel, BorderLayout.CENTER);
         contentPanel.add(titlePanel, BorderLayout.NORTH);
         
-        JPanel subMenuPanel = new JPanel();
+        subMenuPanel = new JPanel();
         subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
-        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 15, 10));
+        subMenuPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         subMenuPanel.setBackground(Color.white);
         
         switch(menuItem) {
             case "Staff Management":
             case "Salesman Management":
-                addSubMenuButton(subMenuPanel, "Add New User",DataIO.loadIcon(ADDUSER_PNG),AddNew.addNew(menuItem));
-                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG),null);
-                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG),null);
-                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Add New User",
+                        DataIO.loadIcon(ADDUSER_PNG),AddNew.addNew(menuItem));
+                addSubMenuButton(subMenuPanel, "Delete User",
+                        DataIO.loadIcon(DELUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search User",
+                        DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update User Info",
+                        DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
             case "Customers Management":
-                addSubMenuButton(subMenuPanel, "Approve User",DataIO.loadIcon(APPROVEUSER_PNG),null);
-                addSubMenuButton(subMenuPanel, "Delete User",DataIO.loadIcon(DELUSER_PNG),null);
-                addSubMenuButton(subMenuPanel, "Search User",DataIO.loadIcon(SEARCHUSER_PNG),null);
-                addSubMenuButton(subMenuPanel, "Update User Info",DataIO.loadIcon(UPDATEUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Approve User",
+                        DataIO.loadIcon(APPROVEUSER_PNG),ApproveCus.approveCus());
+                addSubMenuButton(subMenuPanel, "Delete User",
+                        DataIO.loadIcon(DELUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search User",
+                        DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update User Info",
+                        DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
             case "Car Management":
-                addSubMenuButton(subMenuPanel, "Add New Car",DataIO.loadIcon(ADDCAR_PNG),AddNew.addNew(menuItem));
-                addSubMenuButton(subMenuPanel, "Delete Car",DataIO.loadIcon(DELCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Search Car",DataIO.loadIcon(SEARCHCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Update Car Info",DataIO.loadIcon(UPDATECAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Add New Car",
+                        DataIO.loadIcon(ADDCAR_PNG),AddNew.addNew(menuItem));
+                addSubMenuButton(subMenuPanel, "Delete Car",
+                        DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Search Car",
+                        DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Update Car Info",
+                        DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "Payment & Feedback Analysis":
-                addSubMenuButton(subMenuPanel, "Payment Records",DataIO.loadIcon(ADDCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Pending Payments",DataIO.loadIcon(DELCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "User Feedback",DataIO.loadIcon(SEARCHCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Rating Analysis",DataIO.loadIcon(UPDATECAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Payment Records",
+                        DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Pending Payments",
+                        DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "User Feedback",
+                        DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Rating Analysis",
+                        DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "Reports":
-                addSubMenuButton(subMenuPanel, "Sales Records",DataIO.loadIcon(ADDCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Sales Analysis",DataIO.loadIcon(DELCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Sales by Salesman",DataIO.loadIcon(SEARCHCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Revenue Analysis",DataIO.loadIcon(UPDATECAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Sales Records",
+                        DataIO.loadIcon(ADDCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Sales Analysis",
+                        DataIO.loadIcon(DELCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Sales by Salesman",
+                        DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "Revenue Analysis",
+                        DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
             case "End Program":
                 String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
@@ -173,17 +204,18 @@ public class StaffMenu extends JFrame {
     }
     
     private void showDefaultContent(JPanel contentPanel, String staffName) {
+        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
-        welcomePanel = new JPanel(new GridLayout(6,1));
+        JPanel welcomePanel = new JPanel(new GridLayout(6,1));
         welcomePanel.setBorder(BorderFactory.createEmptyBorder(200,10,100,10));
         
-        welcomeText = new JLabel("Welcome "+ staffName+ "! \\(@^0^@)/",JLabel.CENTER);
+        JLabel welcomeText = new JLabel("Welcome "+ staffName+ "! \\(@^0^@)/",JLabel.CENTER);
         welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
         welcomeText.setForeground(new Color(150,150,150));
         
-        instructionText = new JLabel("-Please select a menu option-",JLabel.CENTER);
+        JLabel instructionText = new JLabel("-Please select a menu option-",JLabel.CENTER);
         instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
         instructionText.setForeground(new Color(150,150,150));
         
@@ -195,6 +227,7 @@ public class StaffMenu extends JFrame {
     }
 
     private void styleMenuButton(JButton button) {
+        
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setMaximumSize(new Dimension(250, 50));
         button.setPreferredSize(new Dimension(250, 50));
@@ -209,7 +242,7 @@ public class StaffMenu extends JFrame {
             currentlySelectedButton.setBackground(Color.black);
             currentlySelectedButton.setForeground(Color.white);
             }
-            button.setBackground(Color.white); // Your blue color
+            button.setBackground(Color.white);
             button.setForeground(Color.black);
 
             currentlySelectedButton = button;
@@ -217,6 +250,7 @@ public class StaffMenu extends JFrame {
     }
     
     private void addSubMenuButton(JPanel panel, String text, ImageIcon icon, ActionListener action) {
+        
         JButton button = new JButton(text);
         button.setIcon(icon);
         
@@ -258,6 +292,7 @@ public class StaffMenu extends JFrame {
     }
     
     private boolean checkExitPIN(String exitPIN) throws IOException{
+        
         String savedExitPIN = DataIO.readFile(EXITPIN_FILE);
             if (savedExitPIN != null){
                 if (savedExitPIN.equals(exitPIN)){
