@@ -4,10 +4,12 @@ import java.awt.*;
 import java.io.*;
 import java.util.Arrays;
 import javax.swing.*;
-import navigation.FrameManager;
+import utils.DataIO;
 import utils.MainMenuButton;
 
 public class SalesmanLogin extends JFrame {
+    
+    private static final String SALESMAN_FILE = "salesman.txt";
     private JButton loginButton;
     private JLabel instructionText, idLabel, pwLabel;
     private JTextField salesmanIDField;
@@ -26,7 +28,7 @@ public class SalesmanLogin extends JFrame {
         setLayout(null);
         setResizable(false);
         setLocationRelativeTo(null);
-        String filePath = getClass().getResource("/resources/salesman.txt").getPath(); 
+         
 
         instructionText = new JLabel("Enter your SalesmanID and Password");
         instructionText.setBounds(50, 30, 400, 20);
@@ -108,17 +110,20 @@ public class SalesmanLogin extends JFrame {
     }
 
     private String validateCredentials(String salesmanID, char[] salesmanPW) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader("resources/salesman.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
+        String salesmanData = DataIO.readFile(SALESMAN_FILE);
+        if (salesmanData != null) {
+            String[] lines = salesmanData.split("\n");
+            for (String line : lines) {
                 String[] parts = line.split(",");
-                if (parts.length >= 3) {
+                if (parts.length == 3) {
                     String savedID = parts[0].trim();
-                    String savedPW = parts[1].trim();
-                    String name = parts[2].trim();
-
-                    if (savedID.equalsIgnoreCase(salesmanID) && savedPW.equals(new String(salesmanPW))) {
-                        return name;
+                    String savedpw = parts[1].trim();
+                    String staffName = parts[2].trim();
+                    
+                    if (savedID.equals(salesmanID)) {
+                        if (savedpw.equals(new String(salesmanPW))) {
+                            return staffName; // Login successful!
+                        }
                     }
                 }
             }

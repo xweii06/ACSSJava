@@ -2,8 +2,8 @@ package Main;
 
 import navigation.*;
 import Customer.CustomerLogin;
-import Salesman.SalesmanLogin;
 import Staff.StaffLogin;
+import Salesman.SalesmanLogin;
 
 import java.awt.*;
 import javax.swing.*;
