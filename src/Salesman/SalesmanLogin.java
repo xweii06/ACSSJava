@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.Arrays;
 import javax.swing.*;
+import navigation.FrameManager;
 import utils.DataIO;
 import utils.MainMenuButton;
 
@@ -115,14 +116,14 @@ public class SalesmanLogin extends JFrame {
             String[] lines = salesmanData.split("\n");
             for (String line : lines) {
                 String[] parts = line.split(",");
-                if (parts.length == 3) {
+                if (parts.length == 5) {
                     String savedID = parts[0].trim();
                     String savedpw = parts[1].trim();
-                    String staffName = parts[2].trim();
+                    String name = parts[2].trim();
                     
                     if (savedID.equals(salesmanID)) {
                         if (savedpw.equals(new String(salesmanPW))) {
-                            return staffName; // Login successful!
+                            return name; // Login successful!
                         }
                     }
                 }
@@ -136,9 +137,8 @@ public class SalesmanLogin extends JFrame {
             "Welcome back, " + salesmanName,
             "Login Successful",
             JOptionPane.INFORMATION_MESSAGE);
-        
         System.out.println("SalesmanID [" + salesmanID + "] logged in successfully.");
-       
+        //FrameManager.showFrame(new SalesmanMenu());
     }
 
     private void handleFailedLogin(String salesmanID) {
