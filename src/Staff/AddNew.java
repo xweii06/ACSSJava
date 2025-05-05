@@ -52,28 +52,32 @@ public class AddNew {
                 fields.put("Staff ID",new JLabel(
                         generateID("M",getFilename(menuItem))));
                 fields.put("Password",pwField);
-                fields.put("Name",createTextField("none"));
+                fields.put("Name",createTextField());
                 break;
 
             case "Salesman Management":
                 fields.put("Salesman ID",new JLabel(
                         generateID("S",getFilename(menuItem))));
                 fields.put("Password",pwField);
-                fields.put("Name",createTextField("none"));
-                fields.put("Phone",createTextField("none"));
-                fields.put("Email",createTextField("none"));
+                fields.put("Name",createTextField());
+                fields.put("Phone",createTextField());
+                fields.put("Email",createTextField());
                 break;
 
             case "Car Management":
-                fields.put("Car ID", createTextField("none"));
-                fields.put("Model", createTextField("none"));
-                fields.put("Price", createTextField("RM"));
+                fields.put("Car ID", createTextField());
+                fields.put("Model", createTextField());
+                fields.put("Price", createTextField());
                 fields.put("Status", availabilityBox);
-                fields.put("Assigned Salesman ID", createTextField("S"));
+                fields.put("Assigned Salesman ID", createTextField());
                 break;
         }
 
         for (Map.Entry<String, JComponent> entry : fields.entrySet()) {
+            if (entry.getKey().equals("Assigned Salesman ID")) {
+                ((JTextField) entry.getValue()).setText("S");
+            }
+            
             panel.add(new JLabel(entry.getKey() + ":"));
             panel.add(entry.getValue());
             if (entry.getKey().equals("Password")) {
@@ -125,15 +129,12 @@ public class AddNew {
         return nextID;
     }
     
-    private static JTextField createTextField(String startingLetter) {
+    private static JTextField createTextField() {
         JTextField field = new JTextField();
         field.setPreferredSize(new Dimension(100, 25));
         field.setMaximumSize(new Dimension(100, 350));
         field.setMinimumSize(new Dimension(100, 350));
         field.setFont(new Font("Arial", Font.PLAIN, 14));
-        if (!startingLetter.equals("none")){
-            field.setText(startingLetter); 
-        }
         return field;
     }
     
@@ -185,8 +186,10 @@ public class AddNew {
                     break;
 
                 case "Car Management":
+                    validateID(((JTextField) fields.get("Car ID")).getText(),"none");
                     validateModel(((JTextField) fields.get("Model")).getText());
                     validatePrice(((JTextField) fields.get("Price")).getText());
+                    validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),"S");
                     break;
             }
         } catch (InvalidInputException ex) {
@@ -229,6 +232,24 @@ public class AddNew {
         }
     }
 
+    private static void validateID(String id, String startingLetter) throws InvalidInputException {
+        if (id.length() < 3 || id.length() > 12) {
+            throw new InvalidInputException("ID must be between 4 and 12 characters");
+        }
+        if (!id.matches("^[A-Za-z0-9]+$")) {
+            throw new InvalidInputException("ID can only contain letters and numbers");
+        }
+        if (!id.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$")) {
+            throw new InvalidInputException("ID must contain both letters and numbers");
+        }
+        if (!startingLetter.equals("none")){
+            if (!id.startsWith(startingLetter)) {
+                throw new InvalidInputException("ID must start with the letter " + startingLetter);
+            }
+        }
+        //read file and check if car id dont exist and salesman id exist
+    }
+    
     private static void validatePW(char[] password) throws InvalidInputException {
         if (password.length < 4 || password.length > 12) {
             throw new InvalidInputException("Password must be between 4 and 12 characters");

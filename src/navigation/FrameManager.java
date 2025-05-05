@@ -6,6 +6,7 @@ import java.util.Stack;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
 public class FrameManager {
+    
     private static Stack<JFrame> frameStack = new Stack<>();
     
     public static void showFrame(JFrame newFrame) {

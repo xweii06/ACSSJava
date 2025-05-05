@@ -19,7 +19,6 @@ public class StaffLogin extends JFrame {
     private static long lockoutEndTime = 0;    
   
     public StaffLogin() {
-        
         this.setTitle("Staff Menu");
         this.setSize(500, 250);
         this.setLayout(null);
@@ -78,7 +77,6 @@ public class StaffLogin extends JFrame {
     }
     
     public static void passwordVisibility() {
-        
         if (showPW.isSelected()) {
             pwField.setEchoChar((char)0);
         } else {
@@ -87,7 +85,6 @@ public class StaffLogin extends JFrame {
     }
     
     private void attemptLogin() {
-        
         String staffID = idField.getText().trim().toUpperCase();
         char[] staffPW = pwField.getPassword();
         
@@ -131,7 +128,6 @@ public class StaffLogin extends JFrame {
     }
     
     private String validate(String staffID, char[] staffPW) {
-        
         String staffData = DataIO.readFile(STAFF_FILE);
 
         if (staffData != null) {

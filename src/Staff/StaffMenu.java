@@ -23,7 +23,6 @@ public class StaffMenu extends JFrame {
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
-        
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
         this.setLocationRelativeTo(null);
@@ -50,7 +49,6 @@ public class StaffMenu extends JFrame {
     }
     
     private JPanel createSidebar(String staffName) {
-        
         sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(Color.black);
@@ -94,7 +92,6 @@ public class StaffMenu extends JFrame {
     }
     
     private void switchContent(String menuItem) {
-        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
@@ -204,7 +201,6 @@ public class StaffMenu extends JFrame {
     }
     
     private void showDefaultContent(JPanel contentPanel, String staffName) {
-        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
@@ -227,7 +223,6 @@ public class StaffMenu extends JFrame {
     }
 
     private void styleMenuButton(JButton button) {
-        
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setMaximumSize(new Dimension(250, 50));
         button.setPreferredSize(new Dimension(250, 50));
@@ -250,7 +245,6 @@ public class StaffMenu extends JFrame {
     }
     
     private void addSubMenuButton(JPanel panel, String text, ImageIcon icon, ActionListener action) {
-        
         JButton button = new JButton(text);
         button.setIcon(icon);
         
@@ -292,7 +286,6 @@ public class StaffMenu extends JFrame {
     }
     
     private boolean checkExitPIN(String exitPIN) throws IOException{
-        
         String savedExitPIN = DataIO.readFile(EXITPIN_FILE);
             if (savedExitPIN != null){
                 if (savedExitPIN.equals(exitPIN)){
