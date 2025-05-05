@@ -141,9 +141,10 @@ public class DeleteRecords {
             case "Car Management":
                 previewText.append("Car ID: ").append(parts[0]).append("\n");
                 previewText.append("Model: ").append(parts[1]).append("\n");
-                previewText.append("Price: ").append(parts[2]).append("\n");
-                previewText.append("Status: ").append(parts[3]).append("\n");
-                previewText.append("Assigned Salesman ID: ").append(parts[4]).append("\n");
+                previewText.append("Year: ").append(parts[2]).append("\n");
+                previewText.append("Price(RM): ").append(parts[3]).append("\n");
+                previewText.append("Status: ").append(parts[4]).append("\n");
+                previewText.append("Assigned Salesman ID: ").append(parts[5]).append("\n");
                 break;
         }
         
@@ -205,6 +206,8 @@ public class DeleteRecords {
             previewPanel.setVisible(false);
             deleteBtn.setEnabled(false);
             currentRecordID = null;
+            FrameManager.goBack();
+            
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(deleteFrame,
                 "Error deleting record: " + ex.getMessage(),
@@ -220,7 +223,7 @@ public class DeleteRecords {
             if (!line.startsWith(currentRecordID + ",")) {
                 String parts[] = line.split(",");
                 if (parts.length >= 4) {
-                    String status = parts[3];
+                    String status = parts[4];
                     return !(status.equals("Booked") || status.equals("Paid"));
                 }
             }

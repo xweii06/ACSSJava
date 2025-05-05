@@ -3,6 +3,7 @@ package Staff;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.time.Year;
 import javax.swing.*;
 import java.util.*;
 import navigation.FrameManager;
@@ -18,7 +19,6 @@ public class AddNewRecords {
     private static LinkedHashMap<String, JComponent> fields;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
-    private static JComboBox availabilityBox;
     private static JButton submitBtn, cancelBtn;
     private static JPanel panel;
     
@@ -66,8 +66,9 @@ public class AddNewRecords {
 
             case "Car Management":
                 fields.put("Car ID",new JLabel(
-                        generateID("S",getFilename(menuItem))));
+                        generateID("CAR",getFilename(menuItem))));
                 fields.put("Model", createTextField());
+                fields.put("Year", createTextField());
                 fields.put("Price", createTextField());
                 fields.put("Status", new JLabel("Available"));
                 fields.put("Assigned Salesman ID", createTextField());
@@ -77,6 +78,9 @@ public class AddNewRecords {
         for (Map.Entry<String, JComponent> entry : fields.entrySet()) {
             if (entry.getKey().equals("Assigned Salesman ID")) {
                 ((JTextField) entry.getValue()).setText("S");
+            }
+            if (entry.getKey().equals("Phone")) {
+                ((JTextField) entry.getValue()).setText("+");
             }
             if (entry.getKey().equals("Price")) {
                 panel.add(new JLabel(entry.getKey() + "(RM):"));
@@ -107,9 +111,11 @@ public class AddNewRecords {
 
     private static String generateID(String startingLetter, String filename) {
         Set<Integer> existingIDs = new HashSet<>();
-        String nextID = startingLetter + "01";
-
         String data = DataIO.readFile(filename);
+        String nextID = startingLetter + "01";
+        if (data == null || data.isEmpty()) {
+            return nextID; 
+        }
         String[] lines = data.split("\n");
         for (String line : lines) {
             String[] parts = line.split(",");
@@ -189,8 +195,8 @@ public class AddNewRecords {
                     break;
 
                 case "Car Management":
-                    validateID(((JTextField) fields.get("Car ID")).getText(),"none");
                     validateModel(((JTextField) fields.get("Model")).getText());
+                    validateYear(((JTextField) fields.get("Year")).getText());
                     validatePrice(((JTextField) fields.get("Price")).getText());
                     validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),"S");
                     break;
@@ -206,14 +212,14 @@ public class AddNewRecords {
             String label = entry.getKey();
             JComponent field = entry.getValue();
             details += label + ": ";
-            if (field instanceof JTextField) {
-                details += ((JTextField) field).getText();
-            } else if (field instanceof JPasswordField) {
+            if (label.equals("Password")) {
                 details += "********";
-            } else if (field instanceof JComboBox) {
-                details += ((JComboBox<?>) field).getSelectedItem();
-            }
+            } else if (field instanceof JTextField) {
+                details += ((JTextField) field).getText();
+            } else if (field instanceof JLabel) {
+                details += ((JLabel) field).getText();
             details += "\n";   
+            }
         }
 
         int confirm = JOptionPane.showConfirmDialog(panel,details + "\nAre you sure?",
@@ -227,6 +233,7 @@ public class AddNewRecords {
                 DataIO.appendToFile(filename, record);
                 JOptionPane.showMessageDialog(null, "Added successfully!", 
                         "Success", JOptionPane.INFORMATION_MESSAGE);
+                clearFormFields();
                 FrameManager.goBack();
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(null, "Error reading: " + ex.getMessage(),
@@ -234,7 +241,7 @@ public class AddNewRecords {
             }
         }
     }
-
+        
     private static void validateID(String id, String startingLetter) throws InvalidInputException {
         if (id.length() < 3 || id.length() > 12) {
             throw new InvalidInputException("ID must be between 4 and 12 characters");
@@ -250,8 +257,8 @@ public class AddNewRecords {
         }
         // check if it is a valid salesman ID
         if (startingLetter.equals("S")) {
-            String data = DataIO.readFile(CAR_FILE);
-            if (!id.contains(data)) {
+            String data = DataIO.readFile(SALESMAN_FILE);
+            if (!data.contains(id)) {
                 throw new InvalidInputException("Salesman ID don't exist.");
             }
         }
@@ -276,7 +283,7 @@ public class AddNewRecords {
         if (!phone.startsWith("+")) {
             throw new InvalidInputException("Phone number must start with '+'");
         }
-        if (!phone.matches("^+[0-9]{10,15}$")) {
+        if (!phone.matches("^\\+[0-9]{10,15}$")) {
             throw new InvalidInputException("Phone number must be 10-15 digits");
         }
     }
@@ -292,15 +299,26 @@ public class AddNewRecords {
             throw new InvalidInputException("Model name must be between 2 and 30 characters");
         }
     }
-
+    
+    private static void validateYear(String inputYear) throws InvalidInputException {
+        try {
+            int year = Integer.parseInt(inputYear);
+            if (year < 2000 || year > Year.now().getValue()) {
+                throw new InvalidInputException("Invalid year.");
+            }
+        } catch (NumberFormatException e) {
+            throw new InvalidInputException("Year must be a number.");
+        }
+    }
+    
     private static void validatePrice(String price) throws InvalidInputException {
         try {
             double priceValue = Double.parseDouble(price);
             if (priceValue <= 0) {
                 throw new InvalidInputException("Price must be greater than 0");
             } 
-            if (priceValue > 90000000) {
-                throw new InvalidInputException("Price too large");
+            if (priceValue > 90000000 || priceValue < 1000) {
+                throw new InvalidInputException("Invalid price");
             }
         } catch (NumberFormatException e) {
             throw new InvalidInputException("Price must be a valid number");
@@ -318,13 +336,13 @@ public class AddNewRecords {
 
         switch (menuItem) {
             case "Staff Management":
-                data.add(((JLabel) fields.get("ID")).getText());
+                data.add(((JLabel) fields.get("Staff ID")).getText());
                 data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
                 data.add(((JTextField) fields.get("Name")).getText());
                 break;
 
             case "Salesman Management":
-                data.add(((JLabel) fields.get("ID")).getText().trim());
+                data.add(((JLabel) fields.get("Salesman ID")).getText().trim());
                 data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
                 data.add(((JTextField) fields.get("Name")).getText());
                 data.add(((JTextField) fields.get("Phone")).getText());
@@ -332,8 +350,9 @@ public class AddNewRecords {
                 break;
 
             case "Car Management":
-                data.add(((JLabel) fields.get("Car ID")).getText().trim());
+                data.add(((JLabel) fields.get("Car ID")).getText());
                 data.add(((JTextField) fields.get("Model")).getText());
+                data.add(((JTextField) fields.get("Year")).getText());
                 data.add(((JTextField) fields.get("Price")).getText());
                 data.add(((JLabel) fields.get("Status")).getText());
                 data.add(((JTextField) fields.get("Assigned Salesman ID")).getText());
@@ -348,5 +367,15 @@ public class AddNewRecords {
             case "Salesman Management": filename = SALESMAN_FILE; break;
             case "Car Management": filename = CAR_FILE; break;
         } return filename;
+    }
+    
+    private static void clearFormFields() {
+        for (JComponent field : fields.values()) {
+            if (field instanceof JTextField) {
+                ((JTextField) field).setText("");
+            } else if (field instanceof JPasswordField) {
+                ((JPasswordField) field).setText("");
+            }
+        }
     }
 }
