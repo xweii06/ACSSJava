@@ -3,9 +3,7 @@ package Staff;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import javax.swing.*;
 import java.util.List;
 import navigation.FrameManager;
@@ -34,7 +32,6 @@ public class ApproveCus {
     }
     
     private static boolean checkPendingCustomers() {
-        
         try {
             String pendingCustomers = DataIO.readFile(PENDING_CUS_FILE);
             
@@ -52,15 +49,14 @@ public class ApproveCus {
     }
     
     private static void refreshPendingCustomers() {
-        
         contentPanel.removeAll();
         int number = 0;
         try {
-            String pendingCustomers = DataIO.readFile(PENDING_CUS_FILE);
-            String[] customersData = pendingCustomers.split("\n");
-            for (String customerData : customersData) {
-                if (!customerData.trim().isEmpty()) {
-                    String[] details = customerData.split(",");
+            String data = DataIO.readFile(PENDING_CUS_FILE);
+            String[] lines = data.split("\n");
+            for (String line : lines) {
+                if (!line.trim().isEmpty()) {
+                    String[] details = line.split(",");
                     number++;
                     if (details.length >= 4) {
                         addCustomerCard(number,details[0],details[1],details[2],details[3],details[4]);
@@ -77,10 +73,10 @@ public class ApproveCus {
     }
     
     private static JFrame viewPendingCus() {
-        
         pendingCusFrame = new JFrame("Pending Customers");
         pendingCusFrame.setLayout(new BorderLayout());
         pendingCusFrame.setSize(800,400);
+        pendingCusFrame.setResizable(false);
         
         topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.lightGray);
@@ -187,7 +183,6 @@ public class ApproveCus {
     }
     
     private static void handleApprove(String id) {
-        
         int confirm = JOptionPane.showConfirmDialog(pendingCusFrame,
              "Are you sure you want to approve customer [" + id + "]?",
             "Confirm Approval", JOptionPane.YES_NO_OPTION);
@@ -212,7 +207,6 @@ public class ApproveCus {
     }
     
     private static void handleReject(String id) {
-        
         int confirm = JOptionPane.showConfirmDialog(pendingCusFrame,
             "Are you sure you want to reject this customer [" + id + "]?",
             "Confirm Rejection", JOptionPane.YES_NO_OPTION);
@@ -232,24 +226,35 @@ public class ApproveCus {
         }
     }
     
-    private static String findCustomerData(String customerId) throws IOException {
-        Path path = Paths.get("data", PENDING_CUS_FILE);
-        if (Files.exists(path)) {
-            for (String line : Files.readAllLines(path)) {
-                if (line.startsWith(customerId + ",")) {
-                    return line;
-                }
+    private static String findCustomerData(String id) throws IOException {
+        String data = DataIO.readFile(PENDING_CUS_FILE);
+        String[] lines = data.split("\n");
+        for (String line : lines) {
+            if (line.startsWith(id + ",")) {
+                return line;
             }
         }
         return null;
     }
     
-    private static void removeFromPendingFile(String customerId) throws IOException {
-        Path path = Paths.get("data", PENDING_CUS_FILE);
-        if (Files.exists(path)) {
-            List<String> lines = Files.readAllLines(path);
-            lines.removeIf(line -> line.startsWith(customerId + ","));
-            Files.write(path, lines);
+    private static void removeFromPendingFile(String id) throws IOException {
+        String filename = PENDING_CUS_FILE;
+        try {
+            String data = DataIO.readFile(filename);
+            String[] lines = data.split("\n");
+            
+            for (String line : lines) {
+                if (!line.startsWith(id + ",")) {
+                    DataIO.writeFile(filename,line);
+                }
+            }
+            JOptionPane.showMessageDialog(pendingCusFrame,
+                "Record deleted successfully!",
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(pendingCusFrame,
+                "Error deleting record: " + ex.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

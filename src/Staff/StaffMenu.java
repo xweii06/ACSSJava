@@ -66,7 +66,7 @@ public class StaffMenu extends JFrame {
             menuItems.add("End Program");
         } else {
             menuItems.add("Salesman Management");
-            menuItems.add("Customers Management"); 
+            menuItems.add("Customer Management"); 
             menuItems.add("Car Management");
             menuItems.add("Payment & Feedback Analysis");
             menuItems.add("Reports");
@@ -116,19 +116,19 @@ public class StaffMenu extends JFrame {
             case "Staff Management":
             case "Salesman Management":
                 addSubMenuButton(subMenuPanel, "Add New User",
-                        DataIO.loadIcon(ADDUSER_PNG),AddNew.addNew(menuItem));
+                        DataIO.loadIcon(ADDUSER_PNG),AddNewRecords.addNewRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete User",
-                        DataIO.loadIcon(DELUSER_PNG),null);
+                        DataIO.loadIcon(DELUSER_PNG), DeleteRecords.deleteRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Search User",
                         DataIO.loadIcon(SEARCHUSER_PNG),null);
                 addSubMenuButton(subMenuPanel, "Update User Info",
                         DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
-            case "Customers Management":
+            case "Customer Management":
                 addSubMenuButton(subMenuPanel, "Approve User",
                         DataIO.loadIcon(APPROVEUSER_PNG),ApproveCus.approveCus());
                 addSubMenuButton(subMenuPanel, "Delete User",
-                        DataIO.loadIcon(DELUSER_PNG),null);
+                        DataIO.loadIcon(DELUSER_PNG),DeleteRecords.deleteRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Search User",
                         DataIO.loadIcon(SEARCHUSER_PNG),null);
                 addSubMenuButton(subMenuPanel, "Update User Info",
@@ -136,9 +136,9 @@ public class StaffMenu extends JFrame {
                 break;
             case "Car Management":
                 addSubMenuButton(subMenuPanel, "Add New Car",
-                        DataIO.loadIcon(ADDCAR_PNG),AddNew.addNew(menuItem));
+                        DataIO.loadIcon(ADDCAR_PNG),AddNewRecords.addNewRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete Car",
-                        DataIO.loadIcon(DELCAR_PNG),null);
+                        DataIO.loadIcon(DELCAR_PNG),DeleteRecords.deleteRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Search Car",
                         DataIO.loadIcon(SEARCHCAR_PNG),null);
                 addSubMenuButton(subMenuPanel, "Update Car Info",

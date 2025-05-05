@@ -8,9 +8,9 @@ import java.util.*;
 import navigation.FrameManager;
 import utils.DataIO;
 
-public class AddNew {
+public class AddNewRecords {
     
-    private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt",
+    private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt", 
             CAR_FILE = "car.txt";
     
     private static String filename;
@@ -22,17 +22,19 @@ public class AddNew {
     private static JButton submitBtn, cancelBtn;
     private static JPanel panel;
     
-    public static ActionListener addNew(String menuItem) {
-        return e -> FrameManager.showFrame(formFrame(menuItem));
+    public static ActionListener addNewRecords(String menuItem) {
+        return e -> FrameManager.showFrame(createFormFrame(menuItem));
     }
     
-    private static JFrame formFrame(String menuItem) {
+    private static JFrame createFormFrame(String menuItem) {
         formFrame = new JFrame("Add New " + (menuItem.split(" "))[0]);
         formFrame.setLayout(new BorderLayout());
         formFrame.setSize(400, 300);
+        formFrame.setResizable(false);
 
         fields = new LinkedHashMap<>();
         panel = new JPanel(new GridLayout(0,2,10,10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10,40,10,40));
 
         pwField = new JPasswordField();
         pwField.setPreferredSize(new Dimension(100, 25));
@@ -44,8 +46,6 @@ public class AddNew {
         showPW.setFont(new Font("Arial", Font.PLAIN, 12));
         showPW.setFocusPainted(false);
         showPW.addActionListener(e -> passwordVisibility());
-
-        availabilityBox = new JComboBox<>(new String[]{"Available", "Booked", "Paid", "Cancelled"});
 
         switch (menuItem) {
             case "Staff Management":
@@ -65,10 +65,11 @@ public class AddNew {
                 break;
 
             case "Car Management":
-                fields.put("Car ID", createTextField());
+                fields.put("Car ID",new JLabel(
+                        generateID("S",getFilename(menuItem))));
                 fields.put("Model", createTextField());
                 fields.put("Price", createTextField());
-                fields.put("Status", availabilityBox);
+                fields.put("Status", new JLabel("Available"));
                 fields.put("Assigned Salesman ID", createTextField());
                 break;
         }
@@ -77,8 +78,11 @@ public class AddNew {
             if (entry.getKey().equals("Assigned Salesman ID")) {
                 ((JTextField) entry.getValue()).setText("S");
             }
-            
-            panel.add(new JLabel(entry.getKey() + ":"));
+            if (entry.getKey().equals("Price")) {
+                panel.add(new JLabel(entry.getKey() + "(RM):"));
+            } else {
+                panel.add(new JLabel(entry.getKey() + ":"));
+            }
             panel.add(entry.getValue());
             if (entry.getKey().equals("Password")) {
                 panel.add(new JLabel(" "));
@@ -94,7 +98,6 @@ public class AddNew {
 
         panel.add(submitBtn);
         panel.add(cancelBtn);
-        panel.setBorder(BorderFactory.createEmptyBorder(10,40,10,40));
         formFrame.add(panel,BorderLayout.CENTER);
 
         formFrame.pack();
@@ -179,7 +182,7 @@ public class AddNew {
                     validateEmail(((JTextField) fields.get("Email")).getText());
                     break;
 
-                case "Customers Management":
+                case "Customer Management":
                     validateName(((JTextField) fields.get("Name")).getText());
                     validatePhone(((JTextField) fields.get("Phone")).getText());
                     validateEmail(((JTextField) fields.get("Email")).getText());
@@ -242,12 +245,16 @@ public class AddNew {
         if (!id.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$")) {
             throw new InvalidInputException("ID must contain both letters and numbers");
         }
-        if (!startingLetter.equals("none")){
-            if (!id.startsWith(startingLetter)) {
-                throw new InvalidInputException("ID must start with the letter " + startingLetter);
+        if (!id.startsWith(startingLetter)) {
+            throw new InvalidInputException("ID must start with the letter " + startingLetter);
+        }
+        // check if it is a valid salesman ID
+        if (startingLetter.equals("S")) {
+            String data = DataIO.readFile(CAR_FILE);
+            if (!id.contains(data)) {
+                throw new InvalidInputException("Salesman ID don't exist.");
             }
         }
-        //read file and check if car id dont exist and salesman id exist
     }
     
     private static void validatePW(char[] password) throws InvalidInputException {
@@ -266,7 +273,10 @@ public class AddNew {
     }
 
     private static void validatePhone(String phone) throws InvalidInputException {
-        if (!phone.matches("^[0-9]{10,15}$")) {
+        if (!phone.startsWith("+")) {
+            throw new InvalidInputException("Phone number must start with '+'");
+        }
+        if (!phone.matches("^+[0-9]{10,15}$")) {
             throw new InvalidInputException("Phone number must be 10-15 digits");
         }
     }
@@ -322,10 +332,11 @@ public class AddNew {
                 break;
 
             case "Car Management":
-                data.add(((JTextField) fields.get("Car ID")).getText().trim());
+                data.add(((JLabel) fields.get("Car ID")).getText().trim());
                 data.add(((JTextField) fields.get("Model")).getText());
                 data.add(((JTextField) fields.get("Price")).getText());
-                data.add(((JComboBox<?>) fields.get("Status")).getSelectedItem().toString());
+                data.add(((JLabel) fields.get("Status")).getText());
+                data.add(((JTextField) fields.get("Assigned Salesman ID")).getText());
                 break;
         }
         return String.join(",", data);

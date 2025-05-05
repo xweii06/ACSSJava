@@ -29,7 +29,7 @@ public class DataIO {
     }
     
     // for adding records
-    public static void appendToFile(String filename, String data) throws IOException {
+    public static void appendToFile(String filename, String line) throws IOException {
         
         Path filePath = Paths.get("data", filename);
         if (Files.notExists(filePath.getParent())) {
@@ -38,9 +38,24 @@ public class DataIO {
 
         try (PrintWriter writer = new PrintWriter(
                 new FileWriter(filePath.toFile(), true))) {
-            writer.println(data);
+            writer.println(line);
         } catch (IOException ex) {
-            System.err.println("Error writing " + filePath + ": " + ex.getMessage());
+            System.err.println("Error appending " + filePath + ": " + ex.getMessage());
+        }
+    }
+    
+    // for writing
+    public static void writeFile(String filename, String line) throws IOException {
+        Path filePath = Paths.get("data", filename);
+
+        if (Files.notExists(filePath.getParent())) {
+            Files.createDirectories(filePath.getParent());
+        }
+
+        try (PrintWriter writer = new PrintWriter(filePath.toFile())) {
+            writer.println(line); 
+        } catch (IOException ex) {
+            System.err.println("Error writing to " + filename + ": " + ex.getMessage());
         }
     }
     
