@@ -1,1 +1,2 @@
-CAR001,Perodua Myvi,55900,Available,S01
+CAR01,Perodua Myvi,2022,55900,Available,S01
+CAR02,Perodua Axia,2023,44500,Available,S01
