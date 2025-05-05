@@ -1,4 +1,4 @@
-package Customer; //CustomerManager.java is the logic — it handles loading, saving, registering, and logging in.: Think of it like a manager or helper behind the scenes.
+package Customer;
 
 import java.io.*;
 import java.util.*;
@@ -14,6 +14,21 @@ public class CustomerManager {
     public static void addCustomer(Customer customer) {
         customers.add(customer);
         saveToFile();
+    }
+
+    public static void saveToPendingFile(Customer customer) {
+        File dir = new File("data");
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        File pendingFile = new File(dir, "pendingCustomers.txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(pendingFile, true))) {
+            writer.write(customer.toDataString());
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static Customer authenticate(String id, String password) {
@@ -44,13 +59,7 @@ public class CustomerManager {
     public static void saveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
             for (Customer customer : customers) {
-                writer.write(String.join(",",
-                        customer.getId(),
-                        customer.getName(),
-                        customer.getPhone(),
-                        customer.getEmail(),
-                        customer.getPassword()
-                ));
+                writer.write(customer.toDataString());
                 writer.newLine();
             }
         } catch (IOException e) {

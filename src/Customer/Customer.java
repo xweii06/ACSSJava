@@ -1,4 +1,4 @@
-package Customer; //Customer.java is the data — it stores customer information like name, email, password, etc.: Think of it like a form or profile card.
+package Customer;
 
 import java.io.Serializable;
 
@@ -27,4 +27,9 @@ public class Customer implements Serializable {
     public void setPhone(String phone) { this.phone = phone; }
     public void setEmail(String email) { this.email = email; }
     public void setPassword(String password) { this.password = password; }
+
+    // ✅ Add this method to fix the error
+    public String toDataString() {
+        return id + "," + name + "," + phone + "," + email + "," + password;
+    }
 }

@@ -2,6 +2,8 @@ package Customer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.nio.file.*;
 import navigation.FrameManager;
 import utils.MainMenuButton;
 
@@ -111,14 +113,50 @@ public class CustomerRegister extends JFrame {
                 return;
             }
 
-            // Optionally validate phone and email format here
+            if (password.length() < 8) {
+                JOptionPane.showMessageDialog(this, "Password must be at least 8 characters.");
+                return;
+            }
+
+            // Phone number: accept 01xxxxxxxx or 601xxxxxxxx or +601xxxxxxxx
+            String originalPhone = phone;
+            if (phone.matches("^01[0-9]{8,9}$")) {
+                phone = "+60" + phone.substring(1);  // Remove leading 0, add +60
+            } else if (phone.matches("^601[0-9]{7,8}$")) {
+                phone = "+" + phone;
+            } else if (phone.matches("^\\+601[0-9]{7,8}$")) {
+                // already correct
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a valid Malaysian phone number (e.g. 0123456789 or 60123456789).");
+                return;
+            }
+
+
+            // Validate email format
+            if (!email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+                JOptionPane.showMessageDialog(this, "Invalid email format.");
+                return;
+            }
 
             String id = CustomerManager.generateCustomerId();
             Customer customer = new Customer(id, name, phone, email, password);
-            CustomerManager.addCustomer(customer);
 
-            JOptionPane.showMessageDialog(this, "Registration successful! Your ID is: " + id);
-            FrameManager.showFrame(new CustomerLogin());
+            try {
+                Path dataDir = Paths.get("data");
+                if (!Files.exists(dataDir)) Files.createDirectories(dataDir);
+                File file = new File("data/pendingCustomers.txt");
+                if (!file.exists()) file.createNewFile();
+
+                FileWriter writer = new FileWriter(file, true);
+                writer.write(id + "," + name + "," + phone + "," + email + "," + password + "\n");
+                writer.close();
+
+                JOptionPane.showMessageDialog(this, "Registration submitted. Awaiting staff approval. Your ID is: " + id);
+                FrameManager.showFrame(new CustomerLogin());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Error saving registration.");
+                ex.printStackTrace();
+            }
         });
 
         MainMenuButton.addToFrame(this);
