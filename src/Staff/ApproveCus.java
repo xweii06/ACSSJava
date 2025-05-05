@@ -16,8 +16,8 @@ public class ApproveCus {
     private static String CUSTOMER_FILE = "customers.txt", PENDING_CUS_FILE = "pendingCustomers.txt";
     
     private static JFrame pendingCusFrame;
-    private static JPanel topPanel, contentPanel;
-    private static JButton backBtn;
+    private static JPanel topPanel, btnPanel, contentPanel;
+    private static JButton backBtn, refreshBtn;
     
     public static ActionListener approveCus() {
         return e -> handlePendingCustomers();
@@ -85,13 +85,25 @@ public class ApproveCus {
         topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.lightGray);
         
+        btnPanel = new JPanel(new BorderLayout());
+        btnPanel.setPreferredSize(new Dimension(200,80));
+        btnPanel.setOpaque(false);
+        
         backBtn = new JButton(DataIO.loadIcon("backIcon.png"));
-        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
+        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         backBtn.setOpaque(false);
         backBtn.setContentAreaFilled(false);
-        backBtn.setFocusPainted(false);
         backBtn.addActionListener(e -> FrameManager.goBack());
-        topPanel.add(backBtn, BorderLayout.WEST);
+        
+        refreshBtn = new JButton(DataIO.loadIcon("refreshIcon.png"));
+        refreshBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        refreshBtn.setOpaque(false);
+        refreshBtn.setContentAreaFilled(false);
+        refreshBtn.addActionListener(e -> refreshPendingCustomers());
+        
+        btnPanel.add(backBtn,BorderLayout.WEST);
+        btnPanel.add(refreshBtn,BorderLayout.EAST);
+        topPanel.add(btnPanel,BorderLayout.WEST);
         
         contentPanel = new JPanel(new GridLayout(0,3,10,10));
         contentPanel.setBorder(BorderFactory.createEmptyBorder(10,23,10,23));
