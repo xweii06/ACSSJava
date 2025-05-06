@@ -116,32 +116,32 @@ public class AddNewRecords {
     }
 
     private static String generateID(String startingLetter, String filename) {
-        Set<Integer> existingIDs = new HashSet<>();
+        int maxNumber = 0;
         String data = DataIO.readFile(filename);
-        String nextID = startingLetter + "01";
-        if (data == null || data.isEmpty()) {
-            return nextID; 
-        }
-        String[] lines = data.split("\n");
-        for (String line : lines) {
-            String[] parts = line.split(",");
-            String id = parts[0].trim();
-            if (id.startsWith(startingLetter)) {
-                try {
-                    int num = Integer.parseInt(id.substring(startingLetter.length()));
-                    existingIDs.add(num);
-                } catch (NumberFormatException e) {
-                    continue;
+
+        if (data != null && !data.isEmpty()) {
+            String[] lines = data.split("\n");
+            for (String line : lines) {
+                if (!line.trim().isEmpty()) {
+                    String[] parts = line.split(",");
+                    String id = parts[0].trim();
+                    if (id.startsWith(startingLetter)) {
+                        try {
+                            String numStr = id.substring(startingLetter.length());
+                            int currentNum = Integer.parseInt(numStr);
+                            
+                            if (currentNum > maxNumber) {
+                                maxNumber = currentNum;
+                            }
+                        } catch (NumberFormatException e) {
+                            continue;
+                        }
+                    }
                 }
             }
         }
-        for (int i = 1; i <= existingIDs.size() + 1; i++) {
-            if (!existingIDs.contains(i)) {
-                nextID = startingLetter + String.format("%02d", i);
-                break;
-            }
-        }
-        return nextID;
+        int nextNum = maxNumber + 1;
+        return startingLetter + String.format("%02d", nextNum);
     }
     
     private static JTextField createTextField() {
