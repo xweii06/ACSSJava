@@ -9,7 +9,6 @@ public class DataIO {
     
     // for reading files
     public static String readFile(String filename) {
-        
         String content = "";
         Path filePath = Paths.get("data", filename);
         
@@ -30,7 +29,6 @@ public class DataIO {
     
     // for adding records
     public static void appendToFile(String filename, String line) throws IOException {
-        
         Path filePath = Paths.get("data", filename);
         if (Files.notExists(filePath.getParent())) {
             Files.createDirectories(filePath.getParent());
@@ -61,7 +59,6 @@ public class DataIO {
     
     // for icons
     public static ImageIcon loadIcon(String filename) {
-        
         try {
             InputStream is = DataIO.class.getResourceAsStream("/resources/" + filename);
             if (is != null) {

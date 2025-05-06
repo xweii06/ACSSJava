@@ -190,13 +190,31 @@ public class DeleteRecords {
         String filename = getFilename(menuItem);
         try {
             String data = DataIO.readFile(filename);
-            String[] lines = data.split("\n");
+            if (data == null || data.isEmpty()) {
+                throw new IOException("File is empty or couldn't be read");
+            }
             
+            StringBuilder newContent = new StringBuilder();
+            String[] lines = data.split("\n");
+            boolean recordFound = false;    
             for (String line : lines) {
-                if (!line.startsWith(currentRecordID + ",")) {
-                    DataIO.writeFile(filename,line);
+                if (!line.trim().isEmpty()) {
+                    if (!line.startsWith(currentRecordID + ",")) {
+                        newContent.append(line).append("\n");
+                    } else {
+                        recordFound = true;
+                    }
                 }
             }
+
+            if (!recordFound) {
+                JOptionPane.showMessageDialog(deleteFrame,
+                    "Record not found!",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            DataIO.writeFile(filename, newContent.toString().trim());
             JOptionPane.showMessageDialog(deleteFrame,
                 "Record deleted successfully!",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
