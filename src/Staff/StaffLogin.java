@@ -61,7 +61,7 @@ public class StaffLogin extends JFrame {
         backButton = new JButton("Back");
         backButton.setBounds(140, 160, 100, 30);
         backButton.setFocusable(false);
-        backButton.setForeground(Color.black);
+        backButton.setForeground(Color.white);
         backButton.setBackground(new Color(0x999999));
         backButton.addActionListener(e -> FrameManager.goBack());
         

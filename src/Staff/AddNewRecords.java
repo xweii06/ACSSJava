@@ -14,7 +14,6 @@ public class AddNewRecords {
     private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt", 
             CAR_FILE = "car.txt";
     
-    private static String filename;
     private static JFrame formFrame;
     private static LinkedHashMap<String, JComponent> fields;
     private static JPasswordField pwField;
@@ -24,6 +23,16 @@ public class AddNewRecords {
     
     public static ActionListener addNewRecords(String menuItem) {
         return e -> FrameManager.showFrame(createFormFrame(menuItem));
+        }
+    
+    private static String getFilename(String menuItem) {
+        switch (menuItem) {
+            case "Staff Management": return STAFF_FILE;
+            case "Salesman Management": return SALESMAN_FILE;
+            case "Car Management": return CAR_FILE;
+            default:
+                throw new IllegalArgumentException("Unknown menu item: " + menuItem);
+        }
     }
     
     private static JFrame createFormFrame(String menuItem) {
@@ -78,9 +87,6 @@ public class AddNewRecords {
         for (Map.Entry<String, JComponent> entry : fields.entrySet()) {
             if (entry.getKey().equals("Assigned Salesman ID")) {
                 ((JTextField) entry.getValue()).setText("S");
-            }
-            if (entry.getKey().equals("Phone")) {
-                ((JTextField) entry.getValue()).setText("+");
             }
             if (entry.getKey().equals("Price")) {
                 panel.add(new JLabel(entry.getKey() + "(RM):"));
@@ -184,21 +190,16 @@ public class AddNewRecords {
                 case "Salesman Management":
                     validatePW(((JPasswordField) fields.get("Password")).getPassword());
                     validateName(((JTextField) fields.get("Name")).getText());
-                    validatePhone(((JTextField) fields.get("Phone")).getText());
-                    validateEmail(((JTextField) fields.get("Email")).getText());
-                    break;
-
-                case "Customer Management":
-                    validateName(((JTextField) fields.get("Name")).getText());
-                    validatePhone(((JTextField) fields.get("Phone")).getText());
-                    validateEmail(((JTextField) fields.get("Email")).getText());
+                    validatePhone(((JTextField) fields.get("Phone")).getText(), menuItem);
+                    validateEmail(((JTextField) fields.get("Email")).getText(), menuItem);
                     break;
 
                 case "Car Management":
                     validateModel(((JTextField) fields.get("Model")).getText());
                     validateYear(((JTextField) fields.get("Year")).getText());
                     validatePrice(((JTextField) fields.get("Price")).getText());
-                    validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),"S");
+                    validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),
+                            "S");
                     break;
             }
         } catch (InvalidInputException ex) {
@@ -218,8 +219,8 @@ public class AddNewRecords {
                 details += ((JTextField) field).getText();
             } else if (field instanceof JLabel) {
                 details += ((JLabel) field).getText();
-            details += "\n";   
             }
+            details += "\n";  
         }
 
         int confirm = JOptionPane.showConfirmDialog(panel,details + "\nAre you sure?",
@@ -228,7 +229,7 @@ public class AddNewRecords {
         
         if (confirm == JOptionPane.YES_OPTION) {
             try{
-                filename = getFilename(menuItem);
+                String filename = getFilename(menuItem);
                 String record = buildRecord(menuItem, fields);
                 DataIO.appendToFile(filename, record);
                 JOptionPane.showMessageDialog(null, "Added successfully!", 
@@ -278,19 +279,43 @@ public class AddNewRecords {
             throw new InvalidInputException("Name can only contain letters and spaces");
         }
     }
-
-    private static void validatePhone(String phone) throws InvalidInputException {
-        if (!phone.startsWith("+")) {
-            throw new InvalidInputException("Phone number must start with '+'");
+    
+    private static String parsePhoneFormat(String phone) {
+        // remove spaces and dashes
+        phone = phone.replaceAll("[\\s\\-]", "");
+        
+        // Convert local format to international (+60)
+        if (phone.matches("^0[1-9][0-9]{7,9}$")) {
+            phone = "+60" + phone.substring(1); 
+        } else if (phone.matches("^60[1-9][0-9]{7,9}$")) {
+            phone = "+" + phone;  
+        } 
+        return phone;
+    }
+    
+    private static void validatePhone(String phone, String menuItem) throws InvalidInputException {
+        String newPhone = parsePhoneFormat(phone);
+        if (!newPhone.matches("^\\+60(1[0-9]{8,9}|[3-9][0-9]{7,8})$")) {
+            throw new InvalidInputException(
+                    "Please enter a valid Malaysian phone number.");
         }
-        if (!phone.matches("^\\+[0-9]{10,15}$")) {
-            throw new InvalidInputException("Phone number must be 10-15 digits");
+        if (menuItem.equals("Salesman Management")) {
+            String data = DataIO.readFile(SALESMAN_FILE);
+            if (data.contains(newPhone)) {
+                throw new InvalidInputException("Phone number already exist.");
+            }
         }
     }
 
-    private static void validateEmail(String email) throws InvalidInputException {
-        if (!email.matches("^[a-z0-9+_.-]+@[A-Za-z0-9.-]+$")) {
-            throw new InvalidInputException("Please enter a valid email address");
+    private static void validateEmail(String email, String menuItem) throws InvalidInputException {
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new InvalidInputException("Invalid email format");
+        }
+        if (menuItem.equals("Salesman Management")) {
+            String data = DataIO.readFile(SALESMAN_FILE);
+            if (data.contains(email)) {
+                throw new InvalidInputException("Email already exist.");
+            }
         }
     }
 
@@ -304,10 +329,10 @@ public class AddNewRecords {
         try {
             int year = Integer.parseInt(inputYear);
             if (year < 2000 || year > Year.now().getValue()) {
-                throw new InvalidInputException("Invalid year.");
+                throw new InvalidInputException("Invalid year");
             }
         } catch (NumberFormatException e) {
-            throw new InvalidInputException("Year must be a number.");
+            throw new InvalidInputException("Year must be a number");
         }
     }
     
@@ -321,7 +346,7 @@ public class AddNewRecords {
                 throw new InvalidInputException("Invalid price");
             }
         } catch (NumberFormatException e) {
-            throw new InvalidInputException("Price must be a valid number");
+            throw new InvalidInputException("Price must be a valid number without letters");
         }
     }
 
@@ -345,8 +370,11 @@ public class AddNewRecords {
                 data.add(((JLabel) fields.get("Salesman ID")).getText().trim());
                 data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
                 data.add(((JTextField) fields.get("Name")).getText());
-                data.add(((JTextField) fields.get("Phone")).getText());
-                data.add(((JTextField) fields.get("Email")).getText());
+                // convert format of phone number
+                String phone = ((JTextField) fields.get("Phone")).getText();
+                String newPhone = parsePhoneFormat(phone);
+                data.add(newPhone);
+                data.add(((JTextField) fields.get("Email")).getText().toLowerCase());
                 break;
 
             case "Car Management":
@@ -359,14 +387,6 @@ public class AddNewRecords {
                 break;
         }
         return String.join(",", data);
-    }
-    
-    private static String getFilename(String menuItem) {
-        switch (menuItem) {
-            case "Staff Management": filename = STAFF_FILE; break;
-            case "Salesman Management": filename = SALESMAN_FILE; break;
-            case "Car Management": filename = CAR_FILE; break;
-        } return filename;
     }
     
     private static void clearFormFields() {

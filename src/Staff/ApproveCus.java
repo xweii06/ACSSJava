@@ -3,15 +3,14 @@ package Staff;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.nio.file.*;
 import javax.swing.*;
-import java.util.List;
 import navigation.FrameManager;
 import utils.DataIO;
 
 public class ApproveCus {
     
-    private static String CUSTOMER_FILE = "customers.txt", PENDING_CUS_FILE = "pendingCustomers.txt";
+    private static final String CUSTOMER_FILE = "customers.txt", 
+            PENDING_CUS_FILE = "pendingCustomers.txt";
     
     private static JFrame pendingCusFrame;
     private static JPanel topPanel, btnPanel, contentPanel;
@@ -22,7 +21,7 @@ public class ApproveCus {
     }
     
     private static void handlePendingCustomers() {
-        if (!checkPendingCustomers()) {
+        if (!hasPendingCustomers()) {
             JOptionPane.showMessageDialog(pendingCusFrame, 
                     "No pending customers currently.",
                     "No requests", JOptionPane.INFORMATION_MESSAGE);
@@ -31,7 +30,7 @@ public class ApproveCus {
         }
     }
     
-    private static boolean checkPendingCustomers() {
+    private static boolean hasPendingCustomers() {
         try {
             String pendingCustomers = DataIO.readFile(PENDING_CUS_FILE);
             
@@ -46,6 +45,55 @@ public class ApproveCus {
             return false;
         }
         return true;
+    }
+    
+    private static JFrame viewPendingCus() {
+        pendingCusFrame = new JFrame("Pending Customers");
+        pendingCusFrame.setLayout(new BorderLayout());
+        pendingCusFrame.setSize(800,400);
+        pendingCusFrame.setResizable(false);
+        
+        topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Color.lightGray);
+        
+        btnPanel = new JPanel(new BorderLayout());
+        btnPanel.setPreferredSize(new Dimension(200,80));
+        btnPanel.setOpaque(false);
+        
+        backBtn = new JButton(DataIO.loadIcon("backIcon.png"));
+        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        backBtn.setOpaque(false);
+        backBtn.setContentAreaFilled(false);
+        backBtn.addActionListener(e -> FrameManager.goBack());
+        
+        refreshBtn = new JButton(DataIO.loadIcon("refreshIcon.png"));
+        refreshBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        refreshBtn.setOpaque(false);
+        refreshBtn.setContentAreaFilled(false);
+        refreshBtn.addActionListener(e -> refreshSuccessfully());
+        
+        btnPanel.add(backBtn,BorderLayout.WEST);
+        btnPanel.add(refreshBtn,BorderLayout.EAST);
+        topPanel.add(btnPanel,BorderLayout.WEST);
+        
+        contentPanel = new JPanel(new GridLayout(0,3,10,10));
+        contentPanel.setBorder(BorderFactory.createEmptyBorder(10,23,10,23));
+        
+        JPanel wrapperPanel = new JPanel(new BorderLayout());        
+        wrapperPanel.setPreferredSize(new Dimension(900,contentPanel.getHeight()));
+        wrapperPanel.setMaximumSize(new Dimension(900,contentPanel.getHeight()));
+        
+        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        pendingCusFrame.add(topPanel, BorderLayout.NORTH);
+        pendingCusFrame.add(scrollPane, BorderLayout.CENTER);
+        
+        refreshPendingCustomers();
+        
+        pendingCusFrame.setVisible(true);
+        return pendingCusFrame;
     }
     
     private static void refreshPendingCustomers() {
@@ -72,54 +120,12 @@ public class ApproveCus {
         contentPanel.repaint();
     }
     
-    private static JFrame viewPendingCus() {
-        pendingCusFrame = new JFrame("Pending Customers");
-        pendingCusFrame.setLayout(new BorderLayout());
-        pendingCusFrame.setSize(800,400);
-        pendingCusFrame.setResizable(false);
-        
-        topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(Color.lightGray);
-        
-        btnPanel = new JPanel(new BorderLayout());
-        btnPanel.setPreferredSize(new Dimension(200,80));
-        btnPanel.setOpaque(false);
-        
-        backBtn = new JButton(DataIO.loadIcon("backIcon.png"));
-        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        backBtn.setOpaque(false);
-        backBtn.setContentAreaFilled(false);
-        backBtn.addActionListener(e -> FrameManager.goBack());
-        
-        refreshBtn = new JButton(DataIO.loadIcon("refreshIcon.png"));
-        refreshBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-        refreshBtn.setOpaque(false);
-        refreshBtn.setContentAreaFilled(false);
-        refreshBtn.addActionListener(e -> refreshPendingCustomers());
-        
-        btnPanel.add(backBtn,BorderLayout.WEST);
-        btnPanel.add(refreshBtn,BorderLayout.EAST);
-        topPanel.add(btnPanel,BorderLayout.WEST);
-        
-        contentPanel = new JPanel(new GridLayout(0,3,10,10));
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(10,23,10,23));
-        
-        JPanel wrapperPanel = new JPanel(new BorderLayout());        
-        wrapperPanel.setPreferredSize(new Dimension(900,contentPanel.getHeight()));
-        wrapperPanel.setMaximumSize(new Dimension(900,contentPanel.getHeight()));
-        
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        
-        pendingCusFrame.add(topPanel, BorderLayout.NORTH);
-        pendingCusFrame.add(scrollPane, BorderLayout.CENTER);
-        
+    private static void refreshSuccessfully() {
         refreshPendingCustomers();
-        
-        pendingCusFrame.setVisible(true);
-        return pendingCusFrame;
+        JOptionPane.showMessageDialog(pendingCusFrame, "Refresh completed.",
+                "Page Refreshed", JOptionPane.INFORMATION_MESSAGE);
     }
+    
     
     private static void addCustomerCard(int number, String id, String username, String name, 
             String phone, String email) {
