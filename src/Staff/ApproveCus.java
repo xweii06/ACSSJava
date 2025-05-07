@@ -57,17 +57,17 @@ public class ApproveCus {
         topPanel.setBackground(Color.lightGray);
         
         btnPanel = new JPanel(new BorderLayout());
-        btnPanel.setPreferredSize(new Dimension(200,80));
+        btnPanel.setPreferredSize(new Dimension(130,70));
         btnPanel.setOpaque(false);
         
         backBtn = new JButton(DataIO.loadIcon("backIcon.png"));
-        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        backBtn.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
         backBtn.setOpaque(false);
         backBtn.setContentAreaFilled(false);
         backBtn.addActionListener(e -> FrameManager.goBack());
         
         refreshBtn = new JButton(DataIO.loadIcon("refreshIcon.png"));
-        refreshBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+        refreshBtn.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 10));
         refreshBtn.setOpaque(false);
         refreshBtn.setContentAreaFilled(false);
         refreshBtn.addActionListener(e -> refreshSuccessfully());
