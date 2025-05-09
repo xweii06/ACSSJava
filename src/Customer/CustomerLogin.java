@@ -1,5 +1,6 @@
 package Customer;
 
+import utils.CustomerManager;
 import javax.swing.*;
 import java.awt.*;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
