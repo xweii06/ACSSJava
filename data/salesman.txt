@@ -1,1 +1,3 @@
-S01,1234,Sharizad,+60123456789,sha123@gmail.com
+S01,Sharizad,+60123456789,sha123@gmail.com,1234
+S02,XiaoWei,+60127654321,xw@gmail.com,2345
+S03,TianYi,+60129876543,tianyi123@gmail.com,3456

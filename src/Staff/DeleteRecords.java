@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
-import javax.swing.border.Border;
 import navigation.FrameManager;
 import utils.DataIO;
 
@@ -16,7 +15,7 @@ public class DeleteRecords {
     private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt",
             CUSTOMER_FILE = "customers.txt", CAR_FILE = "car.txt";
     
-    private static JFrame deleteFrame;
+    private static JFrame frame;
     private static JPanel panel, formPanel, buttonPanel, searchInputPanel, previewPanel;
     private static JTextField idField;
     private static JTextArea previewArea;
@@ -39,10 +38,10 @@ public class DeleteRecords {
     
     
     private static JFrame createDeleteFrame(String menuItem) {
-        deleteFrame = new JFrame("Delete " + (menuItem.split(" "))[0]);
-        deleteFrame.setLayout(new BorderLayout());
-        deleteFrame.setSize(400, 300);
-        deleteFrame.setResizable(false);
+        frame = new JFrame("Delete " + (menuItem.split(" "))[0]);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(400, 300);
+        frame.setResizable(false);
         
         panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -68,10 +67,7 @@ public class DeleteRecords {
         previewPanel.setVisible(false);
         
         buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        
-        Border border = BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.black,1),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         deleteBtn = new JButton("Delete Record");
         deleteBtn.setBackground(Color.gray); // set gray as default
         deleteBtn.setSize(new Dimension(100,30));
@@ -94,15 +90,15 @@ public class DeleteRecords {
         formPanel.add(previewPanel, BorderLayout.CENTER);
         panel.add(buttonPanel, BorderLayout.SOUTH);
         
-        deleteFrame.add(panel);
-        return deleteFrame;
+        frame.add(panel);
+        return frame;
     }
     
     private static void searchRecord(String menuItem) {
         String searchID = idField.getText().trim();
         
         if (searchID == null || searchID.isEmpty()) {
-            JOptionPane.showMessageDialog(deleteFrame, 
+            JOptionPane.showMessageDialog(frame, 
                 "Please enter an ID", 
                 "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -124,7 +120,7 @@ public class DeleteRecords {
         if (!found) {
             previewPanel.setVisible(false);
             deleteBtn.setEnabled(false);
-            JOptionPane.showMessageDialog(deleteFrame,
+            JOptionPane.showMessageDialog(frame,
                     "No record found with ID: " + searchID,
                     "Not Found", JOptionPane.WARNING_MESSAGE);
         }
@@ -174,7 +170,7 @@ public class DeleteRecords {
                 String superAdminID = getSuperAdminID();
                 if (!(superAdminID == null)) {
                     if (currentRecordID.equals(superAdminID)) {
-                        JOptionPane.showMessageDialog(deleteFrame,
+                        JOptionPane.showMessageDialog(frame,
                         "Cannot delete super admin.",
                         "Action blocked", JOptionPane.WARNING_MESSAGE);
                         return;
@@ -191,7 +187,7 @@ public class DeleteRecords {
             case "Car Management":
                 // status cannot be booked
                 if (!isAvailable(currentRecordID)) {
-                    JOptionPane.showMessageDialog(deleteFrame,
+                    JOptionPane.showMessageDialog(frame,
                         "Cannot delete unavailable car.",
                         "Action blocked", JOptionPane.WARNING_MESSAGE);
                     return;
@@ -199,7 +195,7 @@ public class DeleteRecords {
                 break;
         }
         
-        int confirm = JOptionPane.showConfirmDialog(deleteFrame,
+        int confirm = JOptionPane.showConfirmDialog(frame,
             "Are you sure you want to delete this record?\n\n",
             "Confirm Deletion", JOptionPane.YES_NO_OPTION);
         
@@ -254,13 +250,13 @@ public class DeleteRecords {
             }
             
             if (successfullyReassigned == assignedCars.size()) {
-                JOptionPane.showMessageDialog(deleteFrame,
+                JOptionPane.showMessageDialog(frame,
                     "Reassigned all " + successfullyReassigned + " cars",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 return true;
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(deleteFrame,
+            JOptionPane.showMessageDialog(frame,
                 "Error during deletion: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -317,7 +313,7 @@ public class DeleteRecords {
         dropdown.setSelectedIndex(0);
         panel.add(dropdown);
 
-        int result = JOptionPane.showConfirmDialog(deleteFrame,
+        int result = JOptionPane.showConfirmDialog(frame,
             panel,
             "Select New Salesman",
             JOptionPane.OK_CANCEL_OPTION,
@@ -390,14 +386,14 @@ public class DeleteRecords {
             }
 
             if (!recordFound) {
-                JOptionPane.showMessageDialog(deleteFrame,
+                JOptionPane.showMessageDialog(frame,
                     "Record not found!",
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             DataIO.writeFile(filename, newContent.toString().trim());
-            JOptionPane.showMessageDialog(deleteFrame,
+            JOptionPane.showMessageDialog(frame,
                 "Record deleted successfully!",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
             
@@ -408,7 +404,7 @@ public class DeleteRecords {
             FrameManager.goBack();
             
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(deleteFrame,
+            JOptionPane.showMessageDialog(frame,
                 "Error deleting record: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
         }

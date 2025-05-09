@@ -14,7 +14,7 @@ public class AddNewRecords {
     private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt", 
             CAR_FILE = "car.txt";
     
-    private static JFrame formFrame;
+    private static JFrame frame;
     private static LinkedHashMap<String, JComponent> fields;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
@@ -22,7 +22,7 @@ public class AddNewRecords {
     private static JPanel panel;
     
     public static ActionListener addNewRecords(String menuItem) {
-        return e -> FrameManager.showFrame(createFormFrame(menuItem));
+        return e -> FrameManager.showFrame(createframe(menuItem));
         }
     
     private static String getFilename(String menuItem) {
@@ -35,11 +35,11 @@ public class AddNewRecords {
         }
     }
     
-    private static JFrame createFormFrame(String menuItem) {
-        formFrame = new JFrame("Add New " + (menuItem.split(" "))[0]);
-        formFrame.setLayout(new BorderLayout());
-        formFrame.setSize(400, 300);
-        formFrame.setResizable(false);
+    private static JFrame createframe(String menuItem) {
+        frame = new JFrame("Add New " + (menuItem.split(" "))[0]);
+        frame.setLayout(new BorderLayout());
+        frame.setSize(400, 300);
+        frame.setResizable(false);
 
         fields = new LinkedHashMap<>();
         panel = new JPanel(new GridLayout(0,2,10,10));
@@ -108,11 +108,11 @@ public class AddNewRecords {
 
         panel.add(submitBtn);
         panel.add(cancelBtn);
-        formFrame.add(panel,BorderLayout.CENTER);
+        frame.add(panel,BorderLayout.CENTER);
 
-        formFrame.pack();
-        formFrame.setVisible(true);
-        return formFrame;
+        frame.pack();
+        frame.setVisible(true);
+        return frame;
     }
 
     private static String generateID(String startingLetter, String filename) {
@@ -175,7 +175,7 @@ public class AddNewRecords {
         }
         
         if (emptyField) {
-            JOptionPane.showMessageDialog(formFrame, "All fields are required!", 
+            JOptionPane.showMessageDialog(frame, "All fields are required!", 
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -203,7 +203,7 @@ public class AddNewRecords {
                     break;
             }
         } catch (InvalidInputException ex) {
-            JOptionPane.showMessageDialog(formFrame, ex.getMessage(), 
+            JOptionPane.showMessageDialog(frame, ex.getMessage(), 
                     "Invalid Input", JOptionPane.ERROR_MESSAGE);
             return;
         }

@@ -136,8 +136,8 @@ public class StaffLogin extends JFrame {
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
                     String savedID = parts[0].trim();
-                    String savedpw = parts[1].trim();
-                    String staffName = parts[2].trim();
+                    String staffName = parts[1].trim();
+                    String savedpw = parts[2].trim();
                     
                     if (savedID.equals(staffID)) {
                         if (savedpw.equals(new String(staffPW))) {

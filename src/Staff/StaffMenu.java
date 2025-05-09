@@ -92,6 +92,11 @@ public class StaffMenu extends JFrame {
     }
     
     private void switchContent(String menuItem) {
+        if (menuItem.equals("End Program")) {
+            handleExitProgram();
+            return;
+        }
+        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
@@ -119,8 +124,8 @@ public class StaffMenu extends JFrame {
                         DataIO.loadIcon(ADDUSER_PNG),AddNewRecords.addNewRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete User",
                         DataIO.loadIcon(DELUSER_PNG), DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Search User",
-                        DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "View User",
+                        DataIO.loadIcon(SEARCHUSER_PNG),ViewAllRecords.viewAllRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Update User Info",
                         DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
@@ -129,8 +134,8 @@ public class StaffMenu extends JFrame {
                         DataIO.loadIcon(APPROVEUSER_PNG),ApproveCus.approveCus());
                 addSubMenuButton(subMenuPanel, "Delete User",
                         DataIO.loadIcon(DELUSER_PNG),DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Search User",
-                        DataIO.loadIcon(SEARCHUSER_PNG),null);
+                addSubMenuButton(subMenuPanel, "View User",
+                        DataIO.loadIcon(SEARCHUSER_PNG),ViewAllRecords.viewAllRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Update User Info",
                         DataIO.loadIcon(UPDATEUSER_PNG),null);
                 break;
@@ -139,8 +144,8 @@ public class StaffMenu extends JFrame {
                         DataIO.loadIcon(ADDCAR_PNG),AddNewRecords.addNewRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Delete Car",
                         DataIO.loadIcon(DELCAR_PNG),DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Search Car",
-                        DataIO.loadIcon(SEARCHCAR_PNG),null);
+                addSubMenuButton(subMenuPanel, "View Car",
+                        DataIO.loadIcon(SEARCHCAR_PNG),ViewAllRecords.viewAllRecords(menuItem));
                 addSubMenuButton(subMenuPanel, "Update Car Info",
                         DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
@@ -163,31 +168,6 @@ public class StaffMenu extends JFrame {
                         DataIO.loadIcon(SEARCHCAR_PNG),null);
                 addSubMenuButton(subMenuPanel, "Revenue Analysis",
                         DataIO.loadIcon(UPDATECAR_PNG),null);
-                break;
-            case "End Program":
-                String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
-                
-                if (exitPIN != null){
-                    try {
-                        boolean validation = checkExitPIN(exitPIN);
-                        if (validation) {
-                            int confirmation 
-                                    = JOptionPane.showConfirmDialog(null,"Are you sure?",
-                                            "Confirmation",JOptionPane.YES_NO_OPTION);
-                            if (confirmation == 0) {
-                                System.exit(0);
-                            }
-                        } else if (!validation) {
-                            JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
-                        }
-                    } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(this,
-                            "Error accessing records",
-                            "System Error",
-                            JOptionPane.ERROR_MESSAGE);
-                        ex.printStackTrace();
-                    }
-                }
                 break;
         }
         
@@ -283,6 +263,32 @@ public class StaffMenu extends JFrame {
         }
         button.addActionListener(action);
         panel.add(button);
+    }
+    
+    private void handleExitProgram() {
+        String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
+
+        if (exitPIN != null){
+            try {
+                boolean validation = checkExitPIN(exitPIN);
+                if (validation) {
+                    int confirmation 
+                            = JOptionPane.showConfirmDialog(null,"Are you sure?",
+                                    "Confirmation",JOptionPane.YES_NO_OPTION);
+                    if (confirmation == 0) {
+                        System.exit(0);
+                    }
+                } else if (!validation) {
+                    JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Error accessing records",
+                    "System Error",
+                    JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        }
     }
     
     private boolean checkExitPIN(String exitPIN) throws IOException{

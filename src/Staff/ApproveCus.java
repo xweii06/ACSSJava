@@ -12,7 +12,7 @@ public class ApproveCus {
     private static final String CUSTOMER_FILE = "customers.txt", 
             PENDING_CUS_FILE = "pendingCustomers.txt";
     
-    private static JFrame pendingCusFrame;
+    private static JFrame frame;
     private static JPanel topPanel, btnPanel, contentPanel;
     private static JButton backBtn, refreshBtn;
     
@@ -22,7 +22,7 @@ public class ApproveCus {
     
     private static void handlePendingCustomers() {
         if (!hasPendingCustomers()) {
-            JOptionPane.showMessageDialog(pendingCusFrame, 
+            JOptionPane.showMessageDialog(frame, 
                     "No pending customers currently.",
                     "No requests", JOptionPane.INFORMATION_MESSAGE);
         } else {
@@ -39,7 +39,7 @@ public class ApproveCus {
                 return false;
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(pendingCusFrame, 
+            JOptionPane.showMessageDialog(frame, 
                     "Error loading pending customers: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             return false;
@@ -48,10 +48,10 @@ public class ApproveCus {
     }
     
     private static JFrame viewPendingCus() {
-        pendingCusFrame = new JFrame("Pending Customers");
-        pendingCusFrame.setLayout(new BorderLayout());
-        pendingCusFrame.setSize(800,400);
-        pendingCusFrame.setResizable(false);
+        frame = new JFrame("Pending Customers");
+        frame.setLayout(new BorderLayout());
+        frame.setSize(800,400);
+        frame.setResizable(false);
         
         topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Color.lightGray);
@@ -87,13 +87,13 @@ public class ApproveCus {
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         
-        pendingCusFrame.add(topPanel, BorderLayout.NORTH);
-        pendingCusFrame.add(scrollPane, BorderLayout.CENTER);
+        frame.add(topPanel, BorderLayout.NORTH);
+        frame.add(scrollPane, BorderLayout.CENTER);
         
         refreshPendingCustomers();
         
-        pendingCusFrame.setVisible(true);
-        return pendingCusFrame;
+        frame.setVisible(true);
+        return frame;
     }
     
     private static void refreshPendingCustomers() {
@@ -112,7 +112,7 @@ public class ApproveCus {
                 }
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(pendingCusFrame, 
+            JOptionPane.showMessageDialog(frame, 
                     "Error loading pending customers: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -122,7 +122,7 @@ public class ApproveCus {
     
     private static void refreshSuccessfully() {
         refreshPendingCustomers();
-        JOptionPane.showMessageDialog(pendingCusFrame, "Refresh completed.",
+        JOptionPane.showMessageDialog(frame, "Refresh completed.",
                 "Page Refreshed", JOptionPane.INFORMATION_MESSAGE);
     }
     
@@ -189,7 +189,7 @@ public class ApproveCus {
     }
     
     private static void handleApprove(String id) {
-        int confirm = JOptionPane.showConfirmDialog(pendingCusFrame,
+        int confirm = JOptionPane.showConfirmDialog(frame,
              "Are you sure you want to approve customer [" + id + "]?",
             "Confirm Approval", JOptionPane.YES_NO_OPTION);
         
@@ -199,13 +199,13 @@ public class ApproveCus {
                 if (customerData != null) {
                     DataIO.appendToFile(CUSTOMER_FILE, customerData);
                     removeFromPendingFile(id);
-                    JOptionPane.showMessageDialog(pendingCusFrame,
+                    JOptionPane.showMessageDialog(frame,
                         "Customer approved successfully!",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
                     refreshPendingCustomers();
                 }
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(pendingCusFrame,
+                JOptionPane.showMessageDialog(frame,
                     "Error approving customer: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -213,19 +213,19 @@ public class ApproveCus {
     }
     
     private static void handleReject(String id) {
-        int confirm = JOptionPane.showConfirmDialog(pendingCusFrame,
+        int confirm = JOptionPane.showConfirmDialog(frame,
             "Are you sure you want to reject this customer [" + id + "]?",
             "Confirm Rejection", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 removeFromPendingFile(id);
-                JOptionPane.showMessageDialog(pendingCusFrame,
+                JOptionPane.showMessageDialog(frame,
                     "Customer rejected successfully!",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 refreshPendingCustomers();
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(pendingCusFrame,
+                JOptionPane.showMessageDialog(frame,
                     "Error rejecting customer: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -254,11 +254,11 @@ public class ApproveCus {
                     DataIO.writeFile(filename,line);
                 }
             }
-            JOptionPane.showMessageDialog(pendingCusFrame,
+            JOptionPane.showMessageDialog(frame,
                 "Record deleted successfully!",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(pendingCusFrame,
+            JOptionPane.showMessageDialog(frame,
                 "Error deleting record: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
