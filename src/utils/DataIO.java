@@ -69,4 +69,32 @@ public class DataIO {
         }
         return new ImageIcon();
     }
+    
+    // for adding car img
+    public static String saveCarImage(File imageFile, String carID, String extension) throws IOException {
+        Path imagePath = Paths.get("data/carImg");
+        try {
+            if (!Files.exists(imagePath)) {
+                Files.createDirectories(imagePath);
+            }
+        } catch (IOException ex) {
+            throw new IOException("Failed to create image directory: " + ex.getMessage());
+        }
+        if (!Files.isWritable(imagePath)) {
+            throw new IOException("No write permission for image directory");
+        }
+        String filename = "car_" + carID + "." + extension;
+        Path destination = imagePath.resolve(filename);
+        try {
+            Files.copy(imageFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
+            if (!Files.exists(destination)) {
+                throw new IOException("Failed to verify copied image");
+            }
+
+            return destination.toString();
+
+        } catch (IOException e) {
+            throw new IOException("Failed to save image: " + e.getMessage());
+        }
+    }
 }

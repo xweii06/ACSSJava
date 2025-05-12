@@ -9,9 +9,9 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import utils.DataIO;
 
-public class AddNewRecords {
+public class UpdateRecords {
     
-    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB max size
+    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; 
     private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"};
     
     private static JFrame frame;
@@ -21,11 +21,12 @@ public class AddNewRecords {
     private static JLabel imageLabel;
     private static JButton submitBtn, cancelBtn, uploadBtn;
     private static JPanel panel;
+    private static String[] rowData;
+    private static String menuItem;
     
-    public static JFrame createAddFrame(String menuItem) {
-        frame = new JFrame("Add New " + (menuItem.split(" "))[0]);
+    public static void createUpdateFrame(String menuItem, String[] rowData) {
+        frame = new JFrame("Update " + (menuItem.split(" "))[0] + " Record");
         frame.setLayout(new BorderLayout());
-        frame.setSize(400, 300);
         frame.setResizable(false);
         frame.setLocationRelativeTo(null);
 
@@ -46,42 +47,45 @@ public class AddNewRecords {
 
         switch (menuItem) {
             case "Staff Management":
-                fields.put("Staff ID",new JLabel(
-                        generateID("M",FileManager.getFilename(menuItem))));
-                fields.put("Password",pwField);
-                fields.put("Name",createTextField());
+                fields.put("Staff ID", new JLabel(rowData[0]));
+                fields.put("Password", pwField);
+                pwField.setText(rowData[3]); // this line error
+                fields.put("Name", createTextField(rowData[2]));
                 break;
 
             case "Salesman Management":
-                fields.put("Salesman ID",new JLabel(
-                        generateID("S",FileManager.getFilename(menuItem))));
-                fields.put("Password",pwField);
-                fields.put("Name",createTextField());
-                fields.put("Phone",createTextField());
-                fields.put("Email",createTextField());
+                fields.put("Salesman ID", new JLabel(rowData[0]));
+                fields.put("Password", pwField);
+                pwField.setText(rowData[4]); // this line error
+                fields.put("Name", createTextField(rowData[1]));
+                fields.put("Phone", createTextField(rowData[2]));
+                fields.put("Email", createTextField(rowData[3]));
                 break;
 
             case "Car Management":
-                fields.put("Car ID",new JLabel(
-                        generateID("CAR",FileManager.getFilename(menuItem))));
-                fields.put("Model", createTextField());
-                fields.put("Year", createTextField());
-                fields.put("Color", createTextField());
-                fields.put("Price", createTextField());
-                fields.put("Status", new JLabel("Available"));
-                fields.put("Assigned Salesman ID", createTextField());
+                fields.put("Car ID", new JLabel(rowData[0]));
+                fields.put("Model", createTextField(rowData[1]));
+                fields.put("Year", createTextField(rowData[2]));
+                fields.put("Color", createTextField(rowData[3]));
+                fields.put("Price", createTextField(rowData[4]));
+                
+                JComboBox<String> statusCombo = new JComboBox<>(
+                    new String[]{"Available", "Booked", "Paid", "Cancelled"});
+                statusCombo.setSelectedItem(rowData[5]);
+                fields.put("Status", statusCombo);
+                
+                fields.put("Assigned Salesman ID", createTextField(rowData[6]));
+                
                 uploadBtn = new JButton("Upload Image");
                 uploadBtn.setFocusable(false);
-                imageLabel = new JLabel("No image selected");
+                imageLabel = new JLabel(rowData.length > 7 && !rowData[7].isEmpty() ? 
+                    "Image selected" : "No image selected");
                 fields.put("Image", imageLabel);
                 uploadBtn.addActionListener(e -> handleImageUpload(imageLabel));
                 break;
         }
 
         for (Map.Entry<String, JComponent> entry : fields.entrySet()) {
-            if (entry.getKey().equals("Assigned Salesman ID")) {
-                ((JTextField) entry.getValue()).setText("S");
-            }
             if (entry.getKey().equals("Price")) {
                 panel.add(new JLabel(entry.getKey() + "(RM):"));
             } else if (entry.getKey().equals("Image")) {
@@ -89,8 +93,7 @@ public class AddNewRecords {
                 panel.add(uploadBtn);
                 panel.add(new JLabel("Selected Image:"));
                 panel.add(imageLabel);
-            }
-            else {
+            } else {
                 panel.add(new JLabel(entry.getKey() + ":"));
             }
             panel.add(entry.getValue());
@@ -103,7 +106,7 @@ public class AddNewRecords {
         submitBtn = new JButton("Submit");
         submitBtn.setBackground(new Color(0x08A045));
         submitBtn.setForeground(Color.white);
-        submitBtn.addActionListener(e -> processSubmission(menuItem, fields));
+        submitBtn.addActionListener(e -> processUpdate());
         
         cancelBtn = new JButton("Cancel");
         cancelBtn.setBackground(new Color(0x999999));
@@ -123,53 +126,14 @@ public class AddNewRecords {
         
         panel.add(submitBtn);
         panel.add(cancelBtn);
-        frame.add(panel,BorderLayout.CENTER);
+        frame.add(panel, BorderLayout.CENTER);
 
         frame.pack();
         frame.setVisible(true);
-        return frame;
     }
 
-    private static String generateID(String startingLetter, String filename) {
-        Set<Integer> existingIDs = new HashSet<>();
-        String id = startingLetter + "01";
-
-        try {
-            String data = DataIO.readFile(filename);
-            if (data != null && !data.trim().isEmpty()) {
-                String[] lines = data.split("\n");
-                for (String line : lines) {
-                    if (!line.trim().isEmpty()) {
-                        String[] parts = line.split(",");
-                        if (parts.length > 0) {
-                            String savedID = parts[0].trim();
-                            if (savedID.startsWith(startingLetter)) {
-                                try {
-                                    String numStr = savedID.substring(startingLetter.length());
-                                    int num = Integer.parseInt(numStr);
-                                    existingIDs.add(num);
-                                } catch (NumberFormatException ex) {
-                                    continue;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            int nextNum = 1;
-            while (existingIDs.contains(nextNum)) {
-                nextNum++;
-            }
-            id = startingLetter + String.format("%02d", nextNum);
-            
-        } catch (Exception ex) { 
-            System.err.println("Error reading IDs: " + ex.getMessage());
-        }
-        return id;
-    }
-    
-    private static JTextField createTextField() {
-        JTextField field = new JTextField();
+    private static JTextField createTextField(String text) {
+        JTextField field = new JTextField(text);
         field.setPreferredSize(new Dimension(100, 25));
         field.setMaximumSize(new Dimension(100, 350));
         field.setMinimumSize(new Dimension(100, 350));
@@ -232,7 +196,7 @@ public class AddNewRecords {
         }
     }
     
-    private static void processSubmission(String menuItem, LinkedHashMap<String, JComponent> fields) {
+    private static void processUpdate() {
         boolean emptyField = false;
         for (JComponent field : fields.values()) {
             if (field instanceof JTextField && ((JTextField) field).getText().isEmpty()) {
@@ -291,31 +255,108 @@ public class AddNewRecords {
                 details += ((JTextField) field).getText();
             } else if (field instanceof JLabel) {
                 details += ((JLabel) field).getText();
+            } else if (field instanceof JComboBox) {
+                details += ((JComboBox<?>) field).getSelectedItem();
             }
             details += "\n";  
         }
 
-        int confirm = JOptionPane.showConfirmDialog(panel,details + "\nAre you sure?",
-                "Confirmation",JOptionPane.YES_NO_OPTION
-        );
+        int confirm = JOptionPane.showConfirmDialog(panel, details + "\nAre you sure?",
+                "Confirmation", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            try{
+            try {
                 String filename = FileManager.getFilename(menuItem);
-                String record = buildRecord(menuItem, fields);
-                DataIO.appendToFile(filename, record);
-                JOptionPane.showMessageDialog(null, "Added successfully!", 
+                String updatedRecord = buildUpdatedRecord();
+                updateFile(filename, rowData[0], updatedRecord);
+                JOptionPane.showMessageDialog(null, "Updated successfully!", 
                         "Success", JOptionPane.INFORMATION_MESSAGE);
-                clearFormFields();
                 frame.dispose();
                 StaffMenu.refreshMenu(menuItem); 
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Error reading: " + ex.getMessage(),
+                JOptionPane.showMessageDialog(null, "Error updating record: " + ex.getMessage(),
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
+    
+    private static void updateFile(String filename, String id, String updatedRecord) throws IOException {
+        String data = DataIO.readFile(filename);
+        if (data == null) {
+            throw new IOException("Could not read file: " + filename);
+        }
         
+        String[] lines = data.split("\n");
+        StringBuilder newContent = new StringBuilder();
+        
+        for (String line : lines) {
+            if (!line.trim().isEmpty()) {
+                String[] parts = line.split(",");
+                if (parts.length > 0 && parts[0].equals(id)) {
+                    newContent.append(updatedRecord).append("\n");
+                } else {
+                    newContent.append(line).append("\n");
+                }
+            }
+        }
+        
+        DataIO.writeFile(filename, newContent.toString().trim());
+    }
+    
+    private static String buildUpdatedRecord() throws IOException {
+        ArrayList<String> data = new ArrayList<>();
+
+        switch (menuItem) {
+            case "Staff Management":
+                data.add(((JLabel) fields.get("Staff ID")).getText());
+                data.add(((JTextField) fields.get("Name")).getText());
+                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
+                break;
+
+            case "Salesman Management":
+                data.add(((JLabel) fields.get("Salesman ID")).getText().trim());
+                data.add(((JTextField) fields.get("Name")).getText());
+                // convert format of phone number
+                String phone = ((JTextField) fields.get("Phone")).getText();
+                String newPhone = parsePhoneFormat(phone);
+                data.add(newPhone);
+                data.add(((JTextField) fields.get("Email")).getText().toLowerCase());
+                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
+                break;
+
+            case "Car Management":
+                data.add(((JLabel) fields.get("Car ID")).getText());
+                data.add(((JTextField) fields.get("Model")).getText());
+                data.add(((JTextField) fields.get("Year")).getText());
+                data.add(((JTextField) fields.get("Color")).getText());
+                data.add(((JTextField) fields.get("Price")).getText());
+                data.add(((JComboBox<?>) fields.get("Status")).getSelectedItem().toString());
+                data.add(((JTextField) fields.get("Assigned Salesman ID")).getText());
+                
+                JLabel imageLabel = (JLabel) fields.get("Image");
+                File selectedFile = (File) imageLabel.getClientProperty("selectedFile");
+                if (selectedFile != null) {
+                    try {
+                        String carID = ((JLabel) fields.get("Car ID")).getText();
+                        String fileExtension = getFileExtension(selectedFile.getName());
+                        String imagePath = DataIO.saveCarImage(
+                                selectedFile, carID, fileExtension);
+                        data.add(imagePath);
+                    } catch (IOException ex) {
+                        System.err.println("Error saving image: " + ex.getMessage());
+                        data.add(rowData.length > 7 ? rowData[7] : ""); // keep existing image if upload fails
+                        JOptionPane.showMessageDialog(frame, 
+                            "Car record updated but image upload failed: " + ex.getMessage(),
+                            "Image Upload Error", JOptionPane.WARNING_MESSAGE);
+                    }
+                } else {
+                    data.add(rowData.length > 7 ? rowData[7] : ""); // keep existing image
+                }
+                break;
+        }
+        return String.join(",", data);
+    }
+    
     private static void validateID(String id, String startingLetter) throws InvalidInputException {
         if (id.length() < 3 || id.length() > 12) {
             throw new InvalidInputException("ID must be between 4 and 12 characters");
@@ -433,66 +474,6 @@ public class AddNewRecords {
         }
     }
 
-    private static class InvalidInputException extends Exception {
-        public InvalidInputException(String message) {
-            super(message);
-        }
-    }
-
-    private static String buildRecord(String menuItem, LinkedHashMap<String, JComponent> fields) throws IOException {
-        ArrayList<String> data = new ArrayList<>();
-
-        switch (menuItem) {
-            case "Staff Management":
-                data.add(((JLabel) fields.get("Staff ID")).getText());
-                data.add(((JTextField) fields.get("Name")).getText());
-                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
-                break;
-
-            case "Salesman Management":
-                data.add(((JLabel) fields.get("Salesman ID")).getText().trim());
-                data.add(((JTextField) fields.get("Name")).getText());
-                // convert format of phone number
-                String phone = ((JTextField) fields.get("Phone")).getText();
-                String newPhone = parsePhoneFormat(phone);
-                data.add(newPhone);
-                data.add(((JTextField) fields.get("Email")).getText().toLowerCase());
-                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
-                break;
-
-            case "Car Management":
-                data.add(((JLabel) fields.get("Car ID")).getText());
-                data.add(((JTextField) fields.get("Model")).getText());
-                data.add(((JTextField) fields.get("Year")).getText());
-                data.add(((JTextField) fields.get("Color")).getText());
-                data.add(((JTextField) fields.get("Price")).getText());
-                data.add(((JLabel) fields.get("Status")).getText());
-                data.add(((JTextField) fields.get("Assigned Salesman ID")).getText());
-                
-                JLabel imageLabel = (JLabel) fields.get("Image");
-                File selectedFile = (File) imageLabel.getClientProperty("selectedFile");
-                if (selectedFile != null) {
-                    try {
-                        String carID = ((JLabel) fields.get("Car ID")).getText();
-                        String fileExtension = getFileExtension(selectedFile.getName());
-                        String imagePath = DataIO.saveCarImage(
-                                selectedFile, carID, fileExtension);
-                        data.add(imagePath);
-                    } catch (IOException ex) {
-                        System.err.println("Error saving image: " + ex.getMessage());
-                        data.add(""); // empty string for image path
-                        JOptionPane.showMessageDialog(frame, 
-                            "Car record saved but image upload failed: " + ex.getMessage(),
-                            "Image Upload Error", JOptionPane.WARNING_MESSAGE);
-                    }
-                } else {
-                    data.add(""); // empty string if no image
-                }
-                break;
-        }
-        return String.join(",", data);
-    }
-    
     private static String getFileExtension(String filename) {
         if (filename == null || filename.isEmpty()) {
             return "";
@@ -505,13 +486,9 @@ public class AddNewRecords {
         return "";
     }
     
-    private static void clearFormFields() {
-        for (JComponent field : fields.values()) {
-            if (field instanceof JTextField) {
-                ((JTextField) field).setText("");
-            } else if (field instanceof JPasswordField) {
-                ((JPasswordField) field).setText("");
-            }
+    private static class InvalidInputException extends Exception {
+        public InvalidInputException(String message) {
+            super(message);
         }
     }
 }

@@ -128,10 +128,8 @@ public class StaffLogin extends JFrame {
     }
     
     private String validate(String staffID, char[] staffPW) {
-        String staffData = DataIO.readFile(STAFF_FILE);
-
-        if (staffData != null) {
-            String[] lines = staffData.split("\n");
+        String[] lines = FileManager.getLines(STAFF_FILE);
+        if (lines != null) {
             for (String line : lines) {
                 String[] parts = line.split(",");
                 if (parts.length == 3) {
@@ -141,7 +139,7 @@ public class StaffLogin extends JFrame {
                     
                     if (savedID.equals(staffID)) {
                         if (savedpw.equals(new String(staffPW))) {
-                            return staffName; // Login successful!
+                            return staffName;
                         }
                     }
                 }

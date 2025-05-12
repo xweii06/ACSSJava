@@ -1,7 +1,6 @@
 package Staff;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
 import javax.swing.*;
 import navigation.FrameManager;
@@ -16,11 +15,7 @@ public class ApproveCus {
     private static JPanel topPanel, btnPanel, contentPanel;
     private static JButton backBtn, refreshBtn;
     
-    public static ActionListener approveCus() {
-        return e -> handlePendingCustomers();
-    }
-    
-    private static void handlePendingCustomers() {
+    public static void handlePendingCus() {
         if (!hasPendingCustomers()) {
             JOptionPane.showMessageDialog(frame, 
                     "No pending customers currently.",
@@ -202,7 +197,11 @@ public class ApproveCus {
                     JOptionPane.showMessageDialog(frame,
                         "Customer approved successfully!",
                         "Success", JOptionPane.INFORMATION_MESSAGE);
-                    refreshPendingCustomers();
+                    if (!hasPendingCustomers()) {
+                        FrameManager.goBack();
+                    } else {
+                        refreshPendingCustomers();
+                    }
                 }
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(frame,
@@ -234,6 +233,8 @@ public class ApproveCus {
     
     private static String findCustomerData(String id) throws IOException {
         String data = DataIO.readFile(PENDING_CUS_FILE);
+        if (data == null) return null;
+        
         String[] lines = data.split("\n");
         for (String line : lines) {
             if (line.startsWith(id + ",")) {
@@ -245,22 +246,25 @@ public class ApproveCus {
     
     private static void removeFromPendingFile(String id) throws IOException {
         String filename = PENDING_CUS_FILE;
-        try {
-            String data = DataIO.readFile(filename);
-            String[] lines = data.split("\n");
-            
-            for (String line : lines) {
-                if (!line.startsWith(id + ",")) {
-                    DataIO.writeFile(filename,line);
-                }
+        StringBuilder newContent = new StringBuilder();
+        boolean found = false;
+
+        String data = DataIO.readFile(filename);
+        if (data == null || data.isEmpty()) {
+            return;
+        }
+
+        String[] lines = data.split("\n");
+        for (String line : lines) {
+            if (!line.trim().isEmpty() && !line.startsWith(id + ",")) {
+                newContent.append(line).append("\n");
+            } else if (line.startsWith(id + ",")) {
+                found = true;
             }
-            JOptionPane.showMessageDialog(frame,
-                "Record deleted successfully!",
-                "Success", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(frame,
-                "Error deleting record: " + ex.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        if (found) {
+            DataIO.writeFile(filename, newContent.toString().trim());
         }
     }
 }

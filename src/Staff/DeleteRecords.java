@@ -1,13 +1,11 @@
 package Staff;
 
 import java.awt.*;
-import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.file.*;
+import java.util.*;
 import javax.swing.*;
-import navigation.FrameManager;
+import javax.swing.table.*;
 import utils.DataIO;
 
 public class DeleteRecords {
@@ -15,204 +13,91 @@ public class DeleteRecords {
     private static final String STAFF_FILE = "staff.txt", SALESMAN_FILE = "salesman.txt",
             CUSTOMER_FILE = "customers.txt", CAR_FILE = "car.txt";
     
-    private static JFrame frame;
-    private static JPanel panel, formPanel, buttonPanel, searchInputPanel, previewPanel;
-    private static JTextField idField;
-    private static JTextArea previewArea;
-    private static JButton searchBtn, deleteBtn, cancelBtn;
-    
-    public static ActionListener deleteRecords(String menuItem) {
-        return e -> FrameManager.showFrame(createDeleteFrame(menuItem));
-        }
-    
     private static String getFilename(String menuItem) {
         switch (menuItem) {
             case "Staff Management": return STAFF_FILE;
             case "Salesman Management": return SALESMAN_FILE;
-            case "Customer Management" : return CUSTOMER_FILE;
+            case "Customer Management": return CUSTOMER_FILE;
             case "Car Management": return CAR_FILE;
             default:
                 throw new IllegalArgumentException("Unknown menu item: " + menuItem);
         }
     }
     
-    
-    private static JFrame createDeleteFrame(String menuItem) {
-        frame = new JFrame("Delete " + (menuItem.split(" "))[0]);
-        frame.setLayout(new BorderLayout());
-        frame.setSize(400, 300);
-        frame.setResizable(false);
+    public static void deleteSelectedRecords(String menuItem, JTable table) {
+        int[] selectedRows = table.getSelectedRows();
         
-        panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
-        formPanel = new JPanel(new BorderLayout(10, 10));
-        
-        searchInputPanel = new JPanel(new GridLayout(1, 3, 10, 10));
-        searchInputPanel.add(new JLabel("Enter ID:"));
-        idField = new JTextField();
-        searchInputPanel.add(idField);
-        
-        searchBtn = new JButton("Search");
-        searchBtn.setFocusable(false);
-        searchBtn.addActionListener(e -> searchRecord(menuItem));
-        searchInputPanel.add(searchBtn);
-        
-        previewPanel = new JPanel(new BorderLayout());
-        previewPanel.setBorder(BorderFactory.createTitledBorder("Record Preview"));
-        previewArea = new JTextArea();
-        previewArea.setEditable(false);
-        previewArea.setFont(new Font("Arial", Font.PLAIN, 12));
-        previewPanel.add(new JScrollPane(previewArea), BorderLayout.CENTER);
-        previewPanel.setVisible(false);
-        
-        buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-
-        deleteBtn = new JButton("Delete Record");
-        deleteBtn.setBackground(Color.gray); // set gray as default
-        deleteBtn.setSize(new Dimension(100,30));
-        deleteBtn.setForeground(Color.white);
-        deleteBtn.setEnabled(false);
-        deleteBtn.setFocusable(false);
-        
-        cancelBtn = new JButton("Cancel");
-        cancelBtn.setBackground(new Color(0x999999));
-        cancelBtn.setSize(new Dimension(100,30));
-        cancelBtn.setForeground(Color.white);
-        cancelBtn.setFocusable(false);
-        cancelBtn.addActionListener(e -> FrameManager.goBack());
-        
-        buttonPanel.add(deleteBtn);
-        buttonPanel.add(cancelBtn);
-        
-        formPanel.add(searchInputPanel, BorderLayout.NORTH);
-        panel.add(formPanel, BorderLayout.CENTER);
-        formPanel.add(previewPanel, BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-        
-        frame.add(panel);
-        return frame;
-    }
-    
-    private static void searchRecord(String menuItem) {
-        String searchID = idField.getText().trim();
-        
-        if (searchID == null || searchID.isEmpty()) {
-            JOptionPane.showMessageDialog(frame, 
-                "Please enter an ID", 
-                "Error", JOptionPane.ERROR_MESSAGE);
+        if (selectedRows.length == 0) {
+            JOptionPane.showMessageDialog(null, 
+                "Please select records to delete", 
+                "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        TableModel model = table.getModel();
+        ArrayList<String> recordIDs = new ArrayList<>();
         
-        String id = searchID.toUpperCase();
-        String filename = getFilename(menuItem);
-        String data = DataIO.readFile(filename);
-        String[] lines = data.split("\n");
-        boolean found = false;
-        for (String line : lines) {
-            if (line.startsWith(id + ",")) {
-                String currentRecordID = id;
-                displayRecordPreview(menuItem, line, currentRecordID);
-                found = true;
-                break;
+        for (int viewRow : selectedRows) {
+            int modelRow = table.convertRowIndexToModel(viewRow);
+            String recordID = model.getValueAt(modelRow, 0).toString();
+            recordIDs.add(recordID);
+        }
+        for (String recordID : recordIDs) {
+            if (!validateDeletion(menuItem, recordID)) {
+                return; 
             }
         }
-        if (!found) {
-            previewPanel.setVisible(false);
-            deleteBtn.setEnabled(false);
-            JOptionPane.showMessageDialog(frame,
-                    "No record found with ID: " + searchID,
-                    "Not Found", JOptionPane.WARNING_MESSAGE);
+        
+        int confirm = JOptionPane.showConfirmDialog(null, 
+            "Are you sure you want to delete " + recordIDs.size() + " record?", 
+            "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            for (String recordID : recordIDs) {
+                deleteCurrentRecord(menuItem, recordID);
+            }
+            StaffMenu.refreshMenu(menuItem);
         }
     }
     
-    private static void displayRecordPreview(String menuItem, String line, String currentRecordID) {
-        String[] parts = line.split(",");
-        StringBuilder previewText = new StringBuilder();
-        
-        switch (menuItem) {
-            case "Staff Management":
-                previewText.append("Staff ID: ").append(parts[0]).append("\n");
-                previewText.append("Name: ").append(parts[2]).append("\n");
-                break;
-            case "Salesman Management":
-                previewText.append("Salesman ID: ").append(parts[0]).append("\n");
-                previewText.append("Name: ").append(parts[2]).append("\n");
-                previewText.append("Phone: ").append(parts[3]).append("\n");
-                previewText.append("Email: ").append(parts[4]).append("\n");
-                break;
-            case "Customer Management":
-                previewText.append("Customer ID: ").append(parts[0]).append("\n");
-                previewText.append("Name: ").append(parts[1]).append("\n");
-                previewText.append("Phone: ").append(parts[2]).append("\n");
-                previewText.append("Email: ").append(parts[3]).append("\n");
-                break;
-            case "Car Management":
-                previewText.append("Car ID: ").append(parts[0]).append("\n");
-                previewText.append("Model: ").append(parts[1]).append("\n");
-                previewText.append("Year: ").append(parts[2]).append("\n");
-                previewText.append("Price(RM): ").append(parts[3]).append("\n");
-                previewText.append("Status: ").append(parts[4]).append("\n");
-                previewText.append("Assigned Salesman ID: ").append(parts[5]).append("\n");
-                break;
-        }
-        
-        previewArea.setText(previewText.toString());
-        previewPanel.setVisible(true);
-        deleteBtn.setBackground(new Color(0xE31A3E)); 
-        deleteBtn.addActionListener(e -> confirmDelete(menuItem, currentRecordID));
-        deleteBtn.setEnabled(true);
-    }
-    
-    private static void confirmDelete(String menuItem, String currentRecordID) {
+    private static boolean validateDeletion(String menuItem, String recordID) {
         switch (menuItem) {
             case "Staff Management":
                 String superAdminID = getSuperAdminID();
-                if (!(superAdminID == null)) {
-                    if (currentRecordID.equals(superAdminID)) {
-                        JOptionPane.showMessageDialog(frame,
+                if (recordID.equals(superAdminID)) {
+                    JOptionPane.showMessageDialog(null,
                         "Cannot delete super admin.",
                         "Action blocked", JOptionPane.WARNING_MESSAGE);
-                        return;
-                    }
-                }
-            case "Salesman Management":
-                if (!reassignCarsBeforeDeletion(currentRecordID)) {
-                    return;
+                    return false;
                 }
                 break;
-            case "Customer Management":
-                // maybe send a noti to that cus? idk
+            case "Salesman Management":
+                boolean reassigned = reassignCarsBeforeDeletion(recordID);
+                if (!reassigned) {
+                    return false;
+                }
                 break;
             case "Car Management":
-                // status cannot be booked
-                if (!isAvailable(currentRecordID)) {
-                    JOptionPane.showMessageDialog(frame,
+                if (!isAvailable(recordID)) {
+                    JOptionPane.showMessageDialog(null,
                         "Cannot delete unavailable car.",
                         "Action blocked", JOptionPane.WARNING_MESSAGE);
-                    return;
-                } 
+                    return false;
+                }
                 break;
         }
-        
-        int confirm = JOptionPane.showConfirmDialog(frame,
-            "Are you sure you want to delete this record?\n\n",
-            "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-        
-        if (confirm == JOptionPane.YES_OPTION) {
-            deleteCurrentRecord(menuItem, currentRecordID);
-        }
+        return true;
     }
     
     private static String getSuperAdminID() {
-        String data = DataIO.readFile(STAFF_FILE);
-        String[] lines = data.split("\n");
-        for (String line : lines) {
-            String[] parts = line.split(",");
-            if (parts.length >= 3) {
-                String id = parts[0];
-                if (!id.startsWith("M")) {
-                    return id;
+        String[] lines = FileManager.getLines(STAFF_FILE);
+        if (lines != null) {
+            for (String line : lines) {
+                String[] parts = line.split(",");
+                if (parts.length >= 3) {
+                    String id = parts[0];
+                    if (!id.startsWith("M")) {
+                        return id;
+                    }
                 }
             }
         }
@@ -236,7 +121,6 @@ public class DeleteRecords {
                 String status = car[4];
                 String salesmanID = car[5];
                 
-                // default:
                 String newSalesmanID = "DELETED_USER_" + salesmanID;
                 if (!status.equals("Paid") || !status.equals("Cancelled")) {
                     String selected = showDropdownDialog(carID, model, options);
@@ -250,13 +134,13 @@ public class DeleteRecords {
             }
             
             if (successfullyReassigned == assignedCars.size()) {
-                JOptionPane.showMessageDialog(frame,
+                JOptionPane.showMessageDialog(null,
                     "Reassigned all " + successfullyReassigned + " cars",
                     "Success", JOptionPane.INFORMATION_MESSAGE);
                 return true;
             }
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(frame,
+            JOptionPane.showMessageDialog(null,
                 "Error during deletion: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -270,7 +154,7 @@ public class DeleteRecords {
         for (String record : carData.split("\n")) {
             if (!record.trim().isEmpty()) {
                 String[] parts = record.split(",");
-                if (parts.length >= 6 && parts[5].trim().equals(currentRecordID)) {
+                if (parts.length >= 7 && parts[6].trim().equals(currentRecordID)) {
                     cars.add(parts);
                 }
             }
@@ -280,40 +164,39 @@ public class DeleteRecords {
 
     private static HashMap<String, String> getAvailableSalesmen(String currentRecordID) throws IOException {
         HashMap<String, String> salesmen = new HashMap<>();
-        String data = DataIO.readFile(SALESMAN_FILE);
-        String[] lines = data.split("\n");
-
-        for (String line : lines) {
-            if (!line.trim().isEmpty()) {
-                String[] parts = line.split(",");
-                if (parts.length >= 3 && !parts[0].equals(currentRecordID)) {
-                    salesmen.put(parts[0], parts[2]); // get id and name
+        String[] lines = FileManager.getLines(SALESMAN_FILE);
+        if (lines != null) {
+            for (String line : lines) {
+                if (!line.trim().isEmpty()) {
+                    String[] parts = line.split(",");
+                    if (parts.length >= 4 && !parts[0].equals(currentRecordID)) {
+                        salesmen.put(parts[0], parts[1]);
+                    }
                 }
             }
+            return salesmen;
         }
-        return salesmen;
+        return null;
     }
     
     private static String[] createDropdownOptions(HashMap<String, String> salesmen) {
         String[] options = new String[salesmen.size()];
-        int i = 1;
+        int i = 0;
         for (Map.Entry<String, String> entry : salesmen.entrySet()) {
             options[i++] = entry.getKey() + " - " + entry.getValue();
         }
         return options;
     }
 
-    private static String showDropdownDialog(String carId, String carModel, String[] options) {
-        // Create panel with car info
+    private static String showDropdownDialog(String carID, String carModel, String[] options) {
         JPanel panel = new JPanel(new GridLayout(2, 1));
-        panel.add(new JLabel("Reassign Car: " + carId + " (" + carModel + ")"));
+        panel.add(new JLabel("Reassign Car: " + carID + " (" + carModel + ")"));
 
-        // Create dropdown
         JComboBox<String> dropdown = new JComboBox<>(options);
         dropdown.setSelectedIndex(0);
         panel.add(dropdown);
 
-        int result = JOptionPane.showConfirmDialog(frame,
+        int result = JOptionPane.showConfirmDialog(null,
             panel,
             "Select New Salesman",
             JOptionPane.OK_CANCEL_OPTION,
@@ -325,19 +208,20 @@ public class DeleteRecords {
     }
 
     private static boolean reassignSingleCar(String carID, String newSalesmanID) throws IOException {
-        String data = DataIO.readFile(CAR_FILE);
-        String[] lines = data.split("\n");
+        String[] lines = FileManager.getLines(CAR_FILE);
         StringBuilder newData = new StringBuilder();
         boolean found = false;
-
-        for (String line : lines) {
-            if (!line.trim().isEmpty()) {
-                String[] parts = line.split(",");
-                if (parts[0].equals(carID)) {
-                    parts[5] = newSalesmanID;
-                    found = true;
+        
+        if (lines != null) {
+            for (String line : lines) {
+                if (!line.trim().isEmpty()) {
+                    String[] parts = line.split(",");
+                    if (parts[0].equals(carID)) {
+                        parts[6] = newSalesmanID;
+                        found = true;
+                    }
+                    newData.append(String.join(",", parts)).append("\n");
                 }
-                newData.append(String.join(",", parts)).append("\n");
             }
         }
         if (found) {
@@ -347,17 +231,16 @@ public class DeleteRecords {
         return false;
     }
     
-    // need change in sales.txt as well !!!
-    
     private static boolean isAvailable(String id) {
-        String data = DataIO.readFile(CAR_FILE);
-        String[] lines = data.split("\n");
-        for (String line : lines) {
-            if (!line.startsWith(id + ",")) {
-                String parts[] = line.split(",");
-                if (parts.length >= 4) {
-                    String status = parts[4];
-                    return !(status.equals("Booked"));
+        String[] lines = FileManager.getLines(CAR_FILE);
+        if (lines != null) {
+            for (String line : lines) {
+                if (line.startsWith(id + ",")) {
+                    String parts[] = line.split(",");
+                    if (parts.length >= 7) {
+                        String status = parts[5];
+                        return status.equals("Available");
+                    }
                 }
             }
         }
@@ -367,46 +250,76 @@ public class DeleteRecords {
     private static void deleteCurrentRecord(String menuItem, String currentRecordID) {
         String filename = getFilename(menuItem);
         try {
-            String data = DataIO.readFile(filename);
-            if (data == null || data.isEmpty()) {
+            String[] lines = FileManager.getLines(filename);
+            if (lines == null) {
                 throw new IOException("File is empty or couldn't be read");
             }
             
             StringBuilder newContent = new StringBuilder();
-            String[] lines = data.split("\n");
             boolean recordFound = false;    
+            String imagePath = null;
             for (String line : lines) {
                 if (!line.trim().isEmpty()) {
                     if (!line.startsWith(currentRecordID + ",")) {
                         newContent.append(line).append("\n");
                     } else {
                         recordFound = true;
+                        if (menuItem.equals("Car Management") && line.split(",").length > 7) {
+                            imagePath = line.split(",")[7].trim();
+                        }
                     }
                 }
             }
-
             if (!recordFound) {
-                JOptionPane.showMessageDialog(frame,
+                JOptionPane.showMessageDialog(null,
                     "Record not found!",
                     "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-
+            
             DataIO.writeFile(filename, newContent.toString().trim());
-            JOptionPane.showMessageDialog(frame,
+            deleteCarImage(imagePath);
+            
+            if (menuItem.equals("Car Management") && imagePath != null && !imagePath.isEmpty()) {
+                try {
+                    File imageFile = new File(new File(imagePath).getName());
+                    if (imageFile.exists()) {
+                        if (imageFile.delete()) {
+                            System.out.println("Deleted image: " + imageFile.getPath());
+                        } else {
+                            System.out.println("Failed to delete image: " + imageFile.getPath());
+                        }
+                    }
+                } catch (SecurityException ex) {
+                    System.err.println("Security exception when deleting image: " + ex.getMessage());
+                }
+            }
+            JOptionPane.showMessageDialog(null,
                 "Record deleted successfully!",
                 "Success", JOptionPane.INFORMATION_MESSAGE);
             
-            idField.setText("");
-            previewArea.setText("");
-            previewPanel.setVisible(false);
-            deleteBtn.setEnabled(false);
-            FrameManager.goBack();
-            
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(frame,
+            JOptionPane.showMessageDialog(null,
                 "Error deleting record: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private static void deleteCarImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return;
+        }
+        try {
+            Path imageFile = Paths.get(imagePath).normalize();
+            if (Files.exists(imageFile)) {
+                Files.delete(imageFile);
+                System.out.println("Successfully deleted image: " + imageFile.toAbsolutePath());
+            } else {
+                System.out.println("Image file not found: " + imageFile.toAbsolutePath());
+            }
+        } catch (Exception ex) {
+            System.err.println("Exception when deleting image: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }

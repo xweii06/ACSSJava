@@ -3,9 +3,10 @@ package Staff;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.table.*;
 import navigation.FrameManager;
 import utils.*;
 
@@ -13,13 +14,12 @@ public class StaffMenu extends JFrame {
     
     private static final String EXITPIN_FILE = "/data/exitPIN.txt";
     
-    private static final String ADDUSER_PNG = "add_user.png", DELUSER_PNG = "del_user.png",
-            SEARCHUSER_PNG = "user_search.png", UPDATEUSER_PNG = "edit_user.png", 
-            APPROVEUSER_PNG = "approve_user.png", ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
+    private static final String ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
             UPDATECAR_PNG = "edit_car.png", SEARCHCAR_PNG = "search_car.png";
     
     private JPanel mainPanel, sidebar, contentPanel, titlePanel, subMenuPanel;
     private JLabel pageTitle, titleLabel;
+    private JTable recordsTable;
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(String staffName) {
@@ -42,7 +42,7 @@ public class StaffMenu extends JFrame {
         contentScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         contentScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainPanel.add(contentScroll, BorderLayout.CENTER);
-        
+
         this.add(mainPanel);
         showDefaultContent(contentPanel, staffName);
         this.setVisible(true);
@@ -84,24 +84,28 @@ public class StaffMenu extends JFrame {
         JButton logoutBtn = new JButton("Logout");
         styleMenuButton(logoutBtn);
         logoutBtn.addActionListener(e -> {
+            Window[] windows = Window.getWindows();
+            for (Window window : windows) {
+                if (window != this) {
+                    window.dispose();
+                }
+            }
             FrameManager.goBack();
-            this.dispose();
         });
         sidebar.add(logoutBtn);
         return sidebar;
     }
     
-    private void switchContent(String menuItem) {
+    public void switchContent(String menuItem) {
         if (menuItem.equals("End Program")) {
             handleExitProgram();
             return;
         }
-        
         contentPanel.removeAll();
         contentPanel.setLayout(new BorderLayout());
         
         titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(50, 20, 50, 20));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
         titlePanel.setBackground(Color.lightGray);
 
         titleLabel = new JLabel(menuItem);
@@ -113,41 +117,62 @@ public class StaffMenu extends JFrame {
         contentPanel.add(titlePanel, BorderLayout.NORTH);
         
         subMenuPanel = new JPanel();
-        subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
         subMenuPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         subMenuPanel.setBackground(Color.white);
+        if (menuItem.equals("Payment & Feedback Analysis") || menuItem.equals("Reports")) {
+            subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
+        } else {
+            subMenuPanel.setLayout(new BorderLayout());
+        }
         
         switch(menuItem) {
             case "Staff Management":
             case "Salesman Management":
-                addSubMenuButton(subMenuPanel, "Add New User",
-                        DataIO.loadIcon(ADDUSER_PNG),AddNewRecords.addNewRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Delete User",
-                        DataIO.loadIcon(DELUSER_PNG), DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "View User",
-                        DataIO.loadIcon(SEARCHUSER_PNG),ViewAllRecords.viewAllRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Update User Info",
-                        DataIO.loadIcon(UPDATEUSER_PNG),null);
-                break;
-            case "Customer Management":
-                addSubMenuButton(subMenuPanel, "Approve User",
-                        DataIO.loadIcon(APPROVEUSER_PNG),ApproveCus.approveCus());
-                addSubMenuButton(subMenuPanel, "Delete User",
-                        DataIO.loadIcon(DELUSER_PNG),DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "View User",
-                        DataIO.loadIcon(SEARCHUSER_PNG),ViewAllRecords.viewAllRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Update User Info",
-                        DataIO.loadIcon(UPDATEUSER_PNG),null);
-                break;
             case "Car Management":
-                addSubMenuButton(subMenuPanel, "Add New Car",
-                        DataIO.loadIcon(ADDCAR_PNG),AddNewRecords.addNewRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Delete Car",
-                        DataIO.loadIcon(DELCAR_PNG),DeleteRecords.deleteRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "View Car",
-                        DataIO.loadIcon(SEARCHCAR_PNG),ViewAllRecords.viewAllRecords(menuItem));
-                addSubMenuButton(subMenuPanel, "Update Car Info",
-                        DataIO.loadIcon(UPDATECAR_PNG),null);
+            case "Customer Management":
+                JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,10,5));
+                btnPanel.setBackground(Color.white);
+                
+                if (!menuItem.equals("Customer Management")) {
+                    JButton addBtn = styleActionButton("Add New");
+                    addBtn.addActionListener(e -> {
+                        AddNewRecords.createAddFrame(menuItem);
+                        addBtn.setEnabled(false);
+                    });
+                    btnPanel.add(addBtn);
+                } else {
+                    JButton approveBtn = styleActionButton("Approve");
+                    approveBtn.addActionListener(e -> ApproveCus.handlePendingCus());
+                    btnPanel.add(approveBtn);
+                }
+                
+                JButton delBtn = styleActionButton("Delete");
+                delBtn.addActionListener(e -> {
+                    DeleteRecords.deleteSelectedRecords(menuItem, recordsTable);
+                    refreshMenu(menuItem);
+                });
+                btnPanel.add(delBtn);
+                
+                JButton updateBtn = styleActionButton("Update");
+                updateBtn.addActionListener(e -> {
+                    int selectedRow = recordsTable.getSelectedRow();
+                    if (selectedRow >= 0) {
+                        // Get data from selected row
+                        String[] rowData = new String[recordsTable.getColumnCount()];
+                        for (int i = 0; i < rowData.length; i++) {
+                            rowData[i] = recordsTable.getValueAt(selectedRow, i).toString();
+                        }
+                        UpdateRecords.createUpdateFrame(menuItem, rowData);
+                    } else {
+                        JOptionPane.showMessageDialog(null, 
+                            "Please select a record to update", 
+                            "No Selection", JOptionPane.WARNING_MESSAGE);
+                    }
+                });
+                btnPanel.add(updateBtn);
+                
+                subMenuPanel.add(btnPanel,BorderLayout.NORTH);
+                displayTable(menuItem);
                 break;
             case "Payment & Feedback Analysis":
                 addSubMenuButton(subMenuPanel, "Payment Records",
@@ -222,6 +247,14 @@ public class StaffMenu extends JFrame {
 
             currentlySelectedButton = button;
         });
+    }
+    
+    private JButton styleActionButton(String text) {
+        JButton button = new JButton(text);
+        button.setForeground(Color.BLACK);
+        button.setFocusPainted(false);
+        button.setFont(new Font("Arial", Font.BOLD, 12));
+        return button;
     }
     
     private void addSubMenuButton(JPanel panel, String text, ImageIcon icon, ActionListener action) {
@@ -299,5 +332,190 @@ public class StaffMenu extends JFrame {
                 }
             }
         return false;
+    }
+    
+    private void displayTable(String menuItem) {
+        recordsTable = ViewAllRecords.getRecordsTable(menuItem);
+
+        JPanel controlPanel = new JPanel(new BorderLayout());
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JTextField searchField = new JTextField(20);
+        JButton searchBtn = new JButton("Search");
+        searchBtn.setFocusable(false);
+
+        searchBtn.addActionListener(e -> {
+            TableRowSorter<TableModel> sorter = new TableRowSorter<>(recordsTable.getModel());
+            recordsTable.setRowSorter(sorter);
+            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchField.getText()));
+        });
+
+        searchPanel.add(new JLabel("Search:"));
+        searchPanel.add(searchField);
+        searchPanel.add(searchBtn);
+
+        JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JLabel sortLabel = new JLabel("Sort by:");
+        sortLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        String[] columnNames = ViewAllRecords.getColumnsFor(menuItem);
+        JComboBox<String> sortComboBox = new JComboBox<>(columnNames);
+        sortComboBox.insertItemAt("Default", 0);
+        sortComboBox.setSelectedIndex(0);
+        sortComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
+        sortComboBox.setPreferredSize(new Dimension(130, 30));
+
+        sortComboBox.addActionListener(e -> {
+            String selected = (String) sortComboBox.getSelectedItem();
+            if ("Default".equals(selected)) {
+                recordsTable.setRowSorter(null);
+                return;
+            }
+
+            int columnIndex = -1;
+            for (int i = 0; i < columnNames.length; i++) {
+                if (columnNames[i].equals(selected)) {
+                    columnIndex = i;
+                    break;
+                }
+            }
+
+            if (columnIndex >= 0) {
+                if (menuItem.equals("Car Management") && columnIndex == 2 || columnIndex == 4) {
+                    // year and price
+                    sortNumericColumn(recordsTable, columnIndex);
+                } else {
+                    sortTable(recordsTable, columnIndex);
+                }
+            }
+        });
+
+        sortPanel.add(sortLabel);
+        sortPanel.add(sortComboBox);
+        controlPanel.add(sortPanel, BorderLayout.WEST);
+        controlPanel.add(searchPanel, BorderLayout.EAST);
+
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.setMinimumSize(new Dimension(650, 350));
+        tablePanel.setPreferredSize(new Dimension(650, 350));
+        tablePanel.add(controlPanel, BorderLayout.NORTH);
+        tablePanel.add(new JScrollPane(recordsTable), BorderLayout.CENTER);
+
+        if (menuItem.equals("Car Management")) {
+            JButton viewImageBtn = new JButton("View Selected Car Image");
+            viewImageBtn.addActionListener(e -> {
+                int selectedRow = recordsTable.getSelectedRow();
+                if (selectedRow >= 0) {
+                    String carID = (String) recordsTable.getValueAt(selectedRow, 0);
+                    showImageInFrame(carID);
+                } else {
+                    JOptionPane.showMessageDialog(null, 
+                        "Please select a car first", 
+                        "No Selection", JOptionPane.WARNING_MESSAGE);
+                }
+            });
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            buttonPanel.add(viewImageBtn);
+            tablePanel.add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        subMenuPanel.add(tablePanel, BorderLayout.CENTER);
+    }
+    
+    private void sortTable(JTable table, int columnIndex) {
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter);
+        sorter.setSortKeys(Arrays.asList(
+                new RowSorter.SortKey(columnIndex, SortOrder.ASCENDING)));
+    }
+
+    private void sortNumericColumn(JTable table, int columnIndex) {
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel()) {
+            @Override
+            public Comparator<?> getComparator(int column) {
+                if (column == columnIndex) { 
+                    return (Comparator<Object>) (o1, o2) -> {
+                        try {
+                            double d1 = Double.parseDouble(o1.toString());
+                            double d2 = Double.parseDouble(o2.toString());
+                            return Double.compare(d1, d2);
+                        } catch (NumberFormatException e) {
+                            return 0;
+                        }
+                    };
+                }
+                return super.getComparator(column);
+            }
+        };
+        table.setRowSorter(sorter);
+        sorter.setSortKeys(Arrays.asList(
+                new RowSorter.SortKey(columnIndex, SortOrder.ASCENDING)));
+    }
+    
+    private void showImageInFrame(String carID) {
+        String imagePath = null;
+        
+        String[] lines = FileManager.getLines("car.txt");
+        for (String line : lines) {
+            String parts[] = line.split(",");
+            String savedID = parts[0];
+            if (parts.length >= 8 && savedID.equals(carID)) {
+                imagePath = parts[7];
+                break;
+            }
+        }
+        
+        if (imagePath == null || imagePath.isEmpty()) {
+            JOptionPane.showMessageDialog(null, 
+                "No image available for this car", 
+                "Image Not Found", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        try {
+            JFrame imageFrame = new JFrame("Car Image - " + carID);
+            imageFrame.setSize(600, 400);
+            imageFrame.setLocationRelativeTo(null);
+            
+            ImageIcon originalIcon = new ImageIcon(imagePath);
+            Image originalImage = originalIcon.getImage();
+            int maxWidth = 550;
+            int maxHeight = 350;
+
+            int originalWidth = originalIcon.getIconWidth();
+            int originalHeight = originalIcon.getIconHeight();
+
+            double widthRatio = (double)maxWidth / originalWidth;
+            double heightRatio = (double)maxHeight / originalHeight;
+            double ratio = Math.min(widthRatio, heightRatio);
+
+            int scaledWidth = (int)(originalWidth * ratio);
+            int scaledHeight = (int)(originalHeight * ratio);
+            
+            Image scaledImage = originalImage.getScaledInstance(
+                scaledWidth, scaledHeight, Image.SCALE_SMOOTH);
+
+            JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+            imageLabel.setHorizontalAlignment(JLabel.CENTER);
+            imageLabel.setHorizontalAlignment(JLabel.CENTER);
+            imageFrame.add(imageLabel); 
+            imageFrame.pack();
+            imageFrame.setVisible(true);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(null, 
+                "Failed to load image: " + ex.getMessage(), 
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    public static void refreshMenu(String menuItem) {
+        Window[] windows = Window.getWindows();
+        for (Window window : windows) {
+            if (window instanceof StaffMenu) {
+                StaffMenu staffMenu = (StaffMenu)window;
+                staffMenu.switchContent(menuItem);
+                break;
+            }
+        }
     }
 }

@@ -1,2 +1,2 @@
-CAR01,Perodua Myvi,2022,55900,Available,S02
-CAR02,Perodua Axia,2023,44500,Available,S03
+CAR01,Perodua Myvi,2022,red,45000,Available,S01,data\carImg\car_CAR01.png
+CAR02,Perodua Axia,2024,blue,59500,Available,S03,data\carImg\car_CAR02.png
