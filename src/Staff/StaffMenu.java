@@ -135,6 +135,8 @@ public class StaffMenu extends JFrame {
                 
                 if (!menuItem.equals("Customer Management")) {
                     JButton addBtn = styleActionButton("Add New");
+                    addBtn.setBackground(new Color(0x08A045));
+                    addBtn.setForeground(Color.white);
                     addBtn.addActionListener(e -> {
                         AddNewRecords.createAddFrame(menuItem);
                         addBtn.setEnabled(false);
@@ -142,11 +144,15 @@ public class StaffMenu extends JFrame {
                     btnPanel.add(addBtn);
                 } else {
                     JButton approveBtn = styleActionButton("Approve");
+                    approveBtn.setBackground(new Color(0x08A045));
+                    approveBtn.setForeground(Color.white);
                     approveBtn.addActionListener(e -> ApproveCus.handlePendingCus());
                     btnPanel.add(approveBtn);
                 }
                 
                 JButton delBtn = styleActionButton("Delete");
+                delBtn.setBackground(new Color(0xE31A3E));
+                delBtn.setForeground(Color.white);
                 delBtn.addActionListener(e -> {
                     DeleteRecords.deleteSelectedRecords(menuItem, recordsTable);
                     refreshMenu(menuItem);
@@ -154,10 +160,11 @@ public class StaffMenu extends JFrame {
                 btnPanel.add(delBtn);
                 
                 JButton updateBtn = styleActionButton("Update");
+                updateBtn.setBackground(new Color(0x7092BE));
+                updateBtn.setForeground(Color.white);
                 updateBtn.addActionListener(e -> {
                     int selectedRow = recordsTable.getSelectedRow();
                     if (selectedRow >= 0) {
-                        // Get data from selected row
                         String[] rowData = new String[recordsTable.getColumnCount()];
                         for (int i = 0; i < rowData.length; i++) {
                             rowData[i] = recordsTable.getValueAt(selectedRow, i).toString();
