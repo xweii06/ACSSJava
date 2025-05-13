@@ -27,7 +27,6 @@ public class AddNewRecords {
         frame.setLayout(new BorderLayout());
         frame.setSize(400, 300);
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
 
         fields = new LinkedHashMap<>();
         panel = new JPanel(new GridLayout(0,2,10,10));
@@ -126,6 +125,7 @@ public class AddNewRecords {
         frame.add(panel,BorderLayout.CENTER);
 
         frame.pack();
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         return frame;
     }
@@ -177,7 +177,7 @@ public class AddNewRecords {
         return field;
     }
     
-    public static void passwordVisibility() {
+    private static void passwordVisibility() {
         if (showPW.isSelected()) {
             pwField.setEchoChar((char)0);
         } else {

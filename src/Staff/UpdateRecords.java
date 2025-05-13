@@ -22,13 +22,11 @@ public class UpdateRecords {
     private static JButton submitBtn, cancelBtn, uploadBtn;
     private static JPanel panel;
     private static String[] rowData;
-    private static String menuItem;
     
     public static void createUpdateFrame(String menuItem, String[] rowData) {
         frame = new JFrame("Update " + (menuItem.split(" "))[0] + " Record");
         frame.setLayout(new BorderLayout());
         frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
 
         fields = new LinkedHashMap<>();
         panel = new JPanel(new GridLayout(0,2,10,10));
@@ -49,31 +47,37 @@ public class UpdateRecords {
             case "Staff Management":
                 fields.put("Staff ID", new JLabel(rowData[0]));
                 fields.put("Password", pwField);
-                pwField.setText(rowData[3]); // this line error
+                pwField.setText(getPW(menuItem)); 
                 fields.put("Name", createTextField(rowData[2]));
                 break;
 
             case "Salesman Management":
                 fields.put("Salesman ID", new JLabel(rowData[0]));
                 fields.put("Password", pwField);
-                pwField.setText(rowData[4]); // this line error
+                pwField.setText(getPW(menuItem));
                 fields.put("Name", createTextField(rowData[1]));
                 fields.put("Phone", createTextField(rowData[2]));
                 fields.put("Email", createTextField(rowData[3]));
                 break;
-
+            
+            case "Customer Management":
+                fields.put("Customer ID", new JLabel(rowData[0]));
+                fields.put("Password", pwField);
+                pwField.setText(getPW(menuItem));
+                fields.put("Name", createTextField(rowData[1]));
+                fields.put("Phone", createTextField(rowData[2]));
+                fields.put("Email", createTextField(rowData[3]));
+                
             case "Car Management":
                 fields.put("Car ID", new JLabel(rowData[0]));
                 fields.put("Model", createTextField(rowData[1]));
                 fields.put("Year", createTextField(rowData[2]));
                 fields.put("Color", createTextField(rowData[3]));
                 fields.put("Price", createTextField(rowData[4]));
-                
                 JComboBox<String> statusCombo = new JComboBox<>(
                     new String[]{"Available", "Booked", "Paid", "Cancelled"});
                 statusCombo.setSelectedItem(rowData[5]);
                 fields.put("Status", statusCombo);
-                
                 fields.put("Assigned Salesman ID", createTextField(rowData[6]));
                 
                 uploadBtn = new JButton("Upload Image");
@@ -106,7 +110,7 @@ public class UpdateRecords {
         submitBtn = new JButton("Submit");
         submitBtn.setBackground(new Color(0x08A045));
         submitBtn.setForeground(Color.white);
-        submitBtn.addActionListener(e -> processUpdate());
+        submitBtn.addActionListener(e -> processUpdate(menuItem));
         
         cancelBtn = new JButton("Cancel");
         cancelBtn.setBackground(new Color(0x999999));
@@ -129,6 +133,8 @@ public class UpdateRecords {
         frame.add(panel, BorderLayout.CENTER);
 
         frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
         frame.setVisible(true);
     }
 
@@ -141,12 +147,28 @@ public class UpdateRecords {
         return field;
     }
     
-    public static void passwordVisibility() {
+    private static void passwordVisibility() {
         if (showPW.isSelected()) {
             pwField.setEchoChar((char)0);
         } else {
             pwField.setEchoChar('•'); 
         }
+    }
+    
+    private static String getPW(String menuItem) {
+        String filename = FileManager.getFilename(menuItem);
+        String[] lines = FileManager.getLines(filename);
+        if (lines != null) {
+            for (String line : lines) {
+                String[] parts = line.split(",");
+                switch (menuItem) {
+                    case "Staff Management": return parts[2];
+                    case "Salesman Management": return parts[4];
+                    case "Customer Management": return parts[4];
+                }
+            }
+        }
+        return null;    
     }
     
     private static void handleImageUpload(JLabel imageLabel) {
@@ -196,7 +218,7 @@ public class UpdateRecords {
         }
     }
     
-    private static void processUpdate() {
+    private static void processUpdate(String menuItem) {
         boolean emptyField = false;
         for (JComponent field : fields.values()) {
             if (field instanceof JTextField && ((JTextField) field).getText().isEmpty()) {
@@ -267,7 +289,7 @@ public class UpdateRecords {
         if (confirm == JOptionPane.YES_OPTION) {
             try {
                 String filename = FileManager.getFilename(menuItem);
-                String updatedRecord = buildUpdatedRecord();
+                String updatedRecord = buildUpdatedRecord(menuItem);
                 updateFile(filename, rowData[0], updatedRecord);
                 JOptionPane.showMessageDialog(null, "Updated successfully!", 
                         "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -303,7 +325,7 @@ public class UpdateRecords {
         DataIO.writeFile(filename, newContent.toString().trim());
     }
     
-    private static String buildUpdatedRecord() throws IOException {
+    private static String buildUpdatedRecord(String menuItem) throws IOException {
         ArrayList<String> data = new ArrayList<>();
 
         switch (menuItem) {
@@ -370,7 +392,6 @@ public class UpdateRecords {
         if (!id.startsWith(startingLetter)) {
             throw new InvalidInputException("ID must start with the letter " + startingLetter);
         }
-        // check if it is a valid salesman ID
         if (startingLetter.equals("S")) {
             String data = DataIO.readFile(FileManager.SALESMAN_FILE);
             if (!data.contains(id)) {
@@ -395,10 +416,8 @@ public class UpdateRecords {
     }
     
     private static String parsePhoneFormat(String phone) {
-        // remove spaces and dashes
         phone = phone.replaceAll("[\\s\\-]", "");
         
-        // Convert local format to international (+60)
         if (phone.matches("^0[1-9][0-9]{7,9}$")) {
             phone = "+60" + phone.substring(1); 
         } else if (phone.matches("^60[1-9][0-9]{7,9}$")) {
@@ -410,27 +429,58 @@ public class UpdateRecords {
     private static void validatePhone(String phone, String menuItem) throws InvalidInputException {
         String newPhone = parsePhoneFormat(phone);
         if (!newPhone.matches("^\\+60(1[0-9]{8,9}|[3-9][0-9]{7,8})$")) {
-            throw new InvalidInputException(
-                    "Please enter a valid Malaysian phone number.");
+            throw new InvalidInputException("Please enter a valid Malaysian phone number.");
         }
-        if (menuItem.equals("Salesman Management")) {
-            String data = DataIO.readFile(FileManager.SALESMAN_FILE);
-            if (data.contains(newPhone)) {
-                throw new InvalidInputException("Phone number already exist.");
+        String filename = FileManager.getFilename(menuItem);
+        String[] lines = FileManager.getLines(filename);
+        if (lines != null) {
+            throw new InvalidInputException("Could not read data file.");
+        }
+        
+        String currentID;
+        if (menuItem.startsWith("Salesman")) {
+            currentID = ((JLabel) fields.get("Salesman ID")).getText();
+        } else {
+            currentID = ((JLabel) fields.get("Customer ID")).getText();
+        }
+        for (String line : lines) {
+            String[] parts = line.split(",");
+            if (parts[0].equals(currentID)) {
+                continue;
             }
-        }
+            // For both salesman and customer, phone is at index 2
+            if (parts.length > 2 && parsePhoneFormat(parts[2]).equals(newPhone)) {
+                throw new InvalidInputException("Phone number already exists in the system.");
+            }
+        }    
     }
 
     private static void validateEmail(String email, String menuItem) throws InvalidInputException {
         if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new InvalidInputException("Invalid email format");
         }
-        if (menuItem.equals("Salesman Management")) {
-            String data = DataIO.readFile(FileManager.SALESMAN_FILE);
-            if (data.contains(email)) {
-                throw new InvalidInputException("Email already exist.");
-            }
+        String filename = FileManager.getFilename(menuItem);
+        String[] lines = FileManager.getLines(filename);
+        if (lines != null) {
+            throw new InvalidInputException("Could not read data file.");
         }
+        
+        String currentID;
+        if (menuItem.startsWith("Salesman")) {
+            currentID = ((JLabel) fields.get("Salesman ID")).getText();
+        } else {
+            currentID = ((JLabel) fields.get("Customer ID")).getText();
+        }
+        for (String line : lines) {
+            String[] parts = line.split(",");
+            if (parts[0].equals(currentID)) {
+                continue;
+            }
+            // For both salesman and customer, phone is at index 2
+            if (parts.length > 2 && parts[3].equals(email)) {
+                throw new InvalidInputException("Email already exists in the system.");
+            }
+        }  
     }
 
     private static void validateModel(String model) throws InvalidInputException {

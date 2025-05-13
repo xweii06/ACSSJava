@@ -170,6 +170,7 @@ public class StaffMenu extends JFrame {
                             rowData[i] = recordsTable.getValueAt(selectedRow, i).toString();
                         }
                         UpdateRecords.createUpdateFrame(menuItem, rowData);
+                        updateBtn.setEnabled(false);
                     } else {
                         JOptionPane.showMessageDialog(null, 
                             "Please select a record to update", 
