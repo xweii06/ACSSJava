@@ -4,7 +4,6 @@ import java.awt.*;
 import java.util.Arrays;
 import javax.swing.*;
 import navigation.FrameManager;
-import utils.*;
 
 public class StaffLogin extends JFrame {
     
@@ -17,7 +16,7 @@ public class StaffLogin extends JFrame {
     private static JCheckBox showPW;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;    
-  
+    
     public StaffLogin() {
         this.setTitle("Staff Menu");
         this.setSize(500, 250);
@@ -100,51 +99,67 @@ public class StaffLogin extends JFrame {
             return;
         }
         
-        String staffName = validate(staffID, staffPW);
-        if (staffName != null) {
-            JOptionPane.showMessageDialog(this, 
-                    "Welcome back, " + staffName);
-            System.out.println("StaffID [" + staffID + "] login successfully.");
-            FrameManager.showFrame(new StaffMenu(staffName));
-            this.dispose();
-        } else {
-            loginAttempts++;
-            if (loginAttempts >= 3) {
-                lockoutEndTime = currentTime + (5 * 60 * 1000); 
-                System.out.println("StaffID [" + staffID + "] locked out for 5 minutes.");
-                JOptionPane.showMessageDialog(this,
-                    "Too many failed attempts. Locked for 5 minutes.",
-                    "Locked Out",
-                    JOptionPane.ERROR_MESSAGE);
+        try {
+            Staff staff = validate(staffID, staffPW);
+            if (staff != null) {
+                handleSuccessfulLogin(staff);
             } else {
-                JOptionPane.showMessageDialog(this, 
-                    "Invalid Staff ID or Password.",
-                    "Login Failed",
-                    JOptionPane.ERROR_MESSAGE);
+                handleFailedLogin(staffID);
             }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this,
+                "Error during login: " + ex.getMessage(),
+                "Login Error",
+                JOptionPane.ERROR_MESSAGE);
+        } finally {
+            Arrays.fill(staffPW, '0');
+            pwField.setText("");
         }
-        Arrays.fill(staffPW, '0');
-        pwField.setText("");
-    }
+    }   
     
-    private String validate(String staffID, char[] staffPW) {
+    private Staff validate(String staffID, char[] staffPW) {
         String[] lines = FileManager.getLines(STAFF_FILE);
-        if (lines != null) {
-            for (String line : lines) {
-                String[] parts = line.split(",");
-                if (parts.length == 3) {
-                    String savedID = parts[0].trim();
-                    String staffName = parts[1].trim();
-                    String savedpw = parts[2].trim();
-                    
-                    if (savedID.equals(staffID)) {
-                        if (savedpw.equals(new String(staffPW))) {
-                            return staffName;
-                        }
+        if (lines == null) {
+            return null;
+        }
+        for (String line : lines) {
+            String[] parts = line.split(",");
+            if (parts.length >= 4) {
+                String savedID = parts[0];
+                String savedPW = parts[3];
+                if (savedID.equals(staffID.toUpperCase())) {
+                    if (savedPW.equals(new String(staffPW))) {
+                        Staff staff = new Staff(parts[0],parts[1],parts[2],parts[3]);
+                        return staff; // Login successful!
                     }
                 }
             }
         }
         return null;
+    }
+    
+    private void handleSuccessfulLogin(Staff staff) {
+        JOptionPane.showMessageDialog(this, 
+                    "Welcome back, " + staff.getName());
+        System.out.println("StaffID [" + staff.getStaffID() + "] logged in successfully.");
+        FrameManager.showFrame(new StaffMenu(staff));
+        this.dispose();
+    }
+    
+    private void handleFailedLogin(String staffID) {
+        loginAttempts++;
+        if (loginAttempts >= 3) {
+            lockoutEndTime = System.currentTimeMillis() + (5 * 60 * 1000);
+            System.out.println("StaffID [" + staffID + "] locked out for 5 minutes.");
+            JOptionPane.showMessageDialog(this,
+                "Too many failed attempts. Account locked for 5 minutes.",
+                "Account Locked",
+                JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, 
+                "Invalid Staff ID or Password.",
+                "Login Failed",
+                JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

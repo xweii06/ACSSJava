@@ -45,7 +45,6 @@ public class DataIO {
     // for writing
     public static void writeFile(String filename, String line) throws IOException {
         Path filePath = Paths.get("data", filename);
-
         if (Files.notExists(filePath.getParent())) {
             Files.createDirectories(filePath.getParent());
         }
@@ -93,8 +92,8 @@ public class DataIO {
 
             return destination.toString();
 
-        } catch (IOException e) {
-            throw new IOException("Failed to save image: " + e.getMessage());
+        } catch (IOException ex) {
+            throw new IOException("Failed to save image: " + ex.getMessage());
         }
     }
 }

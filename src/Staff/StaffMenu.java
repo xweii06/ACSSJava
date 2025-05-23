@@ -8,12 +8,12 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.table.*;
 import navigation.FrameManager;
-import utils.*;
+import utils.DataIO;
 
 public class StaffMenu extends JFrame {
     
+    private Staff currentStaff;
     private static final String EXITPIN_FILE = "/data/exitPIN.txt";
-    
     private static final String ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
             UPDATECAR_PNG = "edit_car.png", SEARCHCAR_PNG = "search_car.png";
     
@@ -22,14 +22,15 @@ public class StaffMenu extends JFrame {
     private JTable recordsTable;
     private JButton currentlySelectedButton = null; 
     
-    public StaffMenu(String staffName) {
+    public StaffMenu(Staff staff) {
+        this.currentStaff = staff;
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
         this.setLocationRelativeTo(null);
         
         mainPanel = new JPanel(new BorderLayout());
         
-        JPanel sidebarContent = createSidebar(staffName);
+        JPanel sidebarContent = createSidebar();
         JScrollPane sidebarScroll = new JScrollPane(sidebarContent);
         sidebarScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         sidebarScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -44,11 +45,11 @@ public class StaffMenu extends JFrame {
         mainPanel.add(contentScroll, BorderLayout.CENTER);
 
         this.add(mainPanel);
-        showDefaultContent(contentPanel, staffName);
+        showDefaultContent(contentPanel,staff.getName());
         this.setVisible(true);
     }
     
-    private JPanel createSidebar(String staffName) {
+    private JPanel createSidebar() {
         sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
         sidebar.setBackground(Color.black);
@@ -61,9 +62,8 @@ public class StaffMenu extends JFrame {
         sidebar.add(pageTitle);
         
         ArrayList<String> menuItems = new ArrayList<>();
-        if (staffName.equals("SuperAdmin")){
+        if (currentStaff.isSuperAdmin()) {
             menuItems.add("Staff Management"); 
-            menuItems.add("End Program");
         } else {
             menuItems.add("Salesman Management");
             menuItems.add("Customer Management"); 
@@ -84,6 +84,7 @@ public class StaffMenu extends JFrame {
         JButton logoutBtn = new JButton("Logout");
         styleMenuButton(logoutBtn);
         logoutBtn.addActionListener(e -> {
+            currentStaff = null;
             Window[] windows = Window.getWindows();
             for (Window window : windows) {
                 if (window != this) {
@@ -94,6 +95,28 @@ public class StaffMenu extends JFrame {
         });
         sidebar.add(logoutBtn);
         return sidebar;
+    }
+    
+    private void showDefaultContent(JPanel contentPanel, String staffName) {
+        contentPanel.removeAll();
+        contentPanel.setLayout(new BorderLayout());
+        
+        JPanel welcomePanel = new JPanel(new GridLayout(6,1));
+        welcomePanel.setBorder(BorderFactory.createEmptyBorder(200,10,100,10));
+        
+        JLabel welcomeText = new JLabel("Welcome "+ staffName+ "! \\(@^0^@)/",JLabel.CENTER);
+        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
+        welcomeText.setForeground(new Color(150,150,150));
+        
+        JLabel instructionText = new JLabel("-Please select a menu option-",JLabel.CENTER);
+        instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
+        instructionText.setForeground(new Color(150,150,150));
+        
+        welcomePanel.add(welcomeText);
+        welcomePanel.add(instructionText);
+        contentPanel.add(welcomePanel);
+        contentPanel.revalidate();
+        contentPanel.repaint();
     }
     
     public void switchContent(String menuItem) {
@@ -213,28 +236,6 @@ public class StaffMenu extends JFrame {
         contentPanel.repaint();
     }
     
-    private void showDefaultContent(JPanel contentPanel, String staffName) {
-        contentPanel.removeAll();
-        contentPanel.setLayout(new BorderLayout());
-        
-        JPanel welcomePanel = new JPanel(new GridLayout(6,1));
-        welcomePanel.setBorder(BorderFactory.createEmptyBorder(200,10,100,10));
-        
-        JLabel welcomeText = new JLabel("Welcome "+ staffName+ "! \\(@^0^@)/",JLabel.CENTER);
-        welcomeText.setFont(new Font("Arial", Font.PLAIN, 18));
-        welcomeText.setForeground(new Color(150,150,150));
-        
-        JLabel instructionText = new JLabel("-Please select a menu option-",JLabel.CENTER);
-        instructionText.setFont(new Font("Arial", Font.PLAIN, 18));
-        instructionText.setForeground(new Color(150,150,150));
-        
-        welcomePanel.add(welcomeText);
-        welcomePanel.add(instructionText);
-        contentPanel.add(welcomePanel);
-        contentPanel.revalidate();
-        contentPanel.repaint();
-    }
-
     private void styleMenuButton(JButton button) {
         button.setAlignmentX(Component.LEFT_ALIGNMENT);
         button.setMaximumSize(new Dimension(250, 50));
@@ -308,19 +309,17 @@ public class StaffMenu extends JFrame {
     
     private void handleExitProgram() {
         String exitPIN = JOptionPane.showInputDialog("Enter Exit PIN:");
-
         if (exitPIN != null){
             try {
-                boolean validation = checkExitPIN(exitPIN);
-                if (validation) {
-                    int confirmation 
-                            = JOptionPane.showConfirmDialog(null,"Are you sure?",
+                if (checkExitPIN(exitPIN)) {
+                    int confirmation= JOptionPane.showConfirmDialog(this,"Are you sure?",
                                     "Confirmation",JOptionPane.YES_NO_OPTION);
                     if (confirmation == 0) {
                         System.exit(0);
                     }
-                } else if (!validation) {
-                    JOptionPane.showMessageDialog(null,"Invalid PIN.","Error",JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,"Invalid PIN.",
+                            "Error",JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this,

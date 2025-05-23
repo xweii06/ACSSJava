@@ -1,5 +1,7 @@
 package Staff;
 
+import Car.Car;
+import Salesman.Salesman;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -49,6 +51,7 @@ public class AddNewRecords {
                         generateID("M",FileManager.getFilename(menuItem))));
                 fields.put("Password",pwField);
                 fields.put("Name",createTextField());
+                fields.put("Role",new JLabel("Staff"));
                 break;
 
             case "Salesman Management":
@@ -270,8 +273,7 @@ public class AddNewRecords {
                     validateYear(((JTextField) fields.get("Year")).getText());
                     validateColor(((JTextField) fields.get("Color")).getText());
                     validatePrice(((JTextField) fields.get("Price")).getText());
-                    validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),
-                            "S");
+                    validateID(((JTextField) fields.get("Assigned Salesman ID")).getText(),menuItem);
                     break;
             }
         } catch (InvalidInputException ex) {
@@ -316,7 +318,7 @@ public class AddNewRecords {
         }
     }
         
-    private static void validateID(String id, String startingLetter) throws InvalidInputException {
+    private static void validateID(String menuItem, String id) throws InvalidInputException {
         if (id.length() < 3 || id.length() > 12) {
             throw new InvalidInputException("ID must be between 4 and 12 characters");
         }
@@ -326,11 +328,8 @@ public class AddNewRecords {
         if (!id.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$")) {
             throw new InvalidInputException("ID must contain both letters and numbers");
         }
-        if (!id.startsWith(startingLetter)) {
-            throw new InvalidInputException("ID must start with the letter " + startingLetter);
-        }
-        // check if it is a valid salesman ID
-        if (startingLetter.equals("S")) {
+        // check if it is a valid salesman ID in car management
+        if (menuItem.equals("Car Management")) {
             String data = DataIO.readFile(FileManager.SALESMAN_FILE);
             if (!data.contains(id)) {
                 throw new InvalidInputException("Salesman ID don't exist.");
@@ -440,57 +439,56 @@ public class AddNewRecords {
     }
 
     private static String buildRecord(String menuItem, LinkedHashMap<String, JComponent> fields) throws IOException {
-        ArrayList<String> data = new ArrayList<>();
-
         switch (menuItem) {
             case "Staff Management":
-                data.add(((JLabel) fields.get("Staff ID")).getText());
-                data.add(((JTextField) fields.get("Name")).getText());
-                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
-                break;
+                String staffID = ((JLabel) fields.get("Staff ID")).getText();
+                String staffName = ((JTextField) fields.get("Name")).getText();
+                String staffPW = new String(((JPasswordField) fields.get("Password")).getPassword());
+                String role = ((JLabel) fields.get("Role")).getText();
+                Staff newStaff = new Staff(staffID, staffName, role, staffPW);
+                return newStaff.toDataString();
 
             case "Salesman Management":
-                data.add(((JLabel) fields.get("Salesman ID")).getText().trim());
-                data.add(((JTextField) fields.get("Name")).getText());
-                // convert format of phone number
-                String phone = ((JTextField) fields.get("Phone")).getText();
-                String newPhone = parsePhoneFormat(phone);
-                data.add(newPhone);
-                data.add(((JTextField) fields.get("Email")).getText().toLowerCase());
-                data.add(new String(((JPasswordField) fields.get("Password")).getPassword()));
-                break;
+                String salesmanID = ((JLabel) fields.get("Salesman ID")).getText();
+                String salesmanName = ((JTextField) fields.get("Name")).getText();
+                String salesmanPhone= ((JTextField) fields.get("Phone")).getText();
+                String newSMPhone = parsePhoneFormat(salesmanPhone);
+                String salesmanEmail = ((JTextField) fields.get("Email")).getText().toLowerCase();
+                String salesmanPW = new String(((JPasswordField) fields.get("Password")).getPassword());
+                Salesman newSalesman = new Salesman(
+                        salesmanID, salesmanName, newSMPhone, salesmanEmail,salesmanPW);
+                return newSalesman.toDataString();
 
             case "Car Management":
-                data.add(((JLabel) fields.get("Car ID")).getText());
-                data.add(((JTextField) fields.get("Model")).getText());
-                data.add(((JTextField) fields.get("Year")).getText());
-                data.add(((JTextField) fields.get("Color")).getText());
-                data.add(((JTextField) fields.get("Price")).getText());
-                data.add(((JLabel) fields.get("Status")).getText());
-                data.add(((JTextField) fields.get("Assigned Salesman ID")).getText());
+                String carID = ((JLabel) fields.get("Car ID")).getText();
+                String model = ((JTextField) fields.get("Model")).getText();
+                String year = ((JTextField) fields.get("Year")).getText();
+                String color = ((JTextField) fields.get("Color")).getText();
+                String price = ((JTextField) fields.get("Price")).getText();
+                String status = ((JLabel) fields.get("Status")).getText();
+                String assignedSM= ((JTextField) fields.get("Assigned Salesman ID")).getText();
                 
                 JLabel imageLabel = (JLabel) fields.get("Image");
                 File selectedFile = (File) imageLabel.getClientProperty("selectedFile");
+                String imagePath = " "; // empty string if no image
                 if (selectedFile != null) {
                     try {
-                        String carID = ((JLabel) fields.get("Car ID")).getText();
                         String fileExtension = getFileExtension(selectedFile.getName());
-                        String imagePath = DataIO.saveCarImage(
+                        imagePath = DataIO.saveCarImage(
                                 selectedFile, carID, fileExtension);
-                        data.add(imagePath);
                     } catch (IOException ex) {
                         System.err.println("Error saving image: " + ex.getMessage());
-                        data.add(""); // empty string for image path
                         JOptionPane.showMessageDialog(frame, 
                             "Car record saved but image upload failed: " + ex.getMessage(),
                             "Image Upload Error", JOptionPane.WARNING_MESSAGE);
                     }
-                } else {
-                    data.add(""); // empty string if no image
                 }
-                break;
+                Car newCar = new Car(carID, model, year, color, price, status, assignedSM, imagePath);
+                return newCar.toDataString();
+
+            default:
+                throw new IllegalArgumentException("Unknown menu item: " + menuItem);
         }
-        return String.join(",", data);
     }
     
     private static String getFileExtension(String filename) {
