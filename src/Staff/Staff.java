@@ -1,41 +1,19 @@
 package Staff;
 
-public class Staff {
+import Main.User;
+
+public class Staff extends User {
     
-    private String staffID;
-    private String name;
     private String role;
     private String password;
     
-    public Staff(String staffID, String name, String role, String password) {
-        this.setStaffID(staffID);
-        this.setName(name);
+    public Staff(String id, String name, String role, String password) {
+        super(id,name,password);
         this.setRole(role);
-        this.setPassword(password);
-    }
-
-    public String getStaffID() {
-        return staffID;
-    }
-
-    public String getName() {
-        return name;
     }
     
     public String getRole() {
         return role;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setStaffID(String staffID) {
-        this.staffID = staffID;
-    }
-    
-    public void setName(String name) {
-        this.name = name;
     }
     
     public void setRole(String role) {
@@ -50,7 +28,8 @@ public class Staff {
         return this.role.equals("SuperAdmin");
     }
     
+    @Override
     public String toDataString() {
-        return String.join(",",staffID,name,role,password);
+        return String.join(",",id,name,role,password);
     }
 }
