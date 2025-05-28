@@ -79,6 +79,6 @@ public class MainMenu extends JFrame {
     }
     
     public static void main(String[] args) {
-        FrameManager.showFrame(new MainMenu()); 
+        FrameManager.showFrame(new MainMenu());   
     }
 }

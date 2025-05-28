@@ -6,25 +6,25 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class DataIO {
-    
     // for reading files
-    public static String readFile(String filename) {
-        String content = "";
+    public static String readFile(String filename) throws IOException {
+        StringBuilder content = new StringBuilder();
         Path filePath = Paths.get("data", filename);
+        if (Files.notExists(filePath.getParent())) {
+            Files.createDirectories(filePath.getParent());
+        }
         
         try (BufferedReader reader = Files.newBufferedReader(filePath)) {
             String line;
             while ((line = reader.readLine()) != null) {
-                content += line + "\n";
+                content.append(line).append("\n");
             }
-            return content;
         } catch (FileNotFoundException ex) {
             System.out.println( filePath + " not found: " + ex.getMessage());
-            return null;
         } catch (IOException ex) {
             System.out.println("Error reading " + filePath + ": " + ex.getMessage());
-            return null;
         }
+        return content.toString();
     }
     
     // for adding records

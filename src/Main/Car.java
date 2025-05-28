@@ -24,6 +24,14 @@ public class Car {
     public String getAssignedSalesmanID() { return assignedSMID; }
     public String getImagePath() { return imagePath; }
     
+    public void setModel(String model) { this.model = model; }
+    public void setYear(String year) { this.year = year; }
+    public void setColor(String color) { this.color = color; }
+    public void setPrice(String price) { this.price = price; }
+    public void setStatus(String status) { this.status = status; }
+    public void setAssignedSalesmanID(String assignedSMID) { this.assignedSMID = assignedSMID; }
+    public void setImagePath(String imagePath) { this.imagePath = imagePath; }
+    
     public String toDataString() {
         return String.join(",",carID,model,year,color,
                 price,status, assignedSMID,imagePath);

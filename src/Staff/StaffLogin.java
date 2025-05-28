@@ -1,16 +1,17 @@
 package Staff;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.*;
 import navigation.FrameManager;
+import utils.DataIO;
 
 public class StaffLogin extends JFrame {
     
     private static final String STAFF_FILE = "staff.txt";
     
     private JButton loginButton, backButton;
-    private JLabel instructionText, idLabel, pwLabel;
     private JTextField idField;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
@@ -18,17 +19,18 @@ public class StaffLogin extends JFrame {
     private static long lockoutEndTime = 0;    
     
     public StaffLogin() {
+        // frame set up
         this.setTitle("Staff Menu");
         this.setSize(500, 250);
         this.setLayout(null);
         this.setResizable(false);
         
-        instructionText = new JLabel("Enter your StaffID and StaffPW");
+        JLabel instructionText = new JLabel("Enter your StaffID and StaffPW");
         instructionText.setBounds(50, 20, 400, 20);
         instructionText.setFont(new Font("Arial", Font.BOLD, 14));
         instructionText.setHorizontalAlignment(JLabel.CENTER); 
 
-        idLabel = new JLabel("Staff ID:");
+        JLabel idLabel = new JLabel("Staff ID:");
         idLabel.setBounds(100, 60, 100, 20);
         idLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
@@ -36,7 +38,7 @@ public class StaffLogin extends JFrame {
         idField.setBounds(200, 60, 200, 25);
         idField.setFont(new Font("Arial", Font.PLAIN, 14));
         
-        pwLabel = new JLabel("Password:");
+        JLabel pwLabel = new JLabel("Password:");
         pwLabel.setBounds(100, 100, 100, 20);
         pwLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         
@@ -48,7 +50,7 @@ public class StaffLogin extends JFrame {
         showPW.setBounds(200,125,150,20);
         showPW.setFont(new Font("Arial", Font.PLAIN, 12));
         showPW.setFocusPainted(false);
-        showPW.addActionListener(e -> passwordVisibility());
+        showPW.addActionListener(e -> togglePWVisibility());
         
         loginButton = new JButton("Login");
         loginButton.setBounds(260, 160, 100, 30);
@@ -75,12 +77,8 @@ public class StaffLogin extends JFrame {
         this.setVisible(true);
     }
     
-    public static void passwordVisibility() {
-        if (showPW.isSelected()) {
-            pwField.setEchoChar((char)0);
-        } else {
-            pwField.setEchoChar('•'); 
-        }
+    public static void togglePWVisibility() {
+        pwField.setEchoChar(showPW.isSelected() ? (char)0 : '•');
     }
     
     private void attemptLogin() {
@@ -88,7 +86,6 @@ public class StaffLogin extends JFrame {
         char[] staffPW = pwField.getPassword();
         
         long currentTime = System.currentTimeMillis();
-    
         if (currentTime < lockoutEndTime) {
             JOptionPane.showMessageDialog(this,
                 "Too many failed attempts. Please try again later.",
@@ -117,21 +114,15 @@ public class StaffLogin extends JFrame {
         }
     }   
     
-    private Staff validate(String staffID, char[] staffPW) {
-        String[] lines = FileManager.getLines(STAFF_FILE);
-        if (lines == null) {
-            return null;
-        }
+    private Staff validate(String staffID, char[] staffPW) throws IOException {
+        String data = DataIO.readFile(STAFF_FILE);
+        String[] lines = data.split("\n");
+        if (lines == null) { return null; }
         for (String line : lines) {
             String[] parts = line.split(",");
-            if (parts.length >= 4) {
-                String savedID = parts[0];
-                String savedPW = parts[3];
-                if (savedID.equals(staffID.toUpperCase())) {
-                    if (savedPW.equals(new String(staffPW))) {
-                        Staff staff = new Staff(parts[0],parts[1],parts[2],parts[3]);
-                        return staff; // Login successful!
-                    }
+            if (parts.length >= 4 && parts[0].equalsIgnoreCase(staffID)) {
+                if (parts[3].equals(new String(staffPW))) {
+                    return new Staff(parts[0], parts[1], parts[2], parts[3]);
                 }
             }
         }
@@ -141,7 +132,7 @@ public class StaffLogin extends JFrame {
     private void handleSuccessfulLogin(Staff staff) {
         JOptionPane.showMessageDialog(this, 
                     "Welcome back, " + staff.getName());
-        System.out.println("StaffID [" + staff.getStaffID() + "] logged in successfully.");
+        System.out.println("StaffID [" + staff.getId() + "] logged in successfully.");
         FrameManager.showFrame(new StaffMenu(staff));
         this.dispose();
     }

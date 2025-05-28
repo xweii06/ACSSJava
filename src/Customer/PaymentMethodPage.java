@@ -45,7 +45,7 @@ public class PaymentMethodPage extends JFrame {
         saveButton.addActionListener(e -> {
             String selectedMethod = (String) paymentComboBox.getSelectedItem();
             customer.setPaymentMethod(selectedMethod);  // Save in Customer object
-            CustomerManager.saveToFile(); // Persist to file
+            //CustomerManager.saveToFile(); // Persist to file
             JOptionPane.showMessageDialog(this, "Payment Method Set: " + selectedMethod);
             FrameManager.showFrame(new CustomerMainPage(customer));
             this.dispose();

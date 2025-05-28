@@ -1,16 +1,33 @@
 package Staff;
 
+import Staff.CarManagement.CarPanel;
+import Staff.CarManagement.CarService;
+import Staff.CustomerManagement.CustomerPanel;
+import Staff.CustomerManagement.CustomerService;
+import Staff.SalesmanManagement.SalesmanPanel;
+import Staff.SalesmanManagement.SalesmanService;
+import Staff.StaffManagement.StaffPanel;
+import Staff.StaffManagement.StaffService;
+import navigation.FrameManager;
+import repositories.CarRepository;
+import repositories.CustomerRepository;
+import repositories.SalesmanRepository;
+import repositories.StaffRepository;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.table.*;
-import navigation.FrameManager;
+
 import utils.DataIO;
 
 public class StaffMenu extends JFrame {
+    
+    private StaffService staffService;
+    private SalesmanService salesmanService;
+    private CustomerService customerService;
+    private CarService carService;
     
     private Staff currentStaff;
     private static final String EXITPIN_FILE = "/data/exitPIN.txt";
@@ -23,6 +40,11 @@ public class StaffMenu extends JFrame {
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(Staff staff) {
+        this.staffService = new StaffService(new StaffRepository());
+        this.salesmanService = new SalesmanService(new SalesmanRepository());
+        this.customerService = new CustomerService(new CustomerRepository());
+        this.carService = new CarService(new CarRepository());
+        
         this.currentStaff = staff;
         this.setTitle("Staff Menu");
         this.setSize(1000, 600);
@@ -39,10 +61,7 @@ public class StaffMenu extends JFrame {
         
         contentPanel = new JPanel();
         contentPanel.setBackground(Color.white);
-        JScrollPane contentScroll = new JScrollPane(contentPanel);
-        contentScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        contentScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        mainPanel.add(contentScroll, BorderLayout.CENTER);
+        mainPanel.add(contentPanel, BorderLayout.CENTER);
 
         this.add(mainPanel);
         showDefaultContent(contentPanel,staff.getName());
@@ -144,66 +163,20 @@ public class StaffMenu extends JFrame {
         subMenuPanel.setBackground(Color.white);
         if (menuItem.equals("Payment & Feedback Analysis") || menuItem.equals("Reports")) {
             subMenuPanel.setLayout(new GridLayout(0, 4, 15, 15));
-        } else {
-            subMenuPanel.setLayout(new BorderLayout());
-        }
+        } 
         
         switch(menuItem) {
             case "Staff Management":
+                contentPanel.add(new StaffPanel(staffService));
+                break;
             case "Salesman Management":
+                contentPanel.add(new SalesmanPanel(salesmanService));
+                break;
             case "Car Management":
+                contentPanel.add(new CarPanel(carService));
+                break;
             case "Customer Management":
-                JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,10,5));
-                btnPanel.setBackground(Color.white);
-                
-                if (!menuItem.equals("Customer Management")) {
-                    JButton addBtn = styleActionButton("Add New");
-                    addBtn.setBackground(new Color(0x08A045));
-                    addBtn.setForeground(Color.white);
-                    addBtn.addActionListener(e -> {
-                        AddNewRecords.createAddFrame(menuItem);
-                        addBtn.setEnabled(false);
-                    });
-                    btnPanel.add(addBtn);
-                } else {
-                    JButton approveBtn = styleActionButton("Approve");
-                    approveBtn.setBackground(new Color(0x08A045));
-                    approveBtn.setForeground(Color.white);
-                    approveBtn.addActionListener(e -> ApproveCus.handlePendingCus());
-                    btnPanel.add(approveBtn);
-                }
-                
-                JButton delBtn = styleActionButton("Delete");
-                delBtn.setBackground(new Color(0xE31A3E));
-                delBtn.setForeground(Color.white);
-                delBtn.addActionListener(e -> {
-                    DeleteRecords.deleteSelectedRecords(menuItem, recordsTable);
-                    refreshMenu(menuItem);
-                });
-                btnPanel.add(delBtn);
-                
-                JButton updateBtn = styleActionButton("Update");
-                updateBtn.setBackground(new Color(0x7092BE));
-                updateBtn.setForeground(Color.white);
-                updateBtn.addActionListener(e -> {
-                    int selectedRow = recordsTable.getSelectedRow();
-                    if (selectedRow >= 0) {
-                        String[] rowData = new String[recordsTable.getColumnCount()];
-                        for (int i = 0; i < rowData.length; i++) {
-                            rowData[i] = recordsTable.getValueAt(selectedRow, i).toString();
-                        }
-                        UpdateRecords.createUpdateFrame(menuItem, rowData);
-                        updateBtn.setEnabled(false);
-                    } else {
-                        JOptionPane.showMessageDialog(null, 
-                            "Please select a record to update", 
-                            "No Selection", JOptionPane.WARNING_MESSAGE);
-                    }
-                });
-                btnPanel.add(updateBtn);
-                
-                subMenuPanel.add(btnPanel,BorderLayout.NORTH);
-                displayTable(menuItem);
+                contentPanel.add(new CustomerPanel(customerService));
                 break;
             case "Payment & Feedback Analysis":
                 addSubMenuButton(subMenuPanel, "Payment Records",
@@ -226,12 +199,12 @@ public class StaffMenu extends JFrame {
                         DataIO.loadIcon(UPDATECAR_PNG),null);
                 break;
         }
-        
+        /*
         JPanel wrapperPanel = new JPanel(new GridBagLayout());
         wrapperPanel.setBackground(Color.white);
         wrapperPanel.add(subMenuPanel);
-
-        contentPanel.add(wrapperPanel, BorderLayout.CENTER);
+        */
+        //contentPanel.add(subMenuPanel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
     }
@@ -340,95 +313,7 @@ public class StaffMenu extends JFrame {
             }
         return false;
     }
-    
-    private void displayTable(String menuItem) {
-        recordsTable = ViewAllRecords.getRecordsTable(menuItem);
-
-        JPanel controlPanel = new JPanel(new BorderLayout());
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JTextField searchField = new JTextField(20);
-        JButton searchBtn = new JButton("Search");
-        searchBtn.setFocusable(false);
-
-        searchBtn.addActionListener(e -> {
-            TableRowSorter<TableModel> sorter = new TableRowSorter<>(recordsTable.getModel());
-            recordsTable.setRowSorter(sorter);
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchField.getText()));
-        });
-
-        searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
-        searchPanel.add(searchBtn);
-
-        JPanel sortPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        JLabel sortLabel = new JLabel("Sort by:");
-        sortLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-
-        String[] columnNames = ViewAllRecords.getColumnsFor(menuItem);
-        JComboBox<String> sortComboBox = new JComboBox<>(columnNames);
-        sortComboBox.insertItemAt("Default", 0);
-        sortComboBox.setSelectedIndex(0);
-        sortComboBox.setFont(new Font("Arial", Font.PLAIN, 14));
-        sortComboBox.setPreferredSize(new Dimension(130, 30));
-
-        sortComboBox.addActionListener(e -> {
-            String selected = (String) sortComboBox.getSelectedItem();
-            if ("Default".equals(selected)) {
-                recordsTable.setRowSorter(null);
-                return;
-            }
-
-            int columnIndex = -1;
-            for (int i = 0; i < columnNames.length; i++) {
-                if (columnNames[i].equals(selected)) {
-                    columnIndex = i;
-                    break;
-                }
-            }
-
-            if (columnIndex >= 0) {
-                if (menuItem.equals("Car Management") && columnIndex == 2 || columnIndex == 4) {
-                    // year and price
-                    sortNumericColumn(recordsTable, columnIndex);
-                } else {
-                    sortTable(recordsTable, columnIndex);
-                }
-            }
-        });
-
-        sortPanel.add(sortLabel);
-        sortPanel.add(sortComboBox);
-        controlPanel.add(sortPanel, BorderLayout.WEST);
-        controlPanel.add(searchPanel, BorderLayout.EAST);
-
-        JPanel tablePanel = new JPanel(new BorderLayout());
-        tablePanel.setMinimumSize(new Dimension(650, 350));
-        tablePanel.setPreferredSize(new Dimension(650, 350));
-        tablePanel.add(controlPanel, BorderLayout.NORTH);
-        tablePanel.add(new JScrollPane(recordsTable), BorderLayout.CENTER);
-
-        if (menuItem.equals("Car Management")) {
-            JButton viewImageBtn = new JButton("View Selected Car Image");
-            viewImageBtn.addActionListener(e -> {
-                int selectedRow = recordsTable.getSelectedRow();
-                if (selectedRow >= 0) {
-                    String carID = (String) recordsTable.getValueAt(selectedRow, 0);
-                    showImageInFrame(carID);
-                } else {
-                    JOptionPane.showMessageDialog(null, 
-                        "Please select a car first", 
-                        "No Selection", JOptionPane.WARNING_MESSAGE);
-                }
-            });
-
-            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            buttonPanel.add(viewImageBtn);
-            tablePanel.add(buttonPanel, BorderLayout.SOUTH);
-        }
-
-        subMenuPanel.add(tablePanel, BorderLayout.CENTER);
-    }
-    
+    /*
     private void sortTable(JTable table, int columnIndex) {
         TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
         table.setRowSorter(sorter);
@@ -515,7 +400,7 @@ public class StaffMenu extends JFrame {
         }
     }
     
-    public static void refreshMenu(String menuItem) {
+    public void refresh(String menuItem) {
         Window[] windows = Window.getWindows();
         for (Window window : windows) {
             if (window instanceof StaffMenu) {
@@ -525,4 +410,5 @@ public class StaffMenu extends JFrame {
             }
         }
     }
+    */
 }
