@@ -9,12 +9,15 @@ import utils.DataIO;
 import utils.MainMenuButton;
 
 public class SalesmanLogin extends JFrame {
-    
+
     private static final String SALESMAN_FILE = "salesman.txt";
+    private static final String SECURITY_QA_FILE = "data/Salesman forgot password.txt"; // Correct path
     private JButton loginButton;
     private JLabel instructionText, idLabel, pwLabel;
     private JTextField salesmanIDField;
     private JPasswordField salesmanPWField;
+    private JCheckBox showPassword;
+    private JLabel forgotPassword;
     private static int loginAttempts = 0;
     private static long lockoutEndTime = 0;
 
@@ -24,12 +27,11 @@ public class SalesmanLogin extends JFrame {
 
     private void initializeUI() {
         setTitle("Salesman Login");
-        setSize(500, 250);
+        setSize(500, 280);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
         setResizable(false);
         setLocationRelativeTo(null);
-         
 
         instructionText = new JLabel("Enter your SalesmanID and Password");
         instructionText.setBounds(50, 30, 400, 20);
@@ -52,8 +54,31 @@ public class SalesmanLogin extends JFrame {
         salesmanPWField.setBounds(200, 120, 200, 25);
         salesmanPWField.setFont(new Font("Arial", Font.PLAIN, 14));
 
+        showPassword = new JCheckBox("Show Password");
+        showPassword.setBounds(200, 150, 150, 20);
+        showPassword.setFont(new Font("Arial", Font.PLAIN, 12));
+        showPassword.setOpaque(false);
+        showPassword.addActionListener(e -> {
+            if (showPassword.isSelected()) {
+                salesmanPWField.setEchoChar((char) 0);
+            } else {
+                salesmanPWField.setEchoChar('•');
+            }
+        });
+
+        forgotPassword = new JLabel("<HTML><U>Forgot Password?</U></HTML>");
+        forgotPassword.setForeground(Color.BLUE.darker());
+        forgotPassword.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        forgotPassword.setBounds(355, 150, 120, 20);
+        forgotPassword.setFont(new Font("Arial", Font.PLAIN, 12));
+        forgotPassword.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                handleForgotPassword();
+            }
+        });
+
         loginButton = new JButton("Login");
-        loginButton.setBounds(180, 160, 90, 30);
+        loginButton.setBounds(200, 180, 90, 30);
         loginButton.setFocusable(false);
         loginButton.setForeground(Color.WHITE);
         loginButton.setBackground(new Color(0x08A045));
@@ -64,8 +89,10 @@ public class SalesmanLogin extends JFrame {
         add(salesmanIDField);
         add(pwLabel);
         add(salesmanPWField);
+        add(showPassword);
+        add(forgotPassword);
         add(loginButton);
-        
+
         MainMenuButton.addToFrame(this);
     }
 
@@ -100,31 +127,24 @@ public class SalesmanLogin extends JFrame {
             long remainingTime = (lockoutEndTime - currentTime) / 1000;
             long minutes = remainingTime / 60;
             long seconds = remainingTime % 60;
-            
             JOptionPane.showMessageDialog(this,
-                String.format("Account locked. Please try again in %d minutes and %d seconds.", minutes, seconds),
-                "Account Locked",
-                JOptionPane.WARNING_MESSAGE);
+                String.format("Account locked. Try again in %d minutes and %d seconds.", minutes, seconds),
+                "Account Locked", JOptionPane.WARNING_MESSAGE);
             return true;
         }
         return false;
     }
 
     private String validateCredentials(String salesmanID, char[] salesmanPW) throws IOException {
-        String salesmanData = DataIO.readFile(SALESMAN_FILE);
-        if (salesmanData != null) {
-            String[] lines = salesmanData.split("\n");
+        String data = DataIO.readFile(SALESMAN_FILE);
+        if (data != null) {
+            String[] lines = data.split("\n");
             for (String line : lines) {
                 String[] parts = line.split(",");
-                if (parts.length == 5) {
-                    String savedID = parts[0].trim();
-                    String savedpw = parts[1].trim();
-                    String name = parts[2].trim();
-                    
-                    if (savedID.equals(salesmanID)) {
-                        if (savedpw.equals(new String(salesmanPW))) {
-                            return name; // Login successful!
-                        }
+                if (parts.length >= 5) {
+                    if (parts[0].trim().equals(salesmanID) &&
+                        parts[4].trim().equals(new String(salesmanPW))) {
+                        return parts[1].trim(); // Return name
                     }
                 }
             }
@@ -135,26 +155,122 @@ public class SalesmanLogin extends JFrame {
     private void handleSuccessfulLogin(String salesmanID, String salesmanName) {
         JOptionPane.showMessageDialog(this,
             "Welcome back, " + salesmanName,
-            "Login Successful",
-            JOptionPane.INFORMATION_MESSAGE);
-        System.out.println("SalesmanID [" + salesmanID + "] logged in successfully.");
-        //FrameManager.showFrame(new SalesmanMenu());
+            "Login Successful", JOptionPane.INFORMATION_MESSAGE);
+        System.out.println("SalesmanID [" + salesmanID + "] logged in.");
+        FrameManager.showFrame(new SalesmanMenu());
     }
 
     private void handleFailedLogin(String salesmanID) {
         loginAttempts++;
         if (loginAttempts >= 3) {
             lockoutEndTime = System.currentTimeMillis() + (5 * 60 * 1000);
-            System.out.println("SalesmanID [" + salesmanID + "] locked out for 5 minutes.");
             JOptionPane.showMessageDialog(this,
-                "Too many failed attempts. Account locked for 5 minutes.",
-                "Account Locked",
-                JOptionPane.ERROR_MESSAGE);
+                "Too many failed attempts. Locked for 5 minutes.",
+                "Account Locked", JOptionPane.ERROR_MESSAGE);
         } else {
             JOptionPane.showMessageDialog(this,
-                "Invalid Salesman ID or Password. Attempts remaining: " + (3 - loginAttempts),
-                "Login Failed",
-                JOptionPane.ERROR_MESSAGE);
+                "Invalid ID or Password. Attempts remaining: " + (3 - loginAttempts),
+                "Login Failed", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void handleForgotPassword() {
+        JTextField idField = new JTextField();
+        JTextField answerField = new JTextField();
+        JPasswordField newPwField = new JPasswordField();
+        JPasswordField confirmPwField = new JPasswordField();
+
+        String id = JOptionPane.showInputDialog(this, "Enter Salesman ID:");
+        if (id == null || id.trim().isEmpty()) return;
+
+        String[] qa = getSecurityQA(id);
+        if (qa == null) {
+            JOptionPane.showMessageDialog(this, "ID not found or error reading file.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        JPanel panel = new JPanel(new GridLayout(4, 2, 5, 5));
+        panel.add(new JLabel("Security Question:"));
+        panel.add(new JLabel(qa[0]));
+        panel.add(new JLabel("Your Answer:"));
+        panel.add(answerField);
+        panel.add(new JLabel("New Password:"));
+        panel.add(newPwField);
+        panel.add(new JLabel("Confirm Password:"));
+        panel.add(confirmPwField);
+
+        int result = JOptionPane.showConfirmDialog(this, panel,
+                "Reset Password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            String answer = answerField.getText().trim();
+            String newPass = new String(newPwField.getPassword()).trim();
+            String confirmPass = new String(confirmPwField.getPassword()).trim();
+
+            if (!answer.equalsIgnoreCase(qa[1].trim())) {
+                JOptionPane.showMessageDialog(this, "Incorrect answer.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            if (!newPass.equals(confirmPass)) {
+                JOptionPane.showMessageDialog(this, "Passwords do not match.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            try {
+                resetPassword(id, newPass);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error updating password.", "Error", JOptionPane.ERROR_MESSAGE);
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String[] getSecurityQA(String id) {
+        File file = new File(SECURITY_QA_FILE);
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",", 4);
+                if (parts.length == 4 && parts[0].trim().equals(id)) {
+                    return new String[]{parts[2].trim(), parts[3].trim()};
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading security question file: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private void resetPassword(String id, String newPass) throws IOException {
+        File file = new File(SALESMAN_FILE);
+        StringBuilder updatedData = new StringBuilder();
+        boolean found = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 5 && parts[0].trim().equals(id)) {
+                    found = true;
+                    parts[4] = newPass; // Update password
+                    updatedData.append(String.join(",", parts)).append("\n");
+                } else {
+                    updatedData.append(line).append("\n");
+                }
+            }
+        }
+
+        if (found) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(updatedData.toString());
+                JOptionPane.showMessageDialog(this, "Password updated successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Salesman ID not found.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(SalesmanLogin::new);
     }
 }
