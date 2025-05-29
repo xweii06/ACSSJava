@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.table.TableRowSorter;
+import navigation.FrameManager;
 import repositories.SaleRepository;
 import utils.TableUtils;
 
@@ -20,11 +21,25 @@ public class SalePanel extends JPanel {
         initializeUI();
         loadSaleData();
     }
-
+    
     private void initializeUI() {
         this.setLayout(new BorderLayout());
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
+        
+        // Toolbar
+        JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        
+        JButton backButton = new JButton("Back");
+        backButton.setFocusable(false);
+        backButton.addActionListener(e -> FrameManager.goBack());
+        toolBar.add(backButton);
+        
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.setFocusable(false);
+        refreshButton.addActionListener(e -> loadSaleData());
+        toolBar.add(refreshButton);
+        
         // table
         tableModel = new SaleTableModel();
         saleTable = new JTable(tableModel);
@@ -43,16 +58,13 @@ public class SalePanel extends JPanel {
         saleTable.setFont(tableFont);
         saleTable.setRowHeight(24);
         
-        int[] preferredWidths = {150, 90, 90, 90, 90, 90};
-        for (int i = 0; i < preferredWidths.length; i++) {
-            saleTable.getColumnModel().getColumn(i).setPreferredWidth(preferredWidths[i]);
-        }
-        
         JPanel searchPanel = TableUtils.createSearchPanel(saleTable);
         
         // Main panel
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(searchPanel, BorderLayout.EAST);
+        topPanel.add(toolBar, BorderLayout.WEST);
+        
         this.add(topPanel, BorderLayout.NORTH);
         this.add(new JScrollPane(saleTable), BorderLayout.CENTER);
     }

@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.*;
 import navigation.FrameManager;
+import repositories.CarRepository;
+import repositories.CustomerRepository;
+import repositories.SalesmanRepository;
+import repositories.StaffRepository;
 import utils.DataIO;
 
 public class StaffLogin extends JFrame {
@@ -87,8 +91,9 @@ public class StaffLogin extends JFrame {
         
         long currentTime = System.currentTimeMillis();
         if (currentTime < lockoutEndTime) {
+            long secondsLeft = (lockoutEndTime - currentTime) / 1000;
             JOptionPane.showMessageDialog(this,
-                "Too many failed attempts. Please try again later.",
+                "Too many failed attempts. Please try again in " + secondsLeft + " seconds later.",
                 "Locked Out",
                 JOptionPane.WARNING_MESSAGE);
             Arrays.fill(staffPW, '0');
@@ -133,7 +138,13 @@ public class StaffLogin extends JFrame {
         JOptionPane.showMessageDialog(this, 
                     "Welcome back, " + staff.getName());
         System.out.println("StaffID [" + staff.getId() + "] logged in successfully.");
-        FrameManager.showFrame(new StaffMenu(staff));
+        
+        StaffRepository staffRepo = new StaffRepository();
+        SalesmanRepository salesmanRepo = new SalesmanRepository();
+        CustomerRepository customerRepo = new CustomerRepository();
+        CarRepository carRepo = new CarRepository();
+        
+        FrameManager.showFrame(new StaffMenu(staff, staffRepo, salesmanRepo, customerRepo, carRepo));
         this.dispose();
     }
     

@@ -4,12 +4,17 @@ import Staff.CarManagement.CarPanel;
 import Staff.CarManagement.CarService;
 import Staff.CustomerManagement.CustomerPanel;
 import Staff.CustomerManagement.CustomerService;
+import Staff.SaleManagement.AnalysisPanel;
 import Staff.SalesmanManagement.SalesmanPanel;
 import Staff.SalesmanManagement.SalesmanService;
 import Staff.StaffManagement.StaffPanel;
 import Staff.StaffManagement.StaffService;
+import Staff.SaleManagement.AppointmentPanel;
+import Staff.SaleManagement.FeedbackPanel;
+import Staff.SaleManagement.ReportsPanel;
 import Staff.SaleManagement.SalePanel;
 import navigation.FrameManager;
+import repositories.AppointmentRepository;
 import repositories.CarRepository;
 import repositories.CustomerRepository;
 import repositories.SalesmanRepository;
@@ -30,23 +35,23 @@ public class StaffMenu extends JFrame {
     private SalesmanService salesmanService;
     private CustomerService customerService;
     private CarService carService;
-    private SaleRepository saleRepo = new SaleRepository();
     
     private Staff currentStaff;
     private static final String EXITPIN_FILE = "exitPIN.txt";
-    private static final String ADDCAR_PNG = "add_car.png", DELCAR_PNG = "del_car.png", 
-            UPDATECAR_PNG = "edit_car.png", SEARCHCAR_PNG = "search_car.png";
+    private static final String PAYMENT_PNG = "payment.png", PENDING_PNG = "pending.png", 
+            FEEDBACK_PNG = "feedback.png", ANALYSIS_PNG = "analysis.png";
     
     private JPanel mainPanel, sidebar, contentPanel, titlePanel, subMenuPanel;
     private JLabel pageTitle, titleLabel;
     private JTable recordsTable;
     private JButton currentlySelectedButton = null; 
     
-    public StaffMenu(Staff staff) {
-        this.staffService = new StaffService(new StaffRepository());
-        this.salesmanService = new SalesmanService(new SalesmanRepository());
-        this.customerService = new CustomerService(new CustomerRepository());
-        this.carService = new CarService(new CarRepository());
+    public StaffMenu(Staff staff, StaffRepository staffRepo, SalesmanRepository salesmanRepo,
+                     CustomerRepository customerRepo, CarRepository carRepo) {
+        this.staffService = new StaffService(staffRepo);
+        this.salesmanService = new SalesmanService(salesmanRepo);
+        this.customerService = new CustomerService(customerRepo);
+        this.carService = new CarService(carRepo);
         
         this.currentStaff = staff;
         this.setTitle("Staff Menu");
@@ -181,32 +186,35 @@ public class StaffMenu extends JFrame {
             case "Customer Management":
                 contentPanel.add(new CustomerPanel(customerService));
                 break;
-            case "Sale Management":
-                
-                
-                break;
             case "Payment & Feedback":
-                SalePanel salePanel = new SalePanel(saleRepo);
                 addSubMenuButton(subMenuPanel, "Payment Records",
-                        DataIO.loadIcon(ADDCAR_PNG), e -> displayRecords());
+                        DataIO.loadIcon(PAYMENT_PNG), 
+                        e -> showPanelInFrame(
+                                "Payment Records", 
+                                new SalePanel(new SaleRepository())
+                        ));
                 addSubMenuButton(subMenuPanel, "Pending Payments",
-                        DataIO.loadIcon(DELCAR_PNG),null);
+                        DataIO.loadIcon(PENDING_PNG),
+                        e -> showPanelInFrame(
+                                "Pending Payments", 
+                                new AppointmentPanel(new AppointmentRepository())
+                        ));
                 addSubMenuButton(subMenuPanel, "All Feedbacks",
-                        DataIO.loadIcon(SEARCHCAR_PNG),null);
+                        DataIO.loadIcon(FEEDBACK_PNG),
+                        e -> showPanelInFrame(
+                                "All Feedbacks", 
+                                new FeedbackPanel())
+                        );
                 addSubMenuButton(subMenuPanel, "Analysis",
-                        DataIO.loadIcon(UPDATECAR_PNG),null);
+                        DataIO.loadIcon(ANALYSIS_PNG),
+                        e -> showPanelInFrame(
+                                "Analysis", 
+                                new AnalysisPanel())
+                        );
                 contentPanel.add(subMenuPanel);
                 break;
             case "Reports":
-                addSubMenuButton(subMenuPanel, "Sales Records",
-                        DataIO.loadIcon(ADDCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Sales Analysis",
-                        DataIO.loadIcon(DELCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Sales by Salesman",
-                        DataIO.loadIcon(SEARCHCAR_PNG),null);
-                addSubMenuButton(subMenuPanel, "Revenue Analysis",
-                        DataIO.loadIcon(UPDATECAR_PNG),null);
-                contentPanel.add(subMenuPanel);
+                contentPanel.add(new ReportsPanel(), BorderLayout.CENTER);
                 break;
         }
         contentPanel.revalidate();
@@ -303,20 +311,20 @@ public class StaffMenu extends JFrame {
     private boolean checkExitPIN(String exitPIN) throws IOException{
         String savedExitPIN = DataIO.readFile(EXITPIN_FILE);
             if (savedExitPIN != null){
-                if (savedExitPIN.equals(exitPIN)){
+                if (savedExitPIN.trim().equals(exitPIN)){
                     return true;
                 }
             }
         return false;
     }
     
-    private void displayRecords() {
-        JFrame recordFrame = new JFrame("Payment Records");
-        recordFrame.setLayout(new BorderLayout());
-        recordFrame.setBackground(Color.white);
-        recordFrame.setPreferredSize(new Dimension(600, 500));
-        SalePanel salePanel = new SalePanel(saleRepo);
-        recordFrame.add(salePanel, BorderLayout.CENTER);
-        FrameManager.showFrame(recordFrame);
+    private void showPanelInFrame(String title, JPanel panel) {
+        JFrame frame = new JFrame(title);
+        frame.setLayout(new BorderLayout());
+        frame.setBackground(Color.white);
+        frame.setPreferredSize(new Dimension(800, 600));
+        frame.add(panel, BorderLayout.CENTER);
+        frame.pack();
+        FrameManager.showFrame(frame);
     }
 }

@@ -2,10 +2,10 @@ package Staff.SalesmanManagement;
 
 import Salesman.Salesman;
 import utils.InputValidator;
+import utils.InvalidInputException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import utils.InvalidInputException;
 
 public class SalesmanDialog extends JDialog {
     public static final int OK_OPTION = 1;

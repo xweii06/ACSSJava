@@ -16,24 +16,21 @@ public class CarDialog extends JDialog {
     public static final int OK_OPTION = 1;
     public static final int CANCEL_OPTION = 0;
     private int option = CANCEL_OPTION;
-    private final boolean statusOnlyMode;
     
     private final JTextField carIDField;
     private final JTextField modelField;
     private final JTextField yearField;
     private final JTextField colorField;
     private final JTextField priceField;
-    private JComboBox<String> statusComboBox;
+    private final JTextField statusField;
     private JComboBox<String> assignedSMIDComboBox;
     private final JLabel imagePathLabel;
     private String imagePath;
 
-    public CarDialog(JFrame parent, String title, Car car, CarService carService, boolean statusOnlyMode) {
+    public CarDialog(JFrame parent, String title, Car car, CarService carService) {
         super(parent, title, true);
         this.setSize(500, 400);
         this.setLocationRelativeTo(null);
-        
-        this.statusOnlyMode = statusOnlyMode;
         
         JPanel formPanel = new JPanel(new GridLayout(9, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -82,15 +79,15 @@ public class CarDialog extends JDialog {
         
         // Status
         formPanel.add(new JLabel("Status:"));
+        statusField = new JTextField();
         if (car == null) {
-            formPanel.add(new JLabel("available"));
+            statusField.setText("available");
         }
         if (car != null) {
-            String[] statusOptions = {"available", "booked", "paid", "cancelled"};
-            statusComboBox = new JComboBox<>(statusOptions);
-            statusComboBox.setSelectedItem(car.getStatus());
-            formPanel.add(statusComboBox);
+            statusField.setText(car.getStatus());
         }
+        statusField.setEnabled(false);
+        formPanel.add(statusField);
         
         // Assigned Salesman ID
         formPanel.add(new JLabel("Salesman ID:"));
@@ -120,13 +117,6 @@ public class CarDialog extends JDialog {
         
         if (car != null) {
             imagePath = car.getImagePath();
-        }
-        
-        if (statusOnlyMode) {
-            modelField.setEnabled(false);
-            yearField.setEnabled(false);
-            colorField.setEnabled(false);
-            priceField.setEnabled(false);
         }
         
         // Buttons
@@ -189,19 +179,6 @@ public class CarDialog extends JDialog {
         return "";
     }
     
-    public Car getNewCar() {
-        return new Car(
-                carIDField.getText().trim(),
-                modelField.getText().trim(),
-                yearField.getText().trim(),
-                colorField.getText().trim(),
-                priceField.getText().trim(),
-                "available", // always available when adding new
-                (String) assignedSMIDComboBox.getSelectedItem(),
-                imagePath
-        );
-    }
-    
     public Car getCar() {
         return new Car(
             carIDField.getText().trim(),
@@ -209,7 +186,7 @@ public class CarDialog extends JDialog {
             yearField.getText().trim(),
             colorField.getText().trim(),
             priceField.getText().trim(),
-            (String) statusComboBox.getSelectedItem(),
+            statusField.getText().trim(),
             (String) assignedSMIDComboBox.getSelectedItem(),
             imagePath
         );

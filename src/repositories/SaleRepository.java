@@ -3,11 +3,11 @@ package repositories;
 import Staff.SaleManagement.Sale;
 import utils.DataIO;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class SaleRepository {
     private static final String FILE_PATH = "sales.txt";
@@ -26,37 +26,22 @@ public class SaleRepository {
             if (line.isEmpty()) continue;
             
             String[] parts = line.split(",", -1); 
-            if (parts.length != 7) {  // Changed from 6 to 7
+            if (parts.length != 7) {
                 System.err.println("Skipping malformed sale record: " + line);
                 continue;
             }
             
             try {
-                Date saleDate = DATE_FORMAT.parse(parts[6].trim());
-                Sale sale = new Sale(
-                    parts[0].trim(), // saleID
-                    parts[1].trim(), // customerID
-                    parts[2].trim(), // carID
-                    parts[3].trim(), // salesmanID
-                    Double.parseDouble(parts[4].trim()), // price
-                    parts[5].trim(),  // paymentMethod
-                    saleDate          // saleDate
-                );
-                salesList.add(sale);
+                Sale sale = fromLine(line);
+                if (sale != null) { 
+                    salesList.add(sale);
+                }
             } catch (Exception ex) {
                 System.err.println("Error parsing sale record: " + line);
                 ex.printStackTrace();
             }
         }
         return salesList;
-    }
-    
-    
-    public void addSale(Sale sale) throws IOException {
-        if (sale == null) {
-            throw new IllegalArgumentException("Sale cannot be null");
-        }
-        DataIO.appendToFile(FILE_PATH, sale.toString() + "\n");
     }
     
     public void updateSale(Sale updated) throws IOException {
@@ -128,13 +113,32 @@ public class SaleRepository {
         return sales;
     }
     
-    public String generateSaleID() {
-        String uuidPart = UUID.randomUUID().toString().replace("-", "").substring(0, 4).toUpperCase();
-        return "SA" + uuidPart;
-    }
-    
     private String toDataString(Sale sale) {
         return sale.toString();
     }
-
+    
+    private Sale fromLine(String line) {
+        String[] parts = line.split(",", -1);
+        if (parts.length != 7) {
+            System.err.println("Skipping malformed appointment record: " + line);
+            return null;
+        }
+        
+        try {
+            Date saleDate = DATE_FORMAT.parse(parts[6].trim());
+            return new Sale(
+                parts[0].trim(), // saleID
+                parts[1].trim(), // customerID
+                parts[2].trim(), // carID
+                parts[3].trim(), // salesmanID
+                Double.parseDouble(parts[4].trim()), // price
+                parts[5].trim(),  // paymentMethod
+                saleDate  // saleDate
+            );
+        } catch (NumberFormatException | ParseException ex) {
+            System.err.println("Error parsing sale fields: " + line);
+            ex.printStackTrace();
+            return null;
+        }
+    }
 }

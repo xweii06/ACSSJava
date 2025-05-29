@@ -2,11 +2,8 @@ package Staff.CarManagement;
 
 import repositories.CarRepository;
 import repositories.SalesmanRepository;
-import repositories.AppointmentRepository;
 import Main.Car;
 import Staff.CustomerManagement.CustomerService;
-import Staff.SaleManagement.Appointment;
-import Staff.SaleManagement.Sale;
 import java.io.File;
 import utils.InvalidInputException;
 import java.io.IOException;
@@ -19,13 +16,11 @@ import repositories.SaleRepository;
 public class CarService {
     private final CarRepository repository;
     private final SalesmanRepository salesmanRepo;
-    private final AppointmentRepository apptRepo;
     private final SaleRepository saleRepo;
 
     public CarService(CarRepository repository) {
         this.repository = repository;
         this.salesmanRepo = new SalesmanRepository();
-        this.apptRepo = new AppointmentRepository();
         this.saleRepo = new SaleRepository();
     }
 
@@ -139,25 +134,5 @@ public class CarService {
     
     public CustomerService getCustomerService() {
         return new CustomerService(new CustomerRepository());
-    }
-    
-    public void addAppointment(Appointment appointment) throws IOException {
-        apptRepo.addAppointment(appointment);
-    }
-    
-    public void updateAppointment(Appointment appointment) throws IOException {
-        apptRepo.updateAppointment(appointment);
-    }
-
-    public Appointment findAppointmentByCarID(String carID) throws IOException {
-        return apptRepo.findAppointmentByCarID(carID);
-    }
-
-    public String generateSaleID() {
-        return saleRepo.generateSaleID();
-    }
-    
-    public void addSale(Sale sale) throws IOException {
-        saleRepo.addSale(sale);
     }
 }

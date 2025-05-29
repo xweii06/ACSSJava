@@ -9,23 +9,48 @@ import java.util.List;
 
 public class AppointmentRepository {
     private static final String FILE_PATH = "appointments.txt";
-    
-    public void addAppointment(Appointment appt) throws IOException {
-        DataIO.appendToFile(FILE_PATH, toDataString(appt));
-    }
 
     public List<Appointment> getAllAppointments() throws IOException {
         List<Appointment> appointments = new ArrayList<>();
         String content = DataIO.readFile(FILE_PATH);
-        if (content == null || content.isEmpty()) return appointments;
+
+        if (content == null || content.isEmpty()) {
+            return appointments;
+        }
         
-        String[] lines = content.split("\n");
-        for (String line : lines) {
-            if (!line.trim().isEmpty()) {
-                appointments.add(fromLine(line));
+        for (String line : content.split("\n")) {
+            line = line.trim();
+            if (line.isEmpty()) continue;
+            
+            String[] parts = line.split(",", -1); 
+            if (parts.length != 7) {
+                System.err.println("Skipping malformed appointment record: " + line);
+                continue;
+            }
+
+            try {
+                Appointment appointment = fromLine(line);
+                if (appointment != null) { 
+                    appointments.add(appointment);
+                }
+            } catch (Exception ex) {
+                System.err.println("Error parsing appointment record: " + line);
+                ex.printStackTrace();
             }
         }
         return appointments;
+    }
+    
+    public List<Appointment> getAllPendingAppointments() throws IOException {
+        List<Appointment> allAppointments = getAllAppointments();
+        List<Appointment> pendingAppointments = new ArrayList<>();
+
+        for (Appointment appt : allAppointments) {
+            if (appt != null && "pending".equalsIgnoreCase(appt.getStatus())) {
+                pendingAppointments.add(appt);
+            }
+        }
+        return pendingAppointments;
     }
     
     public List<Appointment> getAppointmentsByCustomerID(String customerID) throws IOException {
@@ -92,17 +117,26 @@ public class AppointmentRepository {
     }
 
     private Appointment fromLine(String line) {
-        String[] parts = line.split(",");
-        if (parts.length != 7) return null;
-        
-        return new Appointment(
-            parts[0], // orderID
-            parts[1], // customerID
-            parts[2], // carID
-            parts[3], // model
-            Double.parseDouble(parts[4]), // price
-            LocalDate.parse(parts[5]), // dueDate
-            parts[6]  // status
-        );
+        String[] parts = line.split(",", -1);
+        if (parts.length != 7) {
+            System.err.println("Skipping malformed appointment record: " + line);
+            return null;
+        }
+
+        try {
+            return new Appointment(
+                parts[0].trim(), // orderID
+                parts[1].trim(), // customerID  
+                parts[2].trim(), // carID
+                parts[3].trim(), // model
+                Double.parseDouble(parts[4].trim()), // price
+                LocalDate.parse(parts[5].trim()), // dueDate
+                parts[6].trim()  // status
+            );
+        } catch (NumberFormatException | java.time.format.DateTimeParseException ex) {
+            System.err.println("Error parsing appointment fields: " + line);
+            ex.printStackTrace();
+            return null;
+        }
     }
 }

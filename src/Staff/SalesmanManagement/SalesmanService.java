@@ -110,7 +110,7 @@ public class SalesmanService {
     
     private boolean updateRecordForDeletedSalesman(String salesmanID) throws IOException {
         List<Sale> sales = saleRepo.findSalesBySalesmanID(salesmanID);
-        if (sales != null && !sales.isEmpty()) {  // Fixed condition
+        if (sales != null && !sales.isEmpty()) { 
             for (Sale sale : sales) {
                 if (sale != null) {
                     sale.setSalesmanID("DLTD_USER_" + salesmanID);
