@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import utils.TableUtils;
 
 public class CustomerPanel extends JPanel {
     private final CustomerService service;
@@ -28,9 +29,13 @@ public class CustomerPanel extends JPanel {
         toolBar.setFloatable(false);
         
         JButton approveButton = new JButton("Approve");
+        approveButton.setFocusable(false);
         JButton updateButton = new JButton("Update");
+        updateButton.setFocusable(false);
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setFocusable(false);
         JButton refreshButton = new JButton("Refresh");
+        refreshButton.setFocusable(false);
         
         ApproveCus approver = new ApproveCus();
         approveButton.addActionListener(e -> approver.handlePendingCus());
@@ -38,12 +43,11 @@ public class CustomerPanel extends JPanel {
         deleteButton.addActionListener(this::deleteCustomer);
         refreshButton.addActionListener(e -> loadCustomerData());
         
+        toolBar.add(approveButton);
         toolBar.add(updateButton);
         toolBar.add(deleteButton);
         toolBar.addSeparator();
         toolBar.add(refreshButton);
-        
-        this.add(toolBar, BorderLayout.NORTH);
         
         // Table
         tableModel = new CustomerTableModel();
@@ -51,6 +55,17 @@ public class CustomerPanel extends JPanel {
         customerTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         customerTable.getTableHeader().setReorderingAllowed(false);
         customerTable.getTableHeader().setResizingAllowed(false);
+        TableUtils.setDefaultSort(customerTable, 0); 
+        
+        Font tableFont = new Font("Arial", Font.PLAIN, 14); 
+        customerTable.setFont(tableFont);
+        customerTable.setRowHeight(24);
+        
+        // Main panel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(TableUtils.createSearchPanel(customerTable), BorderLayout.EAST);
+        topPanel.add(toolBar, BorderLayout.WEST);
+        this.add(topPanel, BorderLayout.NORTH);
         
         this.add(new JScrollPane(customerTable), BorderLayout.CENTER);
     }
@@ -66,18 +81,19 @@ public class CustomerPanel extends JPanel {
     }
     
     private void editCustomer(ActionEvent e) {
-        int selectedRow = customerTable.getSelectedRow();
-        if (selectedRow == -1) {
+        int selectedViewRow = customerTable.getSelectedRow();
+        if (selectedViewRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a customer to edit", 
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
+        int selectedModelRow = customerTable.convertRowIndexToModel(selectedViewRow);
         try {
-            Customer selectedCustomer = tableModel.getCustomerAt(selectedRow);
+            Customer selectedCustomer = tableModel.getCustomerAt(selectedModelRow);
             CustomerDialog dialog = new CustomerDialog(
                 (JFrame)SwingUtilities.getWindowAncestor(this), 
-                "Edit Customer",
+                "Update Customer",
                 selectedCustomer
             );
             
@@ -95,15 +111,16 @@ public class CustomerPanel extends JPanel {
     }
     
     private void deleteCustomer(ActionEvent e) {
-        int selectedRow = customerTable.getSelectedRow();
-        if (selectedRow == -1) {
+        int selectedViewRow = customerTable.getSelectedRow();
+        if (selectedViewRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a customer to delete", 
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
+        int selectedModelRow = customerTable.convertRowIndexToModel(selectedViewRow);
         try {
-            Customer selectedCustomer = tableModel.getCustomerAt(selectedRow);
+            Customer selectedCustomer = tableModel.getCustomerAt(selectedModelRow);
             int confirm = JOptionPane.showConfirmDialog(this, 
                     "Are you sure you want to delete " + selectedCustomer.getName() + "?", 
                     "Confirm Deletion", JOptionPane.YES_NO_OPTION);

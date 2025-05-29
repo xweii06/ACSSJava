@@ -1,7 +1,9 @@
 package Staff.SalesmanManagement;
 
 import repositories.SalesmanRepository;
+import repositories.SaleRepository;
 import Salesman.Salesman;
+import Staff.SaleManagement.Sale;
 import utils.InputValidator;
 import utils.InvalidInputException;
 import java.io.IOException;
@@ -9,9 +11,11 @@ import java.util.List;
 
 public class SalesmanService {
     private final SalesmanRepository repository;
+    private final SaleRepository saleRepo;
     
     public SalesmanService(SalesmanRepository repository) {
         this.repository = repository;
+        this.saleRepo = new SaleRepository();
     }
     
     public List<Salesman> getAllSalesmen() throws IOException {
@@ -49,10 +53,11 @@ public class SalesmanService {
             String status = car[5];
             if (!status.equals("Paid") && !status.equals("Cancelled")) {
                 throw new InvalidInputException(
-                    "Cannot delete salesman with unpaid/reserved cars. Reassign them first.");
+                    "Cannot delete salesman with booked cars. Reassign them first.");
             }
         }
         repository.delete(id);
+        updateRecordForDeletedSalesman(id);
     }
     
     private void validateSalesman(Salesman salesman) throws IOException, InvalidInputException {
@@ -101,5 +106,18 @@ public class SalesmanService {
         }
         
         return "S" + String.format("%02d", maxID + 1);
+    }
+    
+    private boolean updateRecordForDeletedSalesman(String salesmanID) throws IOException {
+        List<Sale> sales = saleRepo.findSalesBySalesmanID(salesmanID);
+        if (sales != null && !sales.isEmpty()) {  // Fixed condition
+            for (Sale sale : sales) {
+                if (sale != null) {
+                    sale.setSalesmanID("DLTD_USER_" + salesmanID);
+                    saleRepo.updateSale(sale);
+                }
+            }
+        }
+        return true;
     }
 }

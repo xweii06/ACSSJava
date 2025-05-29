@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import utils.TableUtils;
 
 public class StaffPanel extends JPanel {
     private final StaffService service;
@@ -44,18 +45,23 @@ public class StaffPanel extends JPanel {
         toolBar.addSeparator();
         toolBar.add(refreshButton);
         
-        this.add(toolBar, BorderLayout.NORTH);
-        
         // Table
         tableModel = new StaffTableModel();
         staffTable = new JTable(tableModel);
         staffTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         staffTable.getTableHeader().setReorderingAllowed(false);
         staffTable.getTableHeader().setResizingAllowed(false);
+        TableUtils.setDefaultSort(staffTable, 0); 
         
         Font tableFont = new Font("Arial", Font.PLAIN, 14); 
         staffTable.setFont(tableFont);
         staffTable.setRowHeight(24);
+        
+        // Main panel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(TableUtils.createSearchPanel(staffTable), BorderLayout.EAST);
+        topPanel.add(toolBar, BorderLayout.WEST);
+        this.add(topPanel, BorderLayout.NORTH);
         
         this.add(new JScrollPane(staffTable), BorderLayout.CENTER);
     }
@@ -89,15 +95,16 @@ public class StaffPanel extends JPanel {
     }
     
     private void editStaff(ActionEvent e) {
-        int selectedRow = staffTable.getSelectedRow();
-        if (selectedRow == -1) {
+        int selectedViewRow = staffTable.getSelectedRow();
+        if (selectedViewRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a staff member to edit", 
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
+        int selectedModelRow = staffTable.convertRowIndexToModel(selectedViewRow);
         try {
-            Staff selectedStaff = tableModel.getStaffAt(selectedRow);
+            Staff selectedStaff = tableModel.getStaffAt(selectedModelRow);
             StaffDialog dialog = new StaffDialog((JFrame) SwingUtilities.getWindowAncestor(this), 
                     "Edit Staff", selectedStaff);
             

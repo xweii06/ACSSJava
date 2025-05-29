@@ -15,8 +15,8 @@ public class FrameManager {
         }
         frameStack.push(newFrame);
         newFrame.setVisible(true);
-        newFrame.setDefaultCloseOperation(EXIT_ON_CLOSE); // temporarily
-        newFrame.setLocationRelativeTo(null);
+        newFrame.setDefaultCloseOperation(EXIT_ON_CLOSE); //temporarily
+        newFrame.setLocationRelativeTo(null); // centering of window
     }
     
     public static void goBack() {

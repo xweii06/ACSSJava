@@ -20,7 +20,7 @@ public class CustomerDialog extends JDialog {
     public CustomerDialog(JFrame parent, String title, Customer customer) {
         super(parent, title, true);
         this.setSize(450, 300);
-        this.setLocationRelativeTo(parent);
+        this.setLocationRelativeTo(null);
         
         JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -84,7 +84,7 @@ public class CustomerDialog extends JDialog {
         try {
             getCustomer();
             option = OK_OPTION;
-            dispose();
+            this.dispose();
         } catch (InvalidInputException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), 
                     "Invalid Input", JOptionPane.ERROR_MESSAGE);

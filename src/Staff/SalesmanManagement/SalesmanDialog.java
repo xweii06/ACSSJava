@@ -25,7 +25,7 @@ public class SalesmanDialog extends JDialog {
     public SalesmanDialog(JFrame parent, String title, Salesman salesman) {
         super(parent, title, true);
         this.setSize(400, 250);
-        this.setLocationRelativeTo(parent);
+        this.setLocationRelativeTo(null);
         
         JPanel formPanel = new JPanel(new GridLayout(6, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));

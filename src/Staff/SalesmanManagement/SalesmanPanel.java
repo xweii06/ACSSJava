@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import utils.TableUtils;
 
 public class SalesmanPanel extends JPanel {
     private final SalesmanService service;
@@ -28,9 +29,13 @@ public class SalesmanPanel extends JPanel {
         toolBar.setFloatable(false);
         
         JButton addButton = new JButton("Add");
+        addButton.setFocusable(false);
         JButton updateButton = new JButton("Update");
+        updateButton.setFocusable(false);
         JButton deleteButton = new JButton("Delete");
+        deleteButton.setFocusable(false);
         JButton refreshButton = new JButton("Refresh");
+        refreshButton.setFocusable(false);
         
         addButton.addActionListener(this::addSalesman);
         updateButton.addActionListener(this::editSalesman);
@@ -43,14 +48,23 @@ public class SalesmanPanel extends JPanel {
         toolBar.addSeparator();
         toolBar.add(refreshButton);
         
-        add(toolBar, BorderLayout.NORTH);
-        
         // Table
         tableModel = new SalesmanTableModel();
         salesmanTable = new JTable(tableModel);
         salesmanTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         salesmanTable.getTableHeader().setReorderingAllowed(false);
         salesmanTable.getTableHeader().setResizingAllowed(false);
+        TableUtils.setDefaultSort(salesmanTable, 0); 
+        
+        Font tableFont = new Font("Arial", Font.PLAIN, 14); 
+        salesmanTable.setFont(tableFont);
+        salesmanTable.setRowHeight(24);
+        
+        // Main panel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(TableUtils.createSearchPanel(salesmanTable),BorderLayout.EAST);
+        topPanel.add(toolBar, BorderLayout.WEST);
+        this.add(topPanel, BorderLayout.NORTH);
         
         this.add(new JScrollPane(salesmanTable), BorderLayout.CENTER);
     }
@@ -87,15 +101,16 @@ public class SalesmanPanel extends JPanel {
     }
     
     private void editSalesman(ActionEvent e) {
-        int selectedRow = salesmanTable.getSelectedRow();
-        if (selectedRow == -1) {
+        int selectedViewRow = salesmanTable.getSelectedRow();
+        if (selectedViewRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a salesman to edit", 
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
+        int selectedModelRow = salesmanTable.convertRowIndexToModel(selectedViewRow);
         try {
-            Salesman selectedSalesman = ((SalesmanTableModel)salesmanTable.getModel()).getSalesmanAt(selectedRow);
+            Salesman selectedSalesman = ((SalesmanTableModel)salesmanTable.getModel()).getSalesmanAt(selectedModelRow);
             SalesmanDialog dialog = new SalesmanDialog(
                 (JFrame)SwingUtilities.getWindowAncestor(this), 
                 "Edit Salesman",
@@ -116,15 +131,16 @@ public class SalesmanPanel extends JPanel {
     }
     
     private void deleteSalesman(ActionEvent e) {
-        int selectedRow = salesmanTable.getSelectedRow();
-        if (selectedRow == -1) {
+        int selectedViewRow = salesmanTable.getSelectedRow();
+        if (selectedViewRow == -1) {
             JOptionPane.showMessageDialog(this, "Please select a salesman to delete", 
                     "No Selection", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
+        int selectedModelRow = salesmanTable.convertRowIndexToModel(selectedViewRow);
         try {
-            String selectedID = (String) salesmanTable.getValueAt(selectedRow, 0);
+            String selectedID = (String) salesmanTable.getValueAt(selectedModelRow, 0);
             
             // try to reassign cars
             ReassignCars reassignment = new ReassignCars();
@@ -138,7 +154,7 @@ public class SalesmanPanel extends JPanel {
                 "Confirm Deletion", JOptionPane.YES_NO_OPTION);
             
             if (confirm == JOptionPane.YES_OPTION) {
-                //salesmanService.deleteSalesman(selectedID);
+                service.deleteSalesman(selectedID);
                 loadSalesmanData();
                 JOptionPane.showMessageDialog(this, 
                     "Salesman deleted successfully", 

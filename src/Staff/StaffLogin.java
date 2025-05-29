@@ -20,7 +20,7 @@ public class StaffLogin extends JFrame {
     
     public StaffLogin() {
         // frame set up
-        this.setTitle("Staff Menu");
+        this.setTitle("Staff Login");
         this.setSize(500, 250);
         this.setLayout(null);
         this.setResizable(false);

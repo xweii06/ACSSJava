@@ -1,7 +1,7 @@
 package Staff.SalesmanManagement;
 
-import java.awt.GridLayout;
 import repositories.SalesmanRepository;
+import java.awt.*;
 import javax.swing.*;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class ReassignCars {
                 String model = car[1];
                 String status = car[5];
                 
-                if (!status.equals("Paid") && !status.equals("Cancelled")) {
+                if (!status.equals("Paid")) {
                     String selected = showDropdownDialog(carID, model, options);
                     if (selected == null) {
                         break; // User cancelled
@@ -47,10 +47,9 @@ public class ReassignCars {
                     salesmanRepository.reassignCar(carID, newSalesmanID);
                     successfullyReassigned++;
                 } else {
-                    successfullyReassigned++; // Skip paid/cancelled cars
+                    successfullyReassigned++;
                 }
             }
-            
             if (successfullyReassigned == assignedCars.size()) {
                 JOptionPane.showMessageDialog(null,
                     "Reassigned all " + successfullyReassigned + " cars",

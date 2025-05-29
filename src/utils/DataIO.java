@@ -71,25 +71,24 @@ public class DataIO {
     
     // for adding car img
     public static String saveCarImage(File imageFile, String carID, String extension) throws IOException {
-        Path imagePath = Paths.get("data/carImg");
+        Path imageDir = Paths.get("data/carImg");
         try {
-            if (!Files.exists(imagePath)) {
-                Files.createDirectories(imagePath);
+            if (!Files.exists(imageDir)) {
+                Files.createDirectories(imageDir);
             }
         } catch (IOException ex) {
             throw new IOException("Failed to create image directory: " + ex.getMessage());
         }
-        if (!Files.isWritable(imagePath)) {
+        if (!Files.isWritable(imageDir)) {
             throw new IOException("No write permission for image directory");
         }
         String filename = "car_" + carID + "." + extension;
-        Path destination = imagePath.resolve(filename);
+        Path destination = imageDir.resolve(filename);
         try {
             Files.copy(imageFile.toPath(), destination, StandardCopyOption.REPLACE_EXISTING);
             if (!Files.exists(destination)) {
                 throw new IOException("Failed to verify copied image");
             }
-
             return destination.toString();
 
         } catch (IOException ex) {
