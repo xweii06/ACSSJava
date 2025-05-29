@@ -19,7 +19,7 @@ public class SalesmanMenu extends JFrame {
 
     public SalesmanMenu() {
         setTitle("Pastel Profile");
-        setSize(700, 550); // Increased height to accommodate centered layout
+        setSize(650, 550); // Increased height to accommodate centered layout
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setUndecorated(true);
@@ -426,94 +426,109 @@ public class SalesmanMenu extends JFrame {
         return panel;
     }
     private void showStatusUpdateDialog(String[] car) {
-        JDialog dialog = new JDialog(this, "Update Car Status", true);
-        dialog.setSize(400, 300);
-        dialog.setLocationRelativeTo(this);
-        dialog.setUndecorated(true);
-        dialog.setShape(new RoundRectangle2D.Double(0, 0, 400, 300, 30, 30));
-
-        JPanel dialogPanel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                paintGradientBackground(g2d);
-            }
-        };
+    // First show password verification dialog
+    String password = JOptionPane.showInputDialog(this, 
+        "Enter Salesman Password to Update Status:", 
+        "Password Verification", 
+        JOptionPane.PLAIN_MESSAGE);
+    
+    // Verify password (using "0123" as the salesman password)
+    if (password == null || !password.equals("0123")) {
+        JOptionPane.showMessageDialog(this, 
+            "Incorrect password. Only authorized salesman can update car status.",
+            "Access Denied", 
+            JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+      // Proceed with status update dialog if password is correct
+    JDialog dialog = new JDialog(this, "Update Car Status", true);
+    dialog.setSize(400, 300);
+    dialog.setLocationRelativeTo(this);
+    dialog.setUndecorated(true);
+    dialog.setShape(new RoundRectangle2D.Double(0, 0, 400, 300, 30, 30));
+  
+       JPanel dialogPanel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            paintGradientBackground(g2d);
+        }
+    };
         dialogPanel.setLayout(new BorderLayout());
-        dialogPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+    dialogPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel titleLabel = new JLabel("Update Status: " + car[1] + " " + car[2]);
-        titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 18));
-        titleLabel.setForeground(new Color(70, 50, 100));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        dialogPanel.add(titleLabel, BorderLayout.NORTH);
+    JLabel titleLabel = new JLabel("Update Status: " + car[1] + " " + car[2]);
+    titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 18));
+    titleLabel.setForeground(new Color(70, 50, 100));
+    titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    dialogPanel.add(titleLabel, BorderLayout.NORTH);
 
-        JLabel currentStatusLabel = new JLabel("Current Status: " + car[5]);
-        currentStatusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        currentStatusLabel.setForeground(new Color(70, 50, 100));
-        currentStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        dialogPanel.add(currentStatusLabel, BorderLayout.CENTER);
+    JLabel currentStatusLabel = new JLabel("Current Status: " + car[5]);
+    currentStatusLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    currentStatusLabel.setForeground(new Color(70, 50, 100));
+    currentStatusLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    dialogPanel.add(currentStatusLabel, BorderLayout.CENTER);
 
-        JPanel statusPanel = new JPanel(new GridLayout(0, 1, 10, 10));
-        statusPanel.setOpaque(false);
+    JPanel statusPanel = new JPanel(new GridLayout(0, 1, 10, 10));
+    statusPanel.setOpaque(false);
 
         String[] statusOptions = {"Available", "Booked", "Paid", "Cancelled"};
-        ButtonGroup statusGroup = new ButtonGroup();
+    ButtonGroup statusGroup = new ButtonGroup();
 
-        for (String status : statusOptions) {
-            JRadioButton radioButton = new JRadioButton(status);
-            radioButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-            radioButton.setForeground(new Color(70, 50, 100));
-            radioButton.setOpaque(false);
-            if (status.equalsIgnoreCase(car[5])) {
-                radioButton.setSelected(true);
-            }
-            statusGroup.add(radioButton);
-            statusPanel.add(radioButton);
+    for (String status : statusOptions) {
+        JRadioButton radioButton = new JRadioButton(status);
+        radioButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        radioButton.setForeground(new Color(70, 50, 100));
+        radioButton.setOpaque(false);
+        if (status.equalsIgnoreCase(car[5])) {
+            radioButton.setSelected(true);
         }
+        statusGroup.add(radioButton);
+        statusPanel.add(radioButton);
+    }
 
-        dialogPanel.add(statusPanel, BorderLayout.CENTER);
+    dialogPanel.add(statusPanel, BorderLayout.CENTER);
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
-        buttonPanel.setOpaque(false);
+    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+    buttonPanel.setOpaque(false);
 
-        JButton updateButton = new JButton("Update");
-        updateButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        updateButton.setForeground(Color.WHITE);
-        updateButton.setBackground(new Color(120, 80, 160));
-        updateButton.setFocusPainted(false);
-        updateButton.addActionListener(e -> {
-            String newStatus = "";
-            for (Component comp : statusPanel.getComponents()) {
-                if (comp instanceof JRadioButton) {
-                    JRadioButton rb = (JRadioButton) comp;
-                    if (rb.isSelected()) {
-                        newStatus = rb.getText();
-                        break;
-                    }
+    JButton updateButton = new JButton("Update");
+    updateButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    updateButton.setForeground(Color.WHITE);
+    updateButton.setBackground(new Color(120, 80, 160));
+    updateButton.setFocusPainted(false);
+    updateButton.addActionListener(e -> {
+        String newStatus = "";
+        for (Component comp : statusPanel.getComponents()) {
+            if (comp instanceof JRadioButton) {
+                JRadioButton rb = (JRadioButton) comp;
+                if (rb.isSelected()) {
+                    newStatus = rb.getText();
+                    break;
                 }
             }
-            
-            updateCarStatus(car[0], newStatus);
-            dialog.dispose();
-            showCarCards();
-        });
+        }
+        
+        updateCarStatus(car[0], newStatus);
+        dialog.dispose();
+        showCarCards();
+    });
 
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        cancelButton.setForeground(new Color(70, 50, 100));
-        cancelButton.setBackground(new Color(255, 255, 255, 180));
-        cancelButton.setFocusPainted(false);
-        cancelButton.addActionListener(e -> dialog.dispose());
+    JButton cancelButton = new JButton("Cancel");
+    cancelButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    cancelButton.setForeground(new Color(70, 50, 100));
+    cancelButton.setBackground(new Color(255, 255, 255, 180));
+    cancelButton.setFocusPainted(false);
+    cancelButton.addActionListener(e -> dialog.dispose());
 
-        buttonPanel.add(updateButton);
-        buttonPanel.add(cancelButton);
-        dialogPanel.add(buttonPanel, BorderLayout.SOUTH);
+    buttonPanel.add(updateButton);
+    buttonPanel.add(cancelButton);
+    dialogPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        dialog.add(dialogPanel);
-        dialog.setVisible(true);
-    }
+    dialog.add(dialogPanel);
+    dialog.setVisible(true);
+}
 
     private void updateCarStatus(String carID, String newStatus) {
         try {
@@ -588,7 +603,7 @@ public class SalesmanMenu extends JFrame {
         CardLayout cl = (CardLayout) mainPanel.getLayout();
         cl.show(mainPanel, "cars");
     }
-
+ 
     private JPanel createCarCard(String[] car) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -692,15 +707,23 @@ public class SalesmanMenu extends JFrame {
     }
 
     private void populateCarComboBox(JComboBox<String> comboBox) {
+        
+       //Addd cars from data file 
         List<String[]> cars = readCarData("data/Car.txt");
         for (String[] car : cars) {
             if (car[5].equalsIgnoreCase("booked")) {
                 comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
             }
         }
+      
+        //Add hardcoded Perodua cars
+        comboBox.addItem("Perodua Myvi (PM001)");
+        comboBox.addItem("Perodua Axia (PM001)");
     }
+    
 
      private void populateCarComboBoxForComments(JComboBox<String> comboBox) {
+         //Add cars from data file 
         List<String[]> cars = readCarData("data/Car.txt");
         for (String[] car : cars) {
             if (car[5].equalsIgnoreCase("paid")) {
@@ -708,6 +731,9 @@ public class SalesmanMenu extends JFrame {
                 comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
             }
         }
+        // Add hardcoded Perodua cars 
+        comboBox.addItem("Perodua Myvi (PM001)");
+        comboBox.addItem("Perodua Axia (PM001)");
     }
 
     private void recordPayment(String carInfo, String customer, String amount, String method, String date) {
@@ -718,8 +744,42 @@ public class SalesmanMenu extends JFrame {
         }
 
         try {
-            String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+            // Parse payment amount
+        double paymentAmount = Double.parseDouble(amount);
+        String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+        String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
+        
+        // Validate payment amount for specific cars
+        if (carName.contains("Perodua Myvi") && paymentAmount != 45000) {
+            JOptionPane.showMessageDialog(this, 
+                "Payment amount must be exactly RM 45,000 for Perodua Myvi",
+                "Invalid Amount", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        if (carName.contains("Perodua Axia") && paymentAmount != 59500) {
+            JOptionPane.showMessageDialog(this, 
+                "Payment amount must be exactly RM 59,500 for Perodua Axia",
+                "Invalid Amount", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
             
+            // Create payment record string 
+            String paymentRecord = String.format("%s,%s,%s,%s,%s,%s", 
+            carId, customer, amount, method, date, currentSalesmanID);
+            
+            // Save to Record Payment.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Record Payment.txt", true))) {
+            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
+                carId, customer, paymentAmount, method, date, currentSalesmanID));
+            writer.newLine();
+        }
+         
+         // If it's one of our hardcoded cars, don't update status
+        if (!carId.equals("PM001") && !carId.equals("PA001")) {
+            updateCarStatus(carId, "Paid");
+        }
+   
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
                 writer.write(String.format("%s,%s,%s,%s,%s,%s\n", 
                     carId, customer, amount, method, date, currentSalesmanID));
@@ -727,14 +787,18 @@ public class SalesmanMenu extends JFrame {
             
             updateCarStatus(carId, "Paid");
             
-            JOptionPane.showMessageDialog(this, "Payment recorded successfully!", 
-                "Success", JOptionPane.INFORMATION_MESSAGE);
-            switchToWelcome();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error recording payment: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
-        }
+            
+        JOptionPane.showMessageDialog(this, "Payment recorded successfully!", 
+            "Success", JOptionPane.INFORMATION_MESSAGE);
+        switchToWelcome();
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Insufficient funds",
+            "Invalid Amount", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error recording payment: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
     private void saveComment(String carInfo, String comment) {
         if (comment.isEmpty()) {
@@ -746,19 +810,24 @@ public class SalesmanMenu extends JFrame {
         try {
             String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
             
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/SalesComments.txt", true))) {
-                writer.write(String.format("%s,%s,%s,%s\n", 
-                    carId, currentSalesmanID, java.time.LocalDate.now().toString(), comment));
-            }
-            
-            JOptionPane.showMessageDialog(this, "Comment saved successfully!", 
-                "Success", JOptionPane.INFORMATION_MESSAGE);
-            switchToWelcome();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error saving comment: " + e.getMessage(),
-                "Error", JOptionPane.ERROR_MESSAGE);
+            // Create comment record string
+        String commentRecord = String.format("%s,%s,%s,%s", 
+            carId, currentSalesmanID, java.time.LocalDate.now().toString(), comment);
+        
+            // Save to Sales Comment.txt
+           try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Sales Comment.txt", true))) {
+            writer.write(commentRecord);
+            writer.newLine();
         }
+        
+        JOptionPane.showMessageDialog(this, "Comment saved successfully!", 
+            "Success", JOptionPane.INFORMATION_MESSAGE);
+        switchToWelcome();
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error saving comment: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
     }
+}
 
     private JButton createBackButton() {
         JButton backButton = new JButton("Back");
