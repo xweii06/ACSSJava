@@ -7,6 +7,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import utils.AppointmentManager;
 
 public class ViewAvailableCarsPage extends JFrame {
     private static final Color HEADER_COLOR = new Color(90, 0, 200);
@@ -122,12 +123,22 @@ public class ViewAvailableCarsPage extends JFrame {
         bottom.setBorder(new EmptyBorder(5, 10, 5, 10));
 
         JLabel price = new JLabel("Price: " + car[3]);
-        JButton bookBtn = new JButton("View / Book");
+
+        JButton viewBtn = new JButton("View");
+        styleButton(viewBtn);
+        viewBtn.addActionListener(e -> new CarDetailsPage(car));
+
+        JButton bookBtn = new JButton("Book");
         styleButton(bookBtn);
         bookBtn.addActionListener(e -> new BookAppointmentPage(customer, car));
 
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        btnPanel.setOpaque(false);
+        btnPanel.add(viewBtn);
+        btnPanel.add(bookBtn);
+
         bottom.add(price, BorderLayout.WEST);
-        bottom.add(bookBtn, BorderLayout.EAST);
+        bottom.add(btnPanel, BorderLayout.EAST);
         card.add(bottom, BorderLayout.SOUTH);
 
         return card;
@@ -151,16 +162,21 @@ public class ViewAvailableCarsPage extends JFrame {
 
     private List<String[]> getAvailableCars() {
         List<String[]> cars = new ArrayList<>();
-        cars.add(new String[]{"1", "Toyota Vios", "2020", "RM70,000"});
-        cars.add(new String[]{"2", "Honda City", "2021", "RM80,000"});
-        cars.add(new String[]{"3", "Proton X70", "2022", "RM100,000"});
-        cars.add(new String[]{"4", "Perodua Myvi", "2022", "RM50,000"});
-        cars.add(new String[]{"5", "Honda Civic", "2021", "RM95,000"});
-        cars.add(new String[]{"6", "Toyota Corolla", "2020", "RM85,000"});
-        cars.add(new String[]{"7", "Mazda 3", "2022", "RM120,000"});
-        cars.add(new String[]{"8", "Perodua Axia", "2021", "RM45,000"});
-        cars.add(new String[]{"9", "Proton Saga", "2020", "RM42,000"});
-        cars.add(new String[]{"10", "Honda HR-V", "2022", "RM105,000"});
-        return cars;
+        List<String> bookedCarIds = AppointmentManager.getBookedCarIds();
+
+        cars.add(new String[]{"CAR001", "Toyota Vios", "2020", "RM70000"});
+        cars.add(new String[]{"CAR002", "Honda City", "2021", "RM80000"});
+        cars.add(new String[]{"CAR003", "Proton X70", "2022", "RM100000"});
+        cars.add(new String[]{"CAR004", "Perodua Myvi", "2022", "RM50000"});
+        cars.add(new String[]{"CAR005", "Honda Civic", "2021", "RM95000"});
+        cars.add(new String[]{"CAR006", "Toyota Corolla", "2020", "RM85000"});
+        cars.add(new String[]{"CAR007", "Mazda 3", "2022", "RM120000"});
+        cars.add(new String[]{"CAR008", "Perodua Axia", "2021", "RM45000"});
+        cars.add(new String[]{"CAR009", "Proton Saga", "2020", "RM42000"});
+        cars.add(new String[]{"CAR010", "Honda HR-V", "2022", "RM105000"});
+
+        return cars.stream()
+                .filter(car -> !bookedCarIds.contains(car[0]))
+                .collect(Collectors.toList());
     }
 }

@@ -46,7 +46,7 @@ public class BookAppointmentPage extends JFrame {
         formPanel.add(priceLabel, gbc);
 
         gbc.gridx = 0; gbc.gridy++;
-        formPanel.add(new JLabel("Payment Due Date:"), gbc);
+        formPanel.add(new JLabel("Pickup Due Date:"), gbc);
         gbc.gridx = 1;
         formPanel.add(dateField, gbc);
 

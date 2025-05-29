@@ -80,6 +80,38 @@ public class CustomerManager {
     }
 
     public static String generateCustomerId() {
-        return String.format("C%04d", customers.size() + 1);
+        Set<Integer> existingIds = new HashSet<>();
+
+        try {
+            if (Files.exists(Paths.get(CUSTOMER_FILE))) {
+                List<String> lines = Files.readAllLines(Paths.get(CUSTOMER_FILE));
+                for (String line : lines) {
+                    String[] parts = line.split(",");
+                    if (parts[0].startsWith("C")) {
+                        existingIds.add(Integer.parseInt(parts[0].substring(1)));
+                    }
+                }
+            }
+
+            if (Files.exists(Paths.get(PENDING_FILE))) {
+                List<String> lines = Files.readAllLines(Paths.get(PENDING_FILE));
+                for (String line : lines) {
+                    String[] parts = line.split(",");
+                    if (parts[0].startsWith("C")) {
+                        existingIds.add(Integer.parseInt(parts[0].substring(1)));
+                    }
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int id = 1;
+        while (existingIds.contains(id)) {
+            id++;
+        }
+
+        return String.format("C%04d", id);
     }
 }

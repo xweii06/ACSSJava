@@ -103,6 +103,7 @@ public class CustomerLogin extends JFrame {
         registerButton.addActionListener(e -> FrameManager.showFrame(new CustomerRegister()));
         add(registerButton);
 
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 

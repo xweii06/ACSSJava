@@ -3,15 +3,12 @@ package Customer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import navigation.FrameManager;
 import java.io.File;
 
 public class CustomerMainPage extends JFrame {
     private static final String WELCOME_PANEL = "Welcome";
     private static final String EDIT_PROFILE_PANEL = "EditProfile";
     private static final String VIEW_CARS_PANEL = "ViewCars";
-    private static final String PAYMENT_METHOD_PANEL = "PaymentMethod";
-    private static final String FEEDBACK_PANEL = "Feedback";
     private static final String ORDERS_PANEL = "MyOrders";
 
     private static final Color PRIMARY_COLOR = new Color(90, 0, 200);
@@ -50,9 +47,7 @@ public class CustomerMainPage extends JFrame {
         contentPanel.add(createWelcomePanel(), WELCOME_PANEL);
         contentPanel.add(new EditProfilePage(customer), EDIT_PROFILE_PANEL);
         contentPanel.add(createEmbeddedPanel(new ViewAvailableCarsPage(customer)), VIEW_CARS_PANEL);
-        contentPanel.add(createEmbeddedPanel(new PaymentMethodPage(customer)), PAYMENT_METHOD_PANEL);
-        contentPanel.add(createEmbeddedPanel(new FeedbackPage(customer)), FEEDBACK_PANEL);
-        contentPanel.add(createEmbeddedPanel(new ViewAppointmentsPage(customer)), ORDERS_PANEL);
+        contentPanel.add(new ViewAppointmentsPage(customer), ORDERS_PANEL);
 
         add(contentPanel, BorderLayout.CENTER);
     }
@@ -103,8 +98,6 @@ public class CustomerMainPage extends JFrame {
 
         panel.add(createNavButton("Home", WELCOME_PANEL));
         panel.add(createNavButton("Available Cars", VIEW_CARS_PANEL));
-        panel.add(createNavButton("Payment Methods", PAYMENT_METHOD_PANEL));
-        panel.add(createNavButton("Feedback", FEEDBACK_PANEL));
         panel.add(createNavButton("My Orders", ORDERS_PANEL));
 
         return panel;
@@ -123,8 +116,8 @@ public class CustomerMainPage extends JFrame {
 
         editItem.addActionListener(e -> cardLayout.show(contentPanel, EDIT_PROFILE_PANEL));
         logoutItem.addActionListener(e -> {
-            FrameManager.goBack();
-            dispose();
+            this.dispose();
+            new CustomerLogin();
         });
 
         menu.add(editItem);

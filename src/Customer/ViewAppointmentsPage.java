@@ -7,17 +7,14 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
-public class ViewAppointmentsPage extends JFrame {
+public class ViewAppointmentsPage extends JPanel {
     private final Customer customer;
 
     public ViewAppointmentsPage(Customer customer) {
         this.customer = customer;
 
-        setTitle("My Appointments / Orders");
-        setSize(800, 600);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
 
         // Title
         JLabel titleLabel = new JLabel("My Appointments & Orders", JLabel.CENTER);
@@ -42,12 +39,11 @@ public class ViewAppointmentsPage extends JFrame {
         } else {
             for (String[] a : appointments) {
                 JPanel card = createAppointmentCard(
-                        a[2], // model
-                        a[3], // year
+                        a[3], // model
                         a[4], // price
                         a[5], // due date
                         a[6], // status
-                        a[7]  // order ID
+                        a[0]  // order ID
                 );
                 cardContainer.add(card);
                 cardContainer.add(Box.createVerticalStrut(15));
@@ -58,28 +54,9 @@ public class ViewAppointmentsPage extends JFrame {
         JScrollPane scrollPane = new JScrollPane(cardContainer);
         scrollPane.setBorder(null);
         add(scrollPane, BorderLayout.CENTER);
-
-        // Back button (for embedded usage)
-        JButton backBtn = new JButton("Back");
-        backBtn.setPreferredSize(new Dimension(80, 35));
-        backBtn.setFocusPainted(false);
-        backBtn.setBackground(new Color(90, 0, 160));
-        backBtn.setForeground(Color.WHITE);
-        backBtn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        backBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        backBtn.addActionListener(e -> dispose());
-
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
-        bottomPanel.add(backBtn);
-
-        add(bottomPanel, BorderLayout.SOUTH);
-
-        setVisible(true);
     }
 
-    private JPanel createAppointmentCard(String model, String year, String price, String dueDate, String status, String orderId) {
+    private JPanel createAppointmentCard(String model, String price, String dueDate, String status, String orderId) {
         JPanel card = new JPanel();
         card.setLayout(new BorderLayout());
         card.setBackground(new Color(245, 245, 255));
@@ -88,10 +65,10 @@ public class ViewAppointmentsPage extends JFrame {
                 new EmptyBorder(15, 15, 15, 15)
         ));
 
-        JLabel title = new JLabel(model + " (" + year + ")");
+        JLabel title = new JLabel(model);
         title.setFont(new Font("Segoe UI", Font.BOLD, 18));
 
-        JLabel priceLabel = new JLabel("Price: RM " + price);
+        JLabel priceLabel = new JLabel("Price: " + price);
         priceLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         JLabel dueLabel = new JLabel("Due Date: " + dueDate);
