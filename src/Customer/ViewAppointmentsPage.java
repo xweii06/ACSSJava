@@ -38,12 +38,13 @@ public class ViewAppointmentsPage extends JPanel {
             cardContainer.add(emptyLabel);
         } else {
             for (String[] a : appointments) {
+                // a = {orderId, customerId, carId, model, price, dueDate, status}
                 JPanel card = createAppointmentCard(
+                        a[0], // order ID
                         a[3], // model
                         a[4], // price
                         a[5], // due date
-                        a[6], // status
-                        a[0]  // order ID
+                        a[6].toLowerCase() // status (force lowercase)
                 );
                 cardContainer.add(card);
                 cardContainer.add(Box.createVerticalStrut(15));
@@ -56,9 +57,8 @@ public class ViewAppointmentsPage extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    private JPanel createAppointmentCard(String model, String price, String dueDate, String status, String orderId) {
-        JPanel card = new JPanel();
-        card.setLayout(new BorderLayout());
+    private JPanel createAppointmentCard(String orderId, String model, String price, String dueDate, String status) {
+        JPanel card = new JPanel(new BorderLayout());
         card.setBackground(new Color(245, 245, 255));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 255), 1),
@@ -78,28 +78,21 @@ public class ViewAppointmentsPage extends JPanel {
         orderIdLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         orderIdLabel.setForeground(Color.GRAY);
 
-        JLabel statusLabel = new JLabel(status.toUpperCase());
+        JLabel statusLabel = new JLabel(status); // now shows lowercase
         statusLabel.setOpaque(true);
         statusLabel.setForeground(Color.WHITE);
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
         statusLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         statusLabel.setPreferredSize(new Dimension(100, 30));
 
-        switch (status.toLowerCase()) {
-            case "completed":
-                statusLabel.setBackground(new Color(0, 170, 70));
-                break;
-            case "pending":
-                statusLabel.setBackground(new Color(255, 140, 0));
-                break;
-            case "overdue":
-                statusLabel.setBackground(new Color(200, 0, 0));
-                break;
-            default:
-                statusLabel.setBackground(Color.GRAY);
+        switch (status) {
+            case "paid" -> statusLabel.setBackground(new Color(0, 170, 70));
+            case "pending" -> statusLabel.setBackground(new Color(255, 140, 0));
+            case "cancelled" -> statusLabel.setBackground(new Color(200, 0, 0));
+            default -> statusLabel.setBackground(Color.GRAY);
         }
 
-        // Left panel with info
+        // Info Panel
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
@@ -109,7 +102,7 @@ public class ViewAppointmentsPage extends JPanel {
         infoPanel.add(dueLabel);
         infoPanel.add(orderIdLabel);
 
-        // Right panel with status
+        // Status Panel
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.setOpaque(false);
         statusPanel.add(statusLabel, BorderLayout.NORTH);

@@ -10,10 +10,11 @@ public class AppointmentManager {
     private static final String FILE_PATH = "data/appointments.txt";
 
     // Save a new appointment to file
-    public static void saveAppointment(String customerId, String carId, String model, String year, String price,
-                                       String dueDate, String orderId) {
+    public static void saveAppointment(String orderId, String customerId, String carId, String model,
+                                       String price, String dueDate) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
-            String line = String.join(",", customerId, carId, model, year, price, dueDate, "PENDING", orderId);
+            // Format: orderId, customerId, carId, model, price, dueDate, status
+            String line = String.join(",", orderId, customerId, carId, model, price, dueDate, "pending");
             writer.write(line);
             writer.newLine();
         } catch (IOException e) {
@@ -21,7 +22,7 @@ public class AppointmentManager {
         }
     }
 
-    // Read all appointments
+    // Read all appointments for a customer
     public static List<String[]> readAppointments(String customerId) {
         List<String[]> list = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -31,7 +32,7 @@ public class AppointmentManager {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     String[] parts = line.split(",");
-                    if (parts.length >= 8 && parts[0].equals(customerId)) {
+                    if (parts.length >= 7 && parts[1].equals(customerId)) {
                         list.add(parts);
                     }
                 }
@@ -43,7 +44,7 @@ public class AppointmentManager {
         return list;
     }
 
-    // Update overdue status safely
+    // Update overdue status
     public static void updateOverdueStatus() {
         File file = new File(FILE_PATH);
         List<String> updatedLines = new ArrayList<>();
@@ -55,13 +56,13 @@ public class AppointmentManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length >= 8) {
+                if (parts.length >= 7) {
                     try {
-                        LocalDate dueDate = LocalDate.parse(parts[5]); // Safe parse
+                        LocalDate dueDate = LocalDate.parse(parts[5]);
                         String status = parts[6];
 
-                        if (status.equalsIgnoreCase("PENDING") && today.isAfter(dueDate)) {
-                            parts[6] = "OVERDUE";
+                        if (status.equalsIgnoreCase("pending") && today.isAfter(dueDate)) {
+                            parts[6] = "overdue";
                         }
                     } catch (DateTimeParseException ex) {
                         System.err.println("Invalid date format in: " + line);
@@ -83,7 +84,7 @@ public class AppointmentManager {
         }
     }
 
-    // Get all car IDs that are currently booked (not cancelled or overdue)
+    // Get booked car IDs (exclude cancelled or overdue)
     public static List<String> getBookedCarIds() {
         List<String> bookedCarIds = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -94,8 +95,10 @@ public class AppointmentManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length >= 8 && !parts[6].equalsIgnoreCase("CANCELLED") && !parts[6].equalsIgnoreCase("OVERDUE")) {
-                    bookedCarIds.add(parts[1]); // carId
+                if (parts.length >= 7 &&
+                        !parts[6].equalsIgnoreCase("cancelled") &&
+                        !parts[6].equalsIgnoreCase("overdue")) {
+                    bookedCarIds.add(parts[2]); // carId
                 }
             }
         } catch (IOException e) {

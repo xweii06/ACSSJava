@@ -53,14 +53,13 @@ public class BookAppointmentPage extends JFrame {
         gbc.gridx = 0; gbc.gridy++;
         gbc.gridwidth = 2;
         formPanel.add(confirmBtn, gbc);
-
+        
         confirmBtn.addActionListener(e -> {
             String orderId = UUID.randomUUID().toString().substring(0, 8);
             String dueDate = dateField.getText();
 
-            // Save appointment to file or manager
             AppointmentManager.saveAppointment(
-                    customer.getId(), car[0], car[1], car[2], car[3], dueDate, orderId
+                orderId, customer.getId(), car[0], car[1], car[3], dueDate
             );
 
             JOptionPane.showMessageDialog(this,
