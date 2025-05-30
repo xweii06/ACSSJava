@@ -830,18 +830,6 @@ private String generateSaleID() {
             }
         }
         
-          try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Record Payment.txt", true))) {
-            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
-                carId, customer, paymentAmount, method, date, currentSalesmanID));
-            writer.newLine();
-        }
-        
-        // Save to Payments.txt (if you need this file as well)
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
-            writer.write(String.format("%s,%s,%s,%s,%s,%s", 
-                carId, customer, amount, method, date, currentSalesmanID));
-            writer.newLine();
-        }
         // Update car status to "paid"
         updateCarStatus(carId, "paid"); 
         // Update appointment status to "paid"
@@ -863,40 +851,12 @@ private String generateSaleID() {
                 saleID, customer, carId, currentSalesmanID, paymentAmount, method, date));
             writer.newLine();
         }
-          
-        
-        
-        // Also keep the Record Payment.txt for backup/additional tracking
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Record Payment.txt", true))) {
-            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
-                carId, customer, paymentAmount, method, date, currentSalesmanID));
-            writer.newLine();
-        }
-        
-          // Keep the Payments.txt as well if needed
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
-            writer.write(String.format("%s,%s,%s,%s,%s,%s", 
-                carId, customer, amount, method, date, currentSalesmanID));
-            writer.newLine();
-        }
-         
-            // Save to Record Payment.txt
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/sales.txt", true))) {
-            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
-                carId, customer, paymentAmount, method, date, currentSalesmanID));
-            writer.newLine();
-        }
-        
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
-                writer.write(String.format("%s,%s,%s,%s,%s,%s\n", 
-                    carId, customer, amount, method, date, currentSalesmanID));
-            }
-            
             updateCarStatus(carId, "Paid");
             
           JOptionPane.showMessageDialog(this, 
             "Payment recorded successfully!\nSale ID: " + saleID, 
             "Success", JOptionPane.INFORMATION_MESSAGE);
+        refreshPaymentPanel();
         switchToWelcome();
         
     } catch (NumberFormatException e) {
@@ -1094,5 +1054,26 @@ private void writeAppointmentData(String filePath, List<String[]> appointments) 
         } catch (Exception e) {
             return null;
         }
+    }
+        
+    private void refreshPaymentPanel() {
+        // Remove the existing payment panel
+        mainPanel.remove(paymentPanel);
+
+        // Create a new payment panel
+        paymentPanel = createPaymentPanel();
+
+        // Add it back to the main panel
+        mainPanel.add(paymentPanel, "payment");
+
+        // Switch to welcome panel first (to ensure proper refresh)
+        switchToWelcome();
+
+        // Then switch back to payment panel
+        switchToPayment();
+        
+        // Force UI update
+        revalidate();
+        repaint();
     }
 }
