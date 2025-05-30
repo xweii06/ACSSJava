@@ -1,5 +1,6 @@
 package Customer;
 
+import navigation.FrameManager;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -116,8 +117,7 @@ public class CustomerMainPage extends JFrame {
 
         editItem.addActionListener(e -> cardLayout.show(contentPanel, EDIT_PROFILE_PANEL));
         logoutItem.addActionListener(e -> {
-            this.dispose();
-            new CustomerLogin();
+            FrameManager.resetAndShow(new CustomerLogin());
         });
 
         menu.add(editItem);

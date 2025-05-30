@@ -82,7 +82,8 @@ public class CustomerLogin extends JFrame {
         BACKButton.setFocusable(false);
         BACKButton.addActionListener(e -> FrameManager.showFrame(new Main.MainMenu()));
         add(BACKButton);
-
+        this.dispose();
+        
         // Login Button
         loginButton = new JButton("Login");
         loginButton.setBounds(190, 220, 100, 30);

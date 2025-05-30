@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -111,7 +112,9 @@ public class ViewAvailableCarsPage extends JFrame {
         card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         card.setBackground(Color.WHITE);
 
-        JLabel carImage = new JLabel(new ImageIcon("caricon.png"));
+        ImageIcon icon = new ImageIcon(car[7]);
+        Image scaledImage = icon.getImage().getScaledInstance(200, 120, Image.SCALE_SMOOTH);
+        JLabel carImage = new JLabel(new ImageIcon(scaledImage));
         carImage.setHorizontalAlignment(JLabel.CENTER);
         card.add(carImage, BorderLayout.CENTER);
 
@@ -122,7 +125,7 @@ public class ViewAvailableCarsPage extends JFrame {
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBorder(new EmptyBorder(5, 10, 5, 10));
 
-        JLabel price = new JLabel("Price: " + car[3]);
+        JLabel price = new JLabel("Price: " + car[4] + " | Color: " + car[3]);
 
         JButton viewBtn = new JButton("View");
         styleButton(viewBtn);
@@ -164,19 +167,22 @@ public class ViewAvailableCarsPage extends JFrame {
         List<String[]> cars = new ArrayList<>();
         List<String> bookedCarIds = AppointmentManager.getBookedCarIds();
 
-        cars.add(new String[]{"CAR001", "Toyota Vios", "2020", "RM70000"});
-        cars.add(new String[]{"CAR002", "Honda City", "2021", "RM80000"});
-        cars.add(new String[]{"CAR003", "Proton X70", "2022", "RM100000"});
-        cars.add(new String[]{"CAR004", "Perodua Myvi", "2022", "RM50000"});
-        cars.add(new String[]{"CAR005", "Honda Civic", "2021", "RM95000"});
-        cars.add(new String[]{"CAR006", "Toyota Corolla", "2020", "RM85000"});
-        cars.add(new String[]{"CAR007", "Mazda 3", "2022", "RM120000"});
-        cars.add(new String[]{"CAR008", "Perodua Axia", "2021", "RM45000"});
-        cars.add(new String[]{"CAR009", "Proton Saga", "2020", "RM42000"});
-        cars.add(new String[]{"CAR010", "Honda HR-V", "2022", "RM105000"});
+        try (BufferedReader br = new BufferedReader(new FileReader("data/car.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 8) {
+                    String carId = parts[0];
+                    String status = parts[5].trim();
+                    if ("Available".equalsIgnoreCase(status) && !bookedCarIds.contains(carId)) {
+                        cars.add(parts);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return cars.stream()
-                .filter(car -> !bookedCarIds.contains(car[0]))
-                .collect(Collectors.toList());
+        return cars;
     }
 }
