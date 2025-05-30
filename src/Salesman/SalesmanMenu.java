@@ -193,23 +193,23 @@ public class SalesmanMenu extends JFrame {
         styleTextField(phoneField);
         formPanel.add(phoneField);
 
-        JLabel bioLabel = new JLabel("Bio:");
-        bioLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        bioLabel.setForeground(new Color(70, 50, 100));
-        formPanel.add(bioLabel);
+        JLabel pwLabel = new JLabel("password:");
+        pwLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        pwLabel.setForeground(new Color(70, 50, 100));
+        formPanel.add(pwLabel);
 
-        JTextArea bioArea = new JTextArea("Car enthusiast with 5 years of experience in luxury vehicle sales.");
-        bioArea.setLineWrap(true);
-        bioArea.setWrapStyleWord(true);
-        bioArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        bioArea.setForeground(new Color(70, 50, 100));
-        bioArea.setBackground(new Color(255, 255, 255, 180));
-        bioArea.setBorder(BorderFactory.createCompoundBorder(
+        JTextArea pwArea = new JTextArea("****");
+        pwArea.setLineWrap(true);
+        pwArea.setWrapStyleWord(true);
+        pwArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        pwArea.setForeground(new Color(70, 50, 100));
+        pwArea.setBackground(new Color(255, 255, 255, 180));
+        pwArea.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        JScrollPane bioScroll = new JScrollPane(bioArea);
-        formPanel.add(bioScroll);
+        JScrollPane pwScroll = new JScrollPane(pwArea);
+        formPanel.add(pwScroll);
 
         panel.add(formPanel);
 
@@ -274,7 +274,7 @@ public class SalesmanMenu extends JFrame {
         carComboBox.setBorder(BorderFactory.createLineBorder(new Color(200, 180, 220), 1));
         formPanel.add(carComboBox);
 
-        JLabel customerLabel = new JLabel("Customer Name:");
+        JLabel customerLabel = new JLabel("Customer ID:");
         customerLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         customerLabel.setForeground(new Color(70, 50, 100));
         formPanel.add(customerLabel);
@@ -503,7 +503,7 @@ public class SalesmanMenu extends JFrame {
     JPanel statusPanel = new JPanel(new GridLayout(0, 1, 10, 10));
     statusPanel.setOpaque(false);
 
-        String[] statusOptions = {"Available", "Booked", "Paid", "Cancelled"};
+        String[] statusOptions = {"Available","Cancelled"};
     ButtonGroup statusGroup = new ButtonGroup();
 
     for (String status : statusOptions) {
@@ -701,11 +701,11 @@ public class SalesmanMenu extends JFrame {
         buttonPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
         buttonPanel.setMaximumSize(new Dimension(200, 40));
 
-        JButton viewBtn = createCardButton("View", new Color(180, 220, 255));
+    
         JButton updateBtn = createCardButton("Update", new Color(180, 255, 220));
         updateBtn.addActionListener(e -> showStatusUpdateDialog(car));
 
-        buttonPanel.add(viewBtn);
+        
         buttonPanel.add(updateBtn);
 
         card.add(buttonPanel);
