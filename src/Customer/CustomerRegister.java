@@ -160,7 +160,6 @@ public class CustomerRegister extends JFrame {
             }
         });
 
-        MainMenuButton.addToFrame(this);
         setVisible(true);
     }
 }

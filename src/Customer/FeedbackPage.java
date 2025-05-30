@@ -2,7 +2,6 @@ package Customer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,15 +16,15 @@ public class FeedbackPage extends JFrame {
 
         setTitle("Purchase Feedback");
         setSize(450, 400);
-        setLocationRelativeTo(null); // 居中窗口
+        setLocationRelativeTo(null); // Center the window
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // 主面板
+        // Main panel
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        // 评分标签
+        // Rating label
         JLabel ratingLabel = new JLabel("Rate your experience (1-5):");
         ratingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         panel.add(ratingLabel);
@@ -37,7 +36,7 @@ public class FeedbackPage extends JFrame {
         panel.add(Box.createVerticalStrut(5));
         panel.add(ratingCombo);
 
-        // 留言标签
+        // Comment label
         panel.add(Box.createVerticalStrut(20));
         JLabel feedbackLabel = new JLabel("Your comments:");
         feedbackLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -50,7 +49,7 @@ public class FeedbackPage extends JFrame {
         panel.add(Box.createVerticalStrut(5));
         panel.add(scrollPane);
 
-        // 提交按钮
+        // Submit button
         panel.add(Box.createVerticalStrut(20));
         JButton submitButton = new JButton("Submit");
         submitButton.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -58,7 +57,7 @@ public class FeedbackPage extends JFrame {
 
         add(panel);
 
-        // 提交事件
+        // Submit event
         submitButton.addActionListener(e -> {
             int rating = (Integer) ratingCombo.getSelectedItem();
             String comment = feedbackArea.getText().trim();
@@ -68,13 +67,13 @@ public class FeedbackPage extends JFrame {
                 return;
             }
 
-            // 写入文件
+            // Write to file
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/feedback.txt", true))) {
                 writer.write(String.join(",",
                         orderId,
                         customer.getId(),
                         String.valueOf(rating),
-                        comment.replaceAll(",", " ")  // 防止CSV错误
+                        comment.replaceAll(",", " ")  // Prevent CSV issues
                 ));
                 writer.newLine();
             } catch (IOException ex) {
@@ -83,7 +82,7 @@ public class FeedbackPage extends JFrame {
                 return;
             }
 
-            // 显示星级评价
+            // Show star rating
             String stars = "★".repeat(rating) + "☆".repeat(5 - rating);
             JOptionPane.showMessageDialog(this,
                     "Thank you for your feedback!\n\nRating: " + stars + " (" + rating + "/5)\nComment: " + comment);

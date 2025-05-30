@@ -13,6 +13,8 @@ import java.util.List;
 
 public class ViewAppointmentsPage extends JPanel {
     private final Customer customer;
+    private JPanel cardContainer;
+    private Timer autoRefreshTimer;
 
     public ViewAppointmentsPage(Customer customer) {
         this.customer = customer;
@@ -26,13 +28,46 @@ public class ViewAppointmentsPage extends JPanel {
         titleLabel.setBorder(new EmptyBorder(20, 10, 10, 10));
         add(titleLabel, BorderLayout.NORTH);
 
-        // Card Container
-        JPanel cardContainer = new JPanel();
+        // Card container panel
+        cardContainer = new JPanel();
         cardContainer.setLayout(new BoxLayout(cardContainer, BoxLayout.Y_AXIS));
         cardContainer.setBackground(Color.WHITE);
         cardContainer.setBorder(new EmptyBorder(10, 20, 10, 20));
 
-        // Fetch appointments
+        // Scroll pane to wrap cards
+        JScrollPane scrollPane = new JScrollPane(cardContainer);
+        scrollPane.setBorder(null);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Refresh button at the bottom
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.setFocusPainted(false);
+        refreshButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        refreshButton.addActionListener(e -> refreshAppointments());
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setBackground(Color.WHITE);
+        bottomPanel.add(refreshButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        // First-time load
+        refreshAppointments();
+
+        // Auto refresh every 10 seconds
+        autoRefreshTimer = new Timer(10000, e -> refreshAppointments());
+        autoRefreshTimer.start();
+    }
+
+    // Call this method to stop the timer if this panel is no longer shown
+    public void stopAutoRefresh() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+        }
+    }
+
+    // Reload and rebuild the appointment list
+    public void refreshAppointments() {
+        cardContainer.removeAll();
         AppointmentManager.updateOverdueStatus();
         List<String[]> appointments = AppointmentManager.readAppointments(customer.getId());
 
@@ -55,10 +90,8 @@ public class ViewAppointmentsPage extends JPanel {
             }
         }
 
-        // Scroll Pane
-        JScrollPane scrollPane = new JScrollPane(cardContainer);
-        scrollPane.setBorder(null);
-        add(scrollPane, BorderLayout.CENTER);
+        cardContainer.revalidate();
+        cardContainer.repaint();
     }
 
     private JPanel createAppointmentCard(String orderId, String model, String price, String dueDate, String status) {
@@ -96,7 +129,7 @@ public class ViewAppointmentsPage extends JPanel {
             default -> statusLabel.setBackground(Color.GRAY);
         }
 
-        // Info Panel
+        // Info panel
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.setOpaque(false);
@@ -106,7 +139,7 @@ public class ViewAppointmentsPage extends JPanel {
         infoPanel.add(dueLabel);
         infoPanel.add(orderIdLabel);
 
-        // Read feedback
+        // Feedback section
         String[] feedback = readFeedback(orderId);
         if (status.equals("paid")) {
             infoPanel.add(Box.createVerticalStrut(10));
@@ -148,7 +181,6 @@ public class ViewAppointmentsPage extends JPanel {
             }
         }
 
-        // Status Panel
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.setOpaque(false);
         statusPanel.add(statusLabel, BorderLayout.NORTH);

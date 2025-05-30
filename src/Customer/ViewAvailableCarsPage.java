@@ -19,11 +19,13 @@ public class ViewAvailableCarsPage extends JFrame {
     private JPanel gridPanel;
     private JTextField searchField;
     private List<String[]> allCars;
+    private Timer autoRefreshTimer;
 
     public ViewAvailableCarsPage(Customer customer) {
         this.customer = customer;
         initializeFrame();
         setupComponents();
+        startAutoRefresh();
     }
 
     private void initializeFrame() {
@@ -61,9 +63,14 @@ public class ViewAvailableCarsPage extends JFrame {
         searchBtn.addActionListener(e -> filterCars());
         rightPanel.add(searchBtn);
 
+        JButton refreshBtn = new JButton("Refresh");
+        styleButton(refreshBtn);
+        refreshBtn.addActionListener(e -> refreshCarList());
+        rightPanel.add(refreshBtn);
+
         JButton appointmentsBtn = new JButton("My Appointments");
         styleButton(appointmentsBtn);
-        appointmentsBtn.addActionListener(e -> new ViewAppointmentsPage(customer));
+        appointmentsBtn.addActionListener(e -> new ViewAppointmentsFrame(customer));
         rightPanel.add(appointmentsBtn);
 
         JButton backBtn = new JButton("Return");
@@ -184,5 +191,35 @@ public class ViewAvailableCarsPage extends JFrame {
         }
 
         return cars;
+    }
+
+    private void refreshCarList() {
+        allCars = getAvailableCars();
+        filterCars(); // Reapply current search filter
+    }
+
+    private void startAutoRefresh() {
+        autoRefreshTimer = new Timer(10000, e -> refreshCarList());
+        autoRefreshTimer.start();
+    }
+
+    @Override
+    public void dispose() {
+        if (autoRefreshTimer != null) {
+            autoRefreshTimer.stop();
+        }
+        super.dispose();
+    }
+}
+
+class ViewAppointmentsFrame extends JFrame {
+    public ViewAppointmentsFrame(Customer customer) {
+        setTitle("My Appointments");
+        setSize(800, 600);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
+        add(new ViewAppointmentsPage(customer), BorderLayout.CENTER);
+        setVisible(true);
     }
 }
