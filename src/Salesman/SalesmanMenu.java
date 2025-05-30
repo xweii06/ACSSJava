@@ -785,26 +785,104 @@ public class SalesmanMenu extends JFrame {
         comboBox.addItem("Perodua Axia (PM001)");
     }
 
-    private void recordPayment(String carInfo, String customer, String amount, String method, String date) {
-        if (customer.isEmpty() || amount.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all required fields", 
-                "Error", JOptionPane.ERROR_MESSAGE);
-            return;
+     // Add this helper method to generate Sale ID
+private String generateSaleID() {
+    int maxSaleNum = 0;
+    try (BufferedReader br = new BufferedReader(new FileReader("data/sales.txt"))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length > 0 && parts[0].startsWith("SALE")) {
+                try {
+                    int saleNum = Integer.parseInt(parts[0].substring(4));
+                    maxSaleNum = Math.max(maxSaleNum, saleNum);
+                } catch (NumberFormatException e) {
+                    // Skip invalid sale IDs
+                }
+            }
         }
+    } catch (IOException e) {
+        // If file doesn't exist or error reading, start from 0
+    }
+    return String.format("SALE%03d", maxSaleNum + 1);
+}
+     
+  
+    private void recordPayment(String carInfo, String customer, String amount, String method, String date) {
+    if (customer.isEmpty() || amount.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please fill all required fields", 
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
         try {
-            // Parse payment amount
-            double paymentAmount = Double.parseDouble(amount);
-            String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
-            String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
-       
-            
-            // Create payment record string 
-            String paymentRecord = String.format("%s,%s,%s,%s,%s,%s", 
-            carId, customer, amount, method, date, currentSalesmanID);
-            
-            // Save to Record Payment.txt
+        // Parse payment amount
+        double paymentAmount = Double.parseDouble(amount);
+        String orderId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+        String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
+        
+        // Find the car ID from appointments data
+        String carId = "";
+        List<String[]> appointments = readAppointmentsData("data/appointments.txt");
+        for (String[] appointment : appointments) {
+            if (appointment[0].equals(orderId)) {
+                carId = appointment[2]; // Car ID is at index 2 in appointments.txt
+                break;
+            }
+        }
+        
+          try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Record Payment.txt", true))) {
+            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
+                carId, customer, paymentAmount, method, date, currentSalesmanID));
+            writer.newLine();
+        }
+        
+        // Save to Payments.txt (if you need this file as well)
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
+            writer.write(String.format("%s,%s,%s,%s,%s,%s", 
+                carId, customer, amount, method, date, currentSalesmanID));
+            writer.newLine();
+        }
+        // Update car status to "paid"
+        updateCarStatus(carId, "paid"); 
+        // Update appointment status to "paid"
+        updateAppointmentStatus(orderId, "paid");     
+          
+        
+         if (carId.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Car ID not found for this order", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }   
+         
+           // Generate Sale ID
+        String saleID = generateSaleID();
+        
+        // Record to sales.txt with format: SaleID, CustomerID, CarID, SalesmanID, Price, Payment, Method, Date
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/sales.txt", true))) {
+            writer.write(String.format("%s,%s,%s,%s,%.2f,%.2f,%s,%s", 
+                saleID, customer, carId, currentSalesmanID, paymentAmount, paymentAmount, method, date));
+            writer.newLine();
+        }
+          
+        
+        
+        // Also keep the Record Payment.txt for backup/additional tracking
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Record Payment.txt", true))) {
+            writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
+                carId, customer, paymentAmount, method, date, currentSalesmanID));
+            writer.newLine();
+        }
+        
+          // Keep the Payments.txt as well if needed
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
+            writer.write(String.format("%s,%s,%s,%s,%s,%s", 
+                carId, customer, amount, method, date, currentSalesmanID));
+            writer.newLine();
+        }
+         
+            // Save to Record Payment.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/sales.txt", true))) {
             writer.write(String.format("%s,%s,%.2f,%s,%s,%s", 
                 carId, customer, paymentAmount, method, date, currentSalesmanID));
             writer.newLine();
@@ -817,17 +895,52 @@ public class SalesmanMenu extends JFrame {
             
             updateCarStatus(carId, "Paid");
             
-        JOptionPane.showMessageDialog(this, "Payment recorded successfully!", 
+        JOptionPane.showMessageDialog(this, 
+            "Payment recorded successfully!\nSale ID: " + saleID, 
             "Success", JOptionPane.INFORMATION_MESSAGE);
         switchToWelcome();
+        
     } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "Insufficient funds",
+        JOptionPane.showMessageDialog(this, "Invalid amount format",
             "Invalid Amount", JOptionPane.ERROR_MESSAGE);
     } catch (Exception e) {
         JOptionPane.showMessageDialog(this, "Error recording payment: " + e.getMessage(),
             "Error", JOptionPane.ERROR_MESSAGE);
     }
 }
+    
+    
+    // Add this new method to update appointment status
+private void updateAppointmentStatus(String orderId, String newStatus) {
+    try {
+        List<String[]> appointments = readAppointmentsData("data/appointments.txt");
+        
+        for (String[] appointment : appointments) {
+            if (appointment[0].equals(orderId)) {
+                appointment[6] = newStatus; // Status is at index 6
+                break;
+            }
+        }
+        
+        writeAppointmentData("data/appointments.txt", appointments);
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error updating appointment status: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+// Add this new method to write appointment data
+private void writeAppointmentData(String filePath, List<String[]> appointments) throws IOException {
+    try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        for (String[] appointment : appointments) {
+            bw.write(String.join(",", appointment));
+            bw.newLine();
+        }
+    }
+}
+    
+    
 
     private void saveComment(String carInfo, String comment) {
         if (comment.isEmpty()) {
