@@ -1,7 +1,6 @@
 package Salesman;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
@@ -15,7 +14,7 @@ public class SalesmanMenu extends JFrame {
     private JPanel welcomePanel;
     private JPanel profilePanel;
     private JPanel paymentPanel;
-    private JPanel commentsPanel;
+    private JPanel feedbackPanel; // Added missing variable
     private String currentSalesmanID = "S01"; // Example logged-in Salesman ID
 
     public SalesmanMenu() {
@@ -32,12 +31,12 @@ public class SalesmanMenu extends JFrame {
         welcomePanel = createWelcomePanel();
         profilePanel = createProfilePanel();
         paymentPanel = createPaymentPanel();
-        commentsPanel = createCommentsPanel();
+        feedbackPanel = createFeedbackPanel();
         
         mainPanel.add(welcomePanel, "welcome");
         mainPanel.add(profilePanel, "profile");
         mainPanel.add(paymentPanel, "payment");
-        mainPanel.add(commentsPanel, "comments");
+        mainPanel.add(feedbackPanel, "feedback");
 
         add(mainPanel);
     }
@@ -60,6 +59,7 @@ public class SalesmanMenu extends JFrame {
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         welcomeLabel.setBounds(100, 20, 400, 40);
         panel.add(welcomeLabel);
+        
         
         
     // Add logout button (position it where the X button was)
@@ -95,15 +95,20 @@ public class SalesmanMenu extends JFrame {
         paymentButton.addActionListener(e -> switchToPayment());
         panel.add(paymentButton);
 
-        JButton commentsButton = createButton("Sales Comments", 150, 440,
+        JButton feedbackButton = createButton("Ratings/Feedback", 150, 440,
                 loadScaledIcon("/resources/comments.png", 32, 32),
                 new Color(220, 180, 255));
-        commentsButton.addActionListener(e -> switchToComments());
-        panel.add(commentsButton);
+        feedbackButton.addActionListener(e -> switchToFeedback());
+        panel.add(feedbackButton);
 
 
         return panel;
     }
+    
+    private void switchToFeedback() {
+    CardLayout cl = (CardLayout) mainPanel.getLayout();
+    cl.show(mainPanel, "feedback");
+}
     
    private void logout() {
     int confirm = JOptionPane.showConfirmDialog(
@@ -134,7 +139,8 @@ public class SalesmanMenu extends JFrame {
         backButton.addActionListener(e -> switchToWelcome());
         panel.add(backButton);
 
-        JLabel titleLabel = new JLabel("Edit Profile");
+
+       JLabel titleLabel = new JLabel("Edit Profile");
         titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
         titleLabel.setForeground(new Color(70, 50, 100));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -156,6 +162,7 @@ public class SalesmanMenu extends JFrame {
             BorderFactory.createEmptyBorder(2, 5, 2, 5)
         ));
         panel.add(changePicBtn);
+
 
         JPanel formPanel = new JPanel();
         formPanel.setLayout(new GridLayout(0, 2, 10, 15));
@@ -306,7 +313,8 @@ public class SalesmanMenu extends JFrame {
         dateLabel.setForeground(new Color(70, 50, 100));
         formPanel.add(dateLabel);
 
-        JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
+
+         JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
         styleTextField(dateField);
         dateField.setEditable(false);
         formPanel.add(dateField);
@@ -328,6 +336,7 @@ public class SalesmanMenu extends JFrame {
                 }
             }
         });
+
 
         // Trigger the action listener to populate fields initially if a car is selected
         if (carComboBox.getItemCount() > 0) {
@@ -369,7 +378,7 @@ public class SalesmanMenu extends JFrame {
         return panel;
     }
 
-      private JPanel createCommentsPanel() {
+      private JPanel createFeedbackPanel() {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -384,18 +393,19 @@ public class SalesmanMenu extends JFrame {
         backButton.addActionListener(e -> switchToWelcome());
         panel.add(backButton);
 
-        JLabel titleLabel = new JLabel("Sales Comments");
+        JLabel titleLabel = new JLabel("Ratings/Feedback");
         titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
         titleLabel.setForeground(new Color(70, 50, 100));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setBounds(200, 20, 300, 30); // Adjusted position
+        titleLabel.setBounds(200, 20, 300, 30);
         panel.add(titleLabel);
 
         JPanel entryPanel = new JPanel();
         entryPanel.setLayout(new BorderLayout(10, 10));
-        entryPanel.setBounds(50, 70, 600, 250); // Increased width from 500 to 600
+        entryPanel.setBounds(50, 70, 550, 350);
         entryPanel.setOpaque(false);
 
+        // Car selection panel
         JPanel carPanel = new JPanel(new BorderLayout(10, 5));
         carPanel.setOpaque(false);
 
@@ -405,11 +415,11 @@ public class SalesmanMenu extends JFrame {
         carPanel.add(carLabel, BorderLayout.NORTH);
 
         JComboBox<String> carComboBox = new JComboBox<>();
-        populateCarComboBoxForComments(carComboBox);
+        populateCarComboBoxForFeedback(carComboBox);
         carComboBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         carComboBox.setBackground(new Color(255, 255, 255, 180));
         carComboBox.setBorder(BorderFactory.createLineBorder(new Color(200, 180, 220), 1));
-        carComboBox.setPreferredSize(new Dimension(400, 30)); // Set preferred size
+        carComboBox.setPreferredSize(new Dimension(400, 30));
         carComboBox.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
@@ -426,36 +436,91 @@ public class SalesmanMenu extends JFrame {
 
         entryPanel.add(carPanel, BorderLayout.NORTH);
 
-        JPanel commentPanel = new JPanel(new BorderLayout(10, 5));
-        commentPanel.setOpaque(false);
+        // Rating and feedback panel
+        JPanel ratingFeedbackPanel = new JPanel();
+        ratingFeedbackPanel.setLayout(new BoxLayout(ratingFeedbackPanel, BoxLayout.Y_AXIS));
+        ratingFeedbackPanel.setOpaque(false);
 
-        JLabel commentLabel = new JLabel("Your Comment:");
-        commentLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        commentLabel.setForeground(new Color(70, 50, 100));
-        commentPanel.add(commentLabel, BorderLayout.NORTH);
+        // Rating section
+        JPanel ratingPanel = new JPanel(new BorderLayout(10, 5));
+        ratingPanel.setOpaque(false);
+        ratingPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        JTextArea commentArea = new JTextArea();
-        commentArea.setLineWrap(true);
-        commentArea.setWrapStyleWord(true);
-        commentArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        commentArea.setForeground(new Color(70, 50, 100));
-        commentArea.setBackground(new Color(255, 255, 255, 180));
-        commentArea.setBorder(BorderFactory.createCompoundBorder(
+        JLabel ratingLabel = new JLabel("Rating (1-5 stars) *:");
+        ratingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        ratingLabel.setForeground(new Color(70, 50, 100));
+        ratingPanel.add(ratingLabel, BorderLayout.NORTH);
+
+        // Create star rating buttons
+        JPanel starPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        starPanel.setOpaque(false);
+        
+        ButtonGroup ratingGroup = new ButtonGroup();
+        JToggleButton[] starButtons = new JToggleButton[5];
+        
+        for (int i = 0; i < 5; i++) {
+            final int rating = i + 1;
+            starButtons[i] = new JToggleButton("★");
+            starButtons[i].setFont(new Font("Segoe UI", Font.BOLD, 24));
+            starButtons[i].setForeground(new Color(200, 200, 200));
+            starButtons[i].setBackground(new Color(255, 255, 255, 180));
+            starButtons[i].setFocusPainted(false);
+            starButtons[i].setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            starButtons[i].setPreferredSize(new Dimension(50, 40));
+            
+            starButtons[i].addActionListener(e -> {
+                // Update star colors
+                for (int j = 0; j < 5; j++) {
+                    if (j < rating) {
+                        starButtons[j].setForeground(new Color(255, 215, 0)); // Gold color
+                        starButtons[j].setSelected(true);
+                    } else {
+                        starButtons[j].setForeground(new Color(200, 200, 200)); // Gray color
+                        starButtons[j].setSelected(false);
+                    }
+                }
+            });
+            
+            ratingGroup.add(starButtons[i]);
+            starPanel.add(starButtons[i]);
+        }
+        
+        ratingPanel.add(starPanel, BorderLayout.CENTER);
+        ratingFeedbackPanel.add(ratingPanel);
+
+        // Feedback section
+        JPanel feedbackTextPanel = new JPanel(new BorderLayout(10, 5));
+        feedbackTextPanel.setOpaque(false);
+        feedbackTextPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+        JLabel feedbackLabel = new JLabel("Feedback Comment (Optional):");
+        feedbackLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        feedbackLabel.setForeground(new Color(70, 50, 100));
+        feedbackTextPanel.add(feedbackLabel, BorderLayout.NORTH);
+
+        JTextArea feedbackArea = new JTextArea(8, 30);
+        feedbackArea.setLineWrap(true);
+        feedbackArea.setWrapStyleWord(true);
+        feedbackArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        feedbackArea.setForeground(new Color(70, 50, 100));
+        feedbackArea.setBackground(new Color(255, 255, 255, 180));
+        feedbackArea.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        JScrollPane scrollPane = new JScrollPane(commentArea);
-        commentPanel.add(scrollPane, BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(feedbackArea);
+        feedbackTextPanel.add(scrollPane, BorderLayout.CENTER);
 
-        entryPanel.add(commentPanel, BorderLayout.CENTER);
+        ratingFeedbackPanel.add(feedbackTextPanel);
+        entryPanel.add(ratingFeedbackPanel, BorderLayout.CENTER);
 
         panel.add(entryPanel);
 
-        JButton submitBtn = new JButton("Save Comment");
+        JButton submitBtn = new JButton("Save Feedback");
         submitBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         submitBtn.setForeground(Color.WHITE);
         submitBtn.setBackground(new Color(120, 80, 160));
-        submitBtn.setBounds(250, 350, 200, 40); // Centered position
+        submitBtn.setBounds(225, 450, 200, 40);
         submitBtn.setFocusPainted(false);
         submitBtn.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         submitBtn.addMouseListener(new MouseAdapter() {
@@ -469,15 +534,91 @@ public class SalesmanMenu extends JFrame {
             }
         });
         submitBtn.addActionListener(e -> {
-            saveComment(
+            // Get selected rating
+            int selectedRating = 0;
+            for (int i = 0; i < starButtons.length; i++) {
+                if (starButtons[i].isSelected()) {
+                    selectedRating = Math.max(selectedRating, i + 1);
+                }
+            }
+            
+            saveFeedback(
                 (String) carComboBox.getSelectedItem(),
-                commentArea.getText()
+                selectedRating,
+                feedbackArea.getText()
             );
         });
         panel.add(submitBtn);
 
         return panel;
     }
+    
+     private void populateCarComboBoxForFeedback(JComboBox<String> comboBox) {
+    comboBox.removeAllItems();
+    
+    // Get cars that have been paid for (completed transactions)
+    List<String[]> cars = readCarData("data/Car.txt");
+    for (String[] car : cars) {
+        // Check if car belongs to current salesman and has been paid
+        if (car.length > 6 && car[6].equals(currentSalesmanID) && 
+            car[5].equalsIgnoreCase("paid")) {
+            // Format: "Make Model (CarID)"
+            comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
+        }
+    }
+      
+   // If no paid cars found, you might want to add a placeholder
+    if (comboBox.getItemCount() == 0) {
+        comboBox.addItem("No completed sales available");
+    }
+}
+    
+    private void saveFeedback(String carInfo, int rating, String feedbackText) {
+    if (carInfo == null || carInfo.equals("No completed sales available")) {
+        JOptionPane.showMessageDialog(this, "Please select a valid car", 
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+    
+    if (rating == 0) {
+        JOptionPane.showMessageDialog(this, "Please select a rating (1-5 stars)", 
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    try {
+        // Extract car ID from the selected item
+        String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+        
+        // Create feedback record string
+        // Format: CarID, SalesmanID, Rating, Feedback, Date
+        String feedbackRecord = String.format("%s,%s,%d,%s,%s", 
+            carId, 
+            currentSalesmanID, 
+            rating, 
+            feedbackText.replace(",", ";"), // Replace commas to avoid CSV issues
+            java.time.LocalDate.now().toString()
+        );
+        
+        // Save to feedback file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/feedback.txt", true))) {
+            writer.write(feedbackRecord);
+            writer.newLine();
+        }
+        
+        JOptionPane.showMessageDialog(this, 
+            "Feedback saved successfully!\nRating: " + rating + " stars", 
+            "Success", JOptionPane.INFORMATION_MESSAGE);
+        
+        // Clear the form and return to welcome screen
+        switchToWelcome();
+        
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error saving feedback: " + e.getMessage(),
+            "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+    
     private void showStatusUpdateDialog(String[] car) {
     // First show password verification dialog
     String password = JOptionPane.showInputDialog(this, 
@@ -614,48 +755,62 @@ public class SalesmanMenu extends JFrame {
     }
 
     private void showCarCards() {
-        JPanel carPanel = new JPanel(null) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                paintGradientBackground(g2d);
-            }
-        };
+    JPanel carPanel = new JPanel(null) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            paintGradientBackground(g2d);
+        }
+    };
 
-        JButton backButton = createBackButton();
-        backButton.addActionListener(e -> switchToWelcome());
-        carPanel.add(backButton);
+       JButton backButton = createBackButton();
+    backButton.addActionListener(e -> switchToWelcome());
+    carPanel.add(backButton);
 
-        JLabel titleLabel = new JLabel("Available Cars");
-        titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
-        titleLabel.setForeground(new Color(70, 50, 100));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setBounds(150, 20, 300, 30);
-        carPanel.add(titleLabel);
+         JLabel titleLabel = new JLabel("My Available Cars");
+    titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
+    titleLabel.setForeground(new Color(70, 50, 100));
+    titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    titleLabel.setBounds(150, 20, 300, 30);
+    carPanel.add(titleLabel);
+    
+       
+    JPanel cardContainer = new JPanel(new GridLayout(0, 2, 20, 20));
+    cardContainer.setOpaque(false);
+    cardContainer.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
-        JPanel cardContainer = new JPanel(new GridLayout(0, 2, 20, 20));
-        cardContainer.setOpaque(false);
-        cardContainer.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
+    JScrollPane scrollPane = new JScrollPane(cardContainer);
+    scrollPane.setBounds(20, 60, 560, 400);
+    scrollPane.setBorder(null);
+    scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+    scrollPane.setOpaque(false);
+    scrollPane.getViewport().setOpaque(false);
+    carPanel.add(scrollPane);
 
-        JScrollPane scrollPane = new JScrollPane(cardContainer);
-        scrollPane.setBounds(20, 60, 560, 400);
-        scrollPane.setBorder(null);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-        carPanel.add(scrollPane);
-
-        List<String[]> carData = readCarData("data/Car.txt");
-        for (String[] car : carData) {
+       List<String[]> carData = readCarData("data/Car.txt");
+    
+    // Filter cars to show only those assigned to the current salesman
+    for (String[] car : carData) {
+        // Check if the car belongs to the current salesman (index 6 is salesman ID)
+        if (car.length > 6 && car[6].equals(currentSalesmanID)) {
             JPanel card = createCarCard(car);
             cardContainer.add(card);
         }
+    }
+     // If no cars found for this salesman, show a message
+    if (cardContainer.getComponentCount() == 0) {
+        JLabel noCarsLabel = new JLabel("No cars assigned to you");
+        noCarsLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        noCarsLabel.setForeground(new Color(70, 50, 100));
+        noCarsLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        cardContainer.add(noCarsLabel);
+    }
 
         mainPanel.add(carPanel, "cars");
-        CardLayout cl = (CardLayout) mainPanel.getLayout();
-        cl.show(mainPanel, "cars");
-    }
+    CardLayout cl = (CardLayout) mainPanel.getLayout();
+    cl.show(mainPanel, "cars");
+}
  
     private JPanel createCarCard(String[] car) {
         JPanel card = new JPanel();
