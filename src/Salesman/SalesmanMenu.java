@@ -8,6 +8,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import navigation.FrameManager;
 
 public class SalesmanMenu extends JFrame {
     private JPanel mainPanel;
@@ -114,12 +115,7 @@ public class SalesmanMenu extends JFrame {
     );
     
     if (confirm == JOptionPane.YES_OPTION) {
-        this.dispose(); // Close the current window
-        
-        // Show the login screen again
-        SwingUtilities.invokeLater(() -> {
-            new SalesmanLogin().setVisible(true);
-        });
+        FrameManager.goBack();
     }
 }
 
@@ -281,6 +277,7 @@ public class SalesmanMenu extends JFrame {
 
         JTextField customerField = new JTextField();
         styleTextField(customerField);
+        customerField.setEditable(false); // Make customer ID non-editable
         formPanel.add(customerField);
 
         JLabel amountLabel = new JLabel("Amount (RM):");
@@ -290,6 +287,7 @@ public class SalesmanMenu extends JFrame {
 
         JTextField amountField = new JTextField();
         styleTextField(amountField);
+        amountField.setEditable(false); // Make amount non-editable
         formPanel.add(amountField);
 
         JLabel methodLabel = new JLabel("Payment Method:");
@@ -312,6 +310,31 @@ public class SalesmanMenu extends JFrame {
         styleTextField(dateField);
         dateField.setEditable(false);
         formPanel.add(dateField);
+
+        carComboBox.addActionListener(e -> {
+            String selectedCar = (String) carComboBox.getSelectedItem();
+            if (selectedCar != null && selectedCar.contains("(")) {
+                // Extract order ID from the selected item (everything between parentheses)
+                String orderID = selectedCar.substring(selectedCar.lastIndexOf("(") + 1, selectedCar.length() - 1);
+
+                // Find the appointment for this order
+                List<String[]> appointments = readAppointmentsData("data/appointments.txt");
+                for (String[] appointment : appointments) {
+                    if (appointment[0].equals(orderID)) { // Check orderID (index 0)
+                        customerField.setText(appointment[1]); // Set customer ID from index 1
+                        amountField.setText(appointment[4]); // Set price from index 4
+                        break;
+                    }
+                }
+            }
+        });
+
+        // Trigger the action listener to populate fields initially if a car is selected
+        if (carComboBox.getItemCount() > 0) {
+            carComboBox.setSelectedIndex(0);
+            carComboBox.getActionListeners()[0].actionPerformed(
+                new ActionEvent(carComboBox, ActionEvent.ACTION_PERFORMED, null));
+        }
 
         panel.add(formPanel);
 
@@ -738,17 +761,13 @@ public class SalesmanMenu extends JFrame {
 
     private void populateCarComboBox(JComboBox<String> comboBox) {
         
-       //Addd cars from data file 
-        List<String[]> cars = readCarData("data/Car.txt");
-        for (String[] car : cars) {
-            if (car[5].equalsIgnoreCase("booked")) {
-                comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
+        comboBox.removeAllItems();
+        List<String[]> appointments = readAppointmentsData("data/appointments.txt");
+        for (String[] appointment : appointments) {
+            if (appointment[6].equalsIgnoreCase("pending")) {
+                comboBox.addItem(appointment[3] + " (" + appointment[0] + ")");
             }
         }
-      
-        //Add hardcoded Perodua cars
-        comboBox.addItem("Perodua Myvi (PM001)");
-        comboBox.addItem("Perodua Axia (PM001)");
     }
     
 
@@ -775,24 +794,10 @@ public class SalesmanMenu extends JFrame {
 
         try {
             // Parse payment amount
-        double paymentAmount = Double.parseDouble(amount);
-        String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
-        String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
-        
-        // Validate payment amount for specific cars
-        if (carName.contains("Perodua Myvi") && paymentAmount != 45000) {
-            JOptionPane.showMessageDialog(this, 
-                "Payment amount must be exactly RM 45,000 for Perodua Myvi",
-                "Invalid Amount", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        
-        if (carName.contains("Perodua Axia") && paymentAmount != 59500) {
-            JOptionPane.showMessageDialog(this, 
-                "Payment amount must be exactly RM 59,500 for Perodua Axia",
-                "Invalid Amount", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+            double paymentAmount = Double.parseDouble(amount);
+            String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+            String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
+       
             
             // Create payment record string 
             String paymentRecord = String.format("%s,%s,%s,%s,%s,%s", 
@@ -804,19 +809,13 @@ public class SalesmanMenu extends JFrame {
                 carId, customer, paymentAmount, method, date, currentSalesmanID));
             writer.newLine();
         }
-         
-         // If it's one of our hardcoded cars, don't update status
-        if (!carId.equals("PM001") && !carId.equals("PA001")) {
-            updateCarStatus(carId, "Paid");
-        }
-   
+        
             try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Payments.txt", true))) {
                 writer.write(String.format("%s,%s,%s,%s,%s,%s\n", 
                     carId, customer, amount, method, date, currentSalesmanID));
             }
             
             updateCarStatus(carId, "Paid");
-            
             
         JOptionPane.showMessageDialog(this, "Payment recorded successfully!", 
             "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -923,6 +922,19 @@ public class SalesmanMenu extends JFrame {
         }
         return carList;
     }
+    
+    private List<String[]> readAppointmentsData(String filePath) {
+        List<String[]> appointmentList = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                appointmentList.add(line.split(","));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return appointmentList;
+    }
 
     private void paintGradientBackground(Graphics2D g2d) {
         GradientPaint gradient = new GradientPaint(
@@ -971,11 +983,4 @@ public class SalesmanMenu extends JFrame {
             return null;
         }
     }
-
-    public static void main(String[] args) {
-    // Start with the login screen
-    SwingUtilities.invokeLater(() -> {
-        new SalesmanLogin().setVisible(true);
-    });
-}
 }
