@@ -187,17 +187,17 @@ public class StaffMenu extends JFrame {
                 contentPanel.add(new CustomerPanel(customerService));
                 break;
             case "Payment & Feedback":
-                addSubMenuButton(subMenuPanel, "Payment Records",
-                        DataIO.loadIcon(PAYMENT_PNG), 
-                        e -> showPanelInFrame(
-                                "Payment Records", 
-                                new SalePanel(new SaleRepository())
-                        ));
                 addSubMenuButton(subMenuPanel, "Booking Records",
                         DataIO.loadIcon(PENDING_PNG),
                         e -> showPanelInFrame(
                                 "Booking Records", 
                                 new AppointmentPanel(new AppointmentRepository())
+                        ));
+                addSubMenuButton(subMenuPanel, "Payment Records",
+                        DataIO.loadIcon(PAYMENT_PNG), 
+                        e -> showPanelInFrame(
+                                "Payment Records", 
+                                new SalePanel(new SaleRepository())
                         ));
                 addSubMenuButton(subMenuPanel, "All Feedbacks",
                         DataIO.loadIcon(FEEDBACK_PNG),

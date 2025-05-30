@@ -314,7 +314,7 @@ public class SalesmanMenu extends JFrame {
         formPanel.add(dateLabel);
 
 
-         JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
+        JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
         styleTextField(dateField);
         dateField.setEditable(false);
         formPanel.add(dateField);

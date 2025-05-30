@@ -125,7 +125,7 @@ public class CarPanel extends JPanel {
             // Block editing booked and paid cars
             if ("paid".equalsIgnoreCase(originalCar.getStatus()) ||
                     "booked".equalsIgnoreCase(originalCar.getStatus())) {
-                JOptionPane.showMessageDialog(this, "Paid cars cannot be edited", 
+                JOptionPane.showMessageDialog(this, "Paid or booked cars cannot be edited", 
                         "Action Blocked", JOptionPane.WARNING_MESSAGE);
                 return;
             }
