@@ -1,10 +1,14 @@
 package Customer;
 
 import utils.AppointmentManager;
+import utils.FeedbackManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 public class ViewAppointmentsPage extends JPanel {
@@ -38,13 +42,13 @@ public class ViewAppointmentsPage extends JPanel {
             cardContainer.add(emptyLabel);
         } else {
             for (String[] a : appointments) {
-                // a = {orderId, customerId, carId, model, price, dueDate, status}
+                String orderId = a[0];
                 JPanel card = createAppointmentCard(
-                        a[0], // order ID
+                        orderId,
                         a[3], // model
                         a[4], // price
                         a[5], // due date
-                        a[6].toLowerCase() // status (force lowercase)
+                        a[6].toLowerCase() // status
                 );
                 cardContainer.add(card);
                 cardContainer.add(Box.createVerticalStrut(15));
@@ -78,7 +82,7 @@ public class ViewAppointmentsPage extends JPanel {
         orderIdLabel.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         orderIdLabel.setForeground(Color.GRAY);
 
-        JLabel statusLabel = new JLabel(status); // now shows lowercase
+        JLabel statusLabel = new JLabel(status);
         statusLabel.setOpaque(true);
         statusLabel.setForeground(Color.WHITE);
         statusLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -102,6 +106,48 @@ public class ViewAppointmentsPage extends JPanel {
         infoPanel.add(dueLabel);
         infoPanel.add(orderIdLabel);
 
+        // Read feedback
+        String[] feedback = readFeedback(orderId);
+        if (status.equals("paid")) {
+            infoPanel.add(Box.createVerticalStrut(10));
+            if (feedback != null) {
+                int rating = Integer.parseInt(feedback[0]);
+                String comment = feedback[1];
+                JLabel ratedLabel = new JLabel("★".repeat(rating) + "☆".repeat(5 - rating));
+                ratedLabel.setFont(new Font("Segoe UI Symbol", Font.PLAIN, 14));
+                ratedLabel.setForeground(Color.ORANGE);
+                infoPanel.add(ratedLabel);
+
+                if (!comment.isEmpty()) {
+                    JButton commentButton = new JButton("View Comment");
+                    commentButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                    commentButton.setBackground(new Color(230, 230, 250));
+                    commentButton.setForeground(new Color(60, 60, 80));
+                    commentButton.setFocusPainted(false);
+                    commentButton.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 220)));
+                    commentButton.addActionListener(e -> {
+                        JOptionPane.showMessageDialog(this,
+                                "Your Comment:\n" + comment,
+                                "Feedback for Order " + orderId,
+                                JOptionPane.INFORMATION_MESSAGE);
+                    });
+                    infoPanel.add(Box.createVerticalStrut(5));
+                    infoPanel.add(commentButton);
+                }
+            } else {
+                JButton feedbackButton = new JButton("Leave Feedback");
+                feedbackButton.setFocusPainted(false);
+                feedbackButton.setBackground(new Color(0x3465A4));
+                feedbackButton.setForeground(Color.WHITE);
+                feedbackButton.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                feedbackButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+                feedbackButton.addActionListener(e -> {
+                    new FeedbackPage(customer, orderId).setVisible(true);
+                });
+                infoPanel.add(feedbackButton);
+            }
+        }
+
         // Status Panel
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.setOpaque(false);
@@ -111,5 +157,20 @@ public class ViewAppointmentsPage extends JPanel {
         card.add(statusPanel, BorderLayout.EAST);
 
         return card;
+    }
+
+    private String[] readFeedback(String orderId) {
+        try {
+            List<String> lines = Files.readAllLines(Paths.get("data/feedback.txt"));
+            for (String line : lines) {
+                String[] parts = line.split(",", 4);
+                if (parts.length == 4 && parts[0].equals(orderId) && parts[1].equals(customer.getId())) {
+                    return new String[]{parts[2], parts[3]};
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
