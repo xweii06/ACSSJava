@@ -133,7 +133,6 @@ public class FeedbackPanel extends JPanel {
         List<Feedback> results = new ArrayList<>();
         for (Feedback fb : allFeedbacks) {
             if ((fb.getFeedbackID() != null && fb.getFeedbackID().toLowerCase().contains(searchTerm)) ||
-                (fb.getSaleID() != null && fb.getSaleID().toLowerCase().contains(searchTerm)) ||
                 (fb.getUserID() != null && fb.getUserID().toLowerCase().contains(searchTerm))) {
                 results.add(fb);
             }
@@ -158,7 +157,6 @@ public class FeedbackPanel extends JPanel {
 
         Feedback fb = allFeedbacks.get(currentIndex);
         feedbackIDLabel.setText(fb.getFeedbackID() != null ? fb.getFeedbackID() : "N/A");
-        saleIDLabel.setText(fb.getSaleID() != null ? fb.getSaleID() : "N/A");
         userIDLabel.setText(fb.getUserID() != null ? fb.getUserID() : "N/A");
         ratingLabel.setText(getStarRating(fb.getRating()));
         commentsArea.setText(fb.getComments() != null ? fb.getComments() : "No comments");

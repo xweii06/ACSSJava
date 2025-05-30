@@ -193,10 +193,10 @@ public class StaffMenu extends JFrame {
                                 "Payment Records", 
                                 new SalePanel(new SaleRepository())
                         ));
-                addSubMenuButton(subMenuPanel, "Pending Payments",
+                addSubMenuButton(subMenuPanel, "Booking Records",
                         DataIO.loadIcon(PENDING_PNG),
                         e -> showPanelInFrame(
-                                "Pending Payments", 
+                                "Booking Records", 
                                 new AppointmentPanel(new AppointmentRepository())
                         ));
                 addSubMenuButton(subMenuPanel, "All Feedbacks",

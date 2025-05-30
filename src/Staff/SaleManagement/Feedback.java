@@ -7,16 +7,14 @@ import utils.DataIO;
 
 public class Feedback {
     private String feedbackID;
-    private String saleID;
     private String userID; // CusID or SalesmanID
     private int rating;
     private String comments;
     private static final String FILE_PATH = "feedback.txt";
 
     // Constructor
-    public Feedback(String feedbackID, String saleID, String userID, int rating, String comments) {
+    public Feedback(String feedbackID, String userID, int rating, String comments) {
         this.feedbackID = feedbackID;
-        this.saleID = saleID;
         this.userID = userID;
         this.rating = rating;
         this.comments = comments;
@@ -30,15 +28,7 @@ public class Feedback {
     public void setFeedbackID(String feedbackID) {
         this.feedbackID = feedbackID;
     }
-
-    public String getSaleID() {
-        return saleID;
-    }
-
-    public void setSaleID(String saleID) {
-        this.saleID = saleID;
-    }
-
+   
     public String getUserID() {
         return userID;
     }
@@ -61,37 +51,6 @@ public class Feedback {
 
     public void setComments(String comments) {
         this.comments = comments;
-    }
-    
-    private Feedback fromLine(String line) {
-        // Regex to split on commas not inside quotes
-        String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
-
-        if (parts.length != 5) {
-            System.err.println("Invalid feedback record: " + line);
-            return null;
-        }
-
-        try {
-            // Unescape comments
-            String comments = parts[4].trim();
-            if (comments.startsWith("\"") && comments.endsWith("\"")) {
-                comments = comments.substring(1, comments.length()-1)
-                                 .replace("\"\"", "\"");
-            }
-
-            return new Feedback(
-                parts[0].trim(),
-                parts[1].trim(),
-                parts[2].trim(),
-                Integer.parseInt(parts[3].trim()),
-                comments.isEmpty() ? null : comments
-            );
-        } catch (Exception ex) {
-            System.err.println("Error parsing feedback: " + line);
-            ex.printStackTrace();
-            return null;
-        }
     }
     
     public static List<Feedback> getAllFeedback() throws IOException {
@@ -124,9 +83,8 @@ public class Feedback {
 
                 Feedback feedback = new Feedback(
                     parts[0].trim(), // feedbackID
-                    parts[1].trim(), // saleID
-                    parts[2].trim(), // userID
-                    Integer.parseInt(parts[3].trim()), // rating
+                    parts[1].trim(), // userID
+                    Integer.parseInt(parts[2].trim()), // rating
                     comments.isEmpty() ? null : comments  // comments
                 );
                 feedbackList.add(feedback);
@@ -146,7 +104,6 @@ public class Feedback {
 
         return String.join(",",
             feedbackID,
-            saleID,
             userID,
             String.valueOf(rating),
             safeComments

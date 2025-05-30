@@ -76,6 +76,7 @@ public class AppointmentPanel extends JPanel {
     private void loadAppointmentData() {
         try {
             List<Appointment> appointments = repository.getAllAppointments();
+            
             tableModel.setAppointments(appointments);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, 
