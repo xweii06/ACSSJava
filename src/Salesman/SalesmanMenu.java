@@ -792,9 +792,9 @@ private String generateSaleID() {
         String line;
         while ((line = br.readLine()) != null) {
             String[] parts = line.split(",");
-            if (parts.length > 0 && parts[0].startsWith("SALE")) {
+            if (parts.length > 0 && parts[0].startsWith("SA")) {
                 try {
-                    int saleNum = Integer.parseInt(parts[0].substring(4));
+                    int saleNum = Integer.parseInt(parts[0].substring(2));
                     maxSaleNum = Math.max(maxSaleNum, saleNum);
                 } catch (NumberFormatException e) {
                     // Skip invalid sale IDs
@@ -804,7 +804,7 @@ private String generateSaleID() {
     } catch (IOException e) {
         // If file doesn't exist or error reading, start from 0
     }
-    return String.format("SALE%03d", maxSaleNum + 1);
+    return String.format("SA%03d", maxSaleNum + 1);
 }
      
   
@@ -819,7 +819,6 @@ private String generateSaleID() {
         // Parse payment amount
         double paymentAmount = Double.parseDouble(amount);
         String orderId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
-        String carName = carInfo.substring(0, carInfo.lastIndexOf("(")).trim();
         
         // Find the car ID from appointments data
         String carId = "";
@@ -849,19 +848,19 @@ private String generateSaleID() {
         updateAppointmentStatus(orderId, "paid");     
           
         
-         if (carId.isEmpty()) {
+        if (carId.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Car ID not found for this order", 
                 "Error", JOptionPane.ERROR_MESSAGE);
             return;
-        }   
+        }
          
            // Generate Sale ID
         String saleID = generateSaleID();
         
-        // Record to sales.txt with format: SaleID, CustomerID, CarID, SalesmanID, Price, Payment, Method, Date
+        // Record to sales.txt with format: SaleID, CustomerID, CarID, SalesmanID, Price, Method, Date
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/sales.txt", true))) {
-            writer.write(String.format("%s,%s,%s,%s,%.2f,%.2f,%s,%s", 
-                saleID, customer, carId, currentSalesmanID, paymentAmount, paymentAmount, method, date));
+            writer.write(String.format("%s,%s,%s,%s,%.2f,%s,%s", 
+                saleID, customer, carId, currentSalesmanID, paymentAmount, method, date));
             writer.newLine();
         }
           
@@ -895,7 +894,7 @@ private String generateSaleID() {
             
             updateCarStatus(carId, "Paid");
             
-        JOptionPane.showMessageDialog(this, 
+          JOptionPane.showMessageDialog(this, 
             "Payment recorded successfully!\nSale ID: " + saleID, 
             "Success", JOptionPane.INFORMATION_MESSAGE);
         switchToWelcome();
