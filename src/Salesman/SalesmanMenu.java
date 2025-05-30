@@ -59,6 +59,18 @@ public class SalesmanMenu extends JFrame {
         welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
         welcomeLabel.setBounds(100, 20, 400, 40);
         panel.add(welcomeLabel);
+        
+        
+    // Add logout button (position it where the X button was)
+    JButton logoutButton = new JButton("Logout");
+    logoutButton.setBounds(550, 10, 80, 30);
+    logoutButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
+    logoutButton.setForeground(Color.WHITE);
+    logoutButton.setBackground(new Color(120, 80, 160));
+    logoutButton.setFocusPainted(false);
+    logoutButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+    logoutButton.addActionListener(e -> logout());
+    panel.add(logoutButton);
 
         JLabel userIcon = new JLabel(loadScaledIcon("/resources/User_profile.png", 100, 100));
         userIcon.setBounds(250, 70, 100, 100);
@@ -88,10 +100,24 @@ public class SalesmanMenu extends JFrame {
         commentsButton.addActionListener(e -> switchToComments());
         panel.add(commentsButton);
 
-        panel.add(createCloseButton());
 
         return panel;
     }
+    
+    private void logout() {
+    int confirm = JOptionPane.showConfirmDialog(
+        this,
+        "Are you sure you want to logout?",
+        "Confirm Logout",
+        JOptionPane.YES_NO_OPTION
+    );
+    
+    if (confirm == JOptionPane.YES_OPTION) {
+        this.dispose(); // Close the current window
+        // Add code to return to login screen if needed
+        // new LoginScreen().setVisible(true);
+    }
+}
 
     private JPanel createProfilePanel() {
         JPanel panel = new JPanel() {
@@ -931,17 +957,6 @@ public class SalesmanMenu extends JFrame {
             BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-    }
-
-    private JButton createCloseButton() {
-        JButton button = new JButton(loadScaledIcon("/resources/Close_Button.png", 24, 24));
-        button.setBounds(550, 10, 30, 30);
-        button.setContentAreaFilled(false);
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-        button.setToolTipText("Close");
-        button.addActionListener(e -> System.exit(0));
-        return button;
     }
 
     private ImageIcon loadScaledIcon(String path, int width, int height) {
