@@ -1,1 +1,1 @@
-6632d86f,C0001,CAR001,Toyota Vios,RM70000,2025-06-02,pending
+d786a05a,C0001,CAR01,Perodua Myvi,45555,2025-06-13,pending

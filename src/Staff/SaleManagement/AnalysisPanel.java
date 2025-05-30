@@ -60,7 +60,7 @@ public class AnalysisPanel extends JPanel {
         JLabel valueLabel = new JLabel(value);
         valueLabel.setFont(new Font("Arial", Font.PLAIN, 24));
         valueLabel.setForeground(new Color(0, 100, 0));
-        valueLabel.setName(title.replaceAll("\\s+", "_")); // Set name for easy access
+        valueLabel.setName(title.replaceAll("\\s+", "_"));
         
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(valueLabel, BorderLayout.CENTER);

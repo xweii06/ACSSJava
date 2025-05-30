@@ -33,7 +33,6 @@ public class ReportsPanel extends JPanel {
 
     private void loadReportData() {
         try {
-            // Update UI
             Component[] cards = ((JPanel)((JScrollPane)this.getComponent(0)).getViewport().getView()).getComponents();
             
             ((JLabel)((JPanel)cards[0]).getComponent(1)).setText(
@@ -42,10 +41,12 @@ public class ReportsPanel extends JPanel {
                     String.format("RM%.2f", getTotalRevenue()));
             
             String topSalesman = getTopSalesman();
-            ((JLabel)((JPanel)cards[2]).getComponent(1)).setText(topSalesman != null ? topSalesman : "No data");
+            ((JLabel)((JPanel)cards[2]).getComponent(1)).setText(
+                    topSalesman != null ? topSalesman : "No data");
             
             String activeCustomer = getMostActiveCustomer();
-            ((JLabel)((JPanel)cards[3]).getComponent(1)).setText(activeCustomer != null ? activeCustomer : "No data");
+            ((JLabel)((JPanel)cards[3]).getComponent(1)).setText(
+                    activeCustomer != null ? activeCustomer : "No data");
             
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, 
@@ -105,9 +106,9 @@ public class ReportsPanel extends JPanel {
         Map<String, Integer> customerPurchases = new HashMap<>();
         
         for (Sale sale : saleRepo.getAllSales()) {
-            String customerId = sale.getCustomerID();
-            customerPurchases.put(customerId, 
-                customerPurchases.getOrDefault(customerId, 0) + 1);
+            String customerID = sale.getCustomerID();
+            customerPurchases.put(customerID, 
+                customerPurchases.getOrDefault(customerID, 0) + 1);
         }
         
         return customerPurchases.entrySet().stream()

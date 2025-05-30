@@ -3,7 +3,7 @@ package navigation;
 import Main.MainMenu;
 import javax.swing.JFrame;
 import java.util.Stack;
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 public class FrameManager {
     
@@ -15,7 +15,7 @@ public class FrameManager {
         }
         frameStack.push(newFrame);
         newFrame.setVisible(true);
-        newFrame.setDefaultCloseOperation(EXIT_ON_CLOSE); //temporarily
+        newFrame.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); 
         newFrame.setLocationRelativeTo(null); // centering of window
     }
     

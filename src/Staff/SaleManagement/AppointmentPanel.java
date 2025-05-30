@@ -5,7 +5,6 @@ import utils.TableUtils;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.ArrayList;
