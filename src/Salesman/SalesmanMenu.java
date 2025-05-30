@@ -104,18 +104,22 @@ public class SalesmanMenu extends JFrame {
         return panel;
     }
     
-    private void logout() {
+   private void logout() {
     int confirm = JOptionPane.showConfirmDialog(
         this,
         "Are you sure you want to logout?",
         "Confirm Logout",
-        JOptionPane.YES_NO_OPTION
+        JOptionPane.YES_NO_OPTION,
+        JOptionPane.QUESTION_MESSAGE
     );
     
     if (confirm == JOptionPane.YES_OPTION) {
         this.dispose(); // Close the current window
-        // Add code to return to login screen if needed
-        // new LoginScreen().setVisible(true);
+        
+        // Show the login screen again
+        SwingUtilities.invokeLater(() -> {
+            new SalesmanLogin().setVisible(true);
+        });
     }
 }
 
@@ -969,8 +973,9 @@ public class SalesmanMenu extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            new SalesmanMenu().setVisible(true);
-        });
-    }
+    // Start with the login screen
+    SwingUtilities.invokeLater(() -> {
+        new SalesmanLogin().setVisible(true);
+    });
+}
 }
