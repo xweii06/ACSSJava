@@ -42,7 +42,7 @@ public class StaffDialog extends JDialog {
         
         // Role can only be staff
         formPanel.add(new JLabel("Role:"));
-        roleLabel = new JLabel("Staff");
+        roleLabel = new JLabel(staff.getRole());
         formPanel.add(roleLabel);
         
         // Password Field

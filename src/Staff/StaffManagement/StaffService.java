@@ -25,9 +25,6 @@ public class StaffService {
     
     public void updateStaff(Staff staff) throws InvalidInputException, IOException {
         validateStaff(staff);
-        if (isSuperAdmin(staff.getId())) {
-            throw new InvalidInputException("Cannot modify super admin");
-        }
         repository.update(staff);
     }
     

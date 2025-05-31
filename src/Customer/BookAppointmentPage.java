@@ -4,16 +4,17 @@ import utils.AppointmentManager;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class BookAppointmentPage extends JFrame {
     private Customer customer;
     private String[] car; // car[0]=id, [1]=model, [2]=year, [3]=price
+    private Runnable onBookingConfirmed;
 
-    public BookAppointmentPage(Customer customer, String[] car) {
+    public BookAppointmentPage(Customer customer, String[] car, Runnable onBookingConfirmed) {
         this.customer = customer;
         this.car = car;
+        this.onBookingConfirmed = onBookingConfirmed;
 
         setTitle("Book Car - " + car[1]);
         setSize(500, 400);
@@ -59,15 +60,22 @@ public class BookAppointmentPage extends JFrame {
             String dueDate = dateField.getText();
 
             AppointmentManager.saveAppointment(
-                orderId, customer.getId(), car[0], car[1], car[3], dueDate
+                orderId, customer.getId(), car[0], car[1], car[4], dueDate
             );
 
             JOptionPane.showMessageDialog(this,
                     "Booking confirmed! Order ID: " + orderId + "\nPlease pay before: " + dueDate);
+            if (onBookingConfirmed != null) {
+                onBookingConfirmed.run();
+            }
             dispose();
         });
 
         add(formPanel, BorderLayout.CENTER);
         setVisible(true);
+    }
+    
+    public BookAppointmentPage(Customer customer, String[] car) {
+        this(customer, car, null);
     }
 }

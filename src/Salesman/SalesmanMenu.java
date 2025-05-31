@@ -8,16 +8,18 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import navigation.FrameManager;
+import utils.DataIO;
 
 public class SalesmanMenu extends JFrame {
     private JPanel mainPanel;
     private JPanel welcomePanel;
     private JPanel profilePanel;
     private JPanel paymentPanel;
-    private JPanel feedbackPanel; // Added missing variable
-    private String currentSalesmanID = "S01"; // Example logged-in Salesman ID
+    private JPanel feedbackPanel;
+    private String currentSalesmanID;
 
-    public SalesmanMenu() {
+    public SalesmanMenu(String salesmanID) {
+        this.currentSalesmanID = salesmanID;
         setTitle("Pastel Profile");
         setSize(650, 550); // Increased height to accommodate centered layout
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -42,23 +44,22 @@ public class SalesmanMenu extends JFrame {
     }
 
     private JPanel createWelcomePanel() {
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                paintGradientBackground(g2d);
-                paintWhiteBorder(g2d);
-            }
-        };
-        panel.setLayout(null);
-
-        JLabel welcomeLabel = new JLabel("Welcome Back, Sha!");
-        welcomeLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 28));
-        welcomeLabel.setForeground(new Color(70, 50, 100));
-        welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        welcomeLabel.setBounds(100, 20, 400, 40);
-        panel.add(welcomeLabel);
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            paintGradientBackground(g2d);
+            paintWhiteBorder(g2d);
+        }
+    };
+    panel.setLayout(null);
+    JLabel welcomeLabel = new JLabel("Welcome Back!");
+    welcomeLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 28));
+    welcomeLabel.setForeground(new Color(70, 50, 100));
+    welcomeLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    welcomeLabel.setBounds(100, 20, 400, 40);
+    panel.add(welcomeLabel);
         
         
         
@@ -123,85 +124,87 @@ public class SalesmanMenu extends JFrame {
         FrameManager.goBack();
     }
 }
-
+   
+   
     private JPanel createProfilePanel() {
-        JPanel panel = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                Graphics2D g2d = (Graphics2D) g;
-                paintGradientBackground(g2d);
-            }
-        };
-        panel.setLayout(null);
+    JPanel panel = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2d = (Graphics2D) g;
+            paintGradientBackground(g2d);
+        }
+    };
+    panel.setLayout(null);
 
-        JButton backButton = createBackButton();
-        backButton.addActionListener(e -> switchToWelcome());
-        panel.add(backButton);
+    JButton backButton = createBackButton();
+    backButton.addActionListener(e -> switchToWelcome());
+    panel.add(backButton);
 
+    JLabel titleLabel = new JLabel("Edit Profile");
+    titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
+    titleLabel.setForeground(new Color(70, 50, 100));
+    titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+    titleLabel.setBounds(150, 20, 300, 30);
+    panel.add(titleLabel);
 
-       JLabel titleLabel = new JLabel("Edit Profile");
-        titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
-        titleLabel.setForeground(new Color(70, 50, 100));
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setBounds(150, 20, 300, 30);
-        panel.add(titleLabel);
+    JLabel profilePic = new JLabel(loadScaledIcon("/resources/User_profile.png", 80, 80));
+    profilePic.setBounds(260, 60, 80, 80);
+    panel.add(profilePic);
 
-        JLabel profilePic = new JLabel(loadScaledIcon("/resources/User_profile.png", 80, 80));
-        profilePic.setBounds(260, 60, 80, 80);
-        panel.add(profilePic);
+    JButton changePicBtn = new JButton("Change Picture");
+    changePicBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+    changePicBtn.setForeground(new Color(70, 50, 100));
+    changePicBtn.setBackground(new Color(255, 255, 255, 180));
+    changePicBtn.setBounds(240, 150, 120, 25);
+    changePicBtn.setFocusPainted(false);
+    changePicBtn.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
+        BorderFactory.createEmptyBorder(2, 5, 2, 5)
+    ));
+    panel.add(changePicBtn);
 
-        JButton changePicBtn = new JButton("Change Picture");
-        changePicBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        changePicBtn.setForeground(new Color(70, 50, 100));
-        changePicBtn.setBackground(new Color(255, 255, 255, 180));
-        changePicBtn.setBounds(240, 150, 120, 25);
-        changePicBtn.setFocusPainted(false);
-        changePicBtn.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
-            BorderFactory.createEmptyBorder(2, 5, 2, 5)
-        ));
-        panel.add(changePicBtn);
+    // Get current salesman data
+    String[] salesmanData = getSalesmanData(currentSalesmanID);
 
+    JPanel formPanel = new JPanel();
+    formPanel.setLayout(new GridLayout(0, 2, 10, 15));
+    formPanel.setBounds(100, 190, 400, 200);
+    formPanel.setOpaque(false);
 
-        JPanel formPanel = new JPanel();
-        formPanel.setLayout(new GridLayout(0, 2, 10, 15));
-        formPanel.setBounds(100, 190, 400, 200);
-        formPanel.setOpaque(false);
+    JLabel nameLabel = new JLabel("Name:");
+    nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    nameLabel.setForeground(new Color(70, 50, 100));
+    formPanel.add(nameLabel);
 
-        JLabel nameLabel = new JLabel("Name:");
-        nameLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        nameLabel.setForeground(new Color(70, 50, 100));
-        formPanel.add(nameLabel);
+    JTextField nameField = new JTextField(salesmanData[1]); // Name from data
+    styleTextField(nameField);
+    formPanel.add(nameField);
 
-        JTextField nameField = new JTextField("Sha");
-        styleTextField(nameField);
-        formPanel.add(nameField);
+    JLabel emailLabel = new JLabel("Email:");
+    emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    emailLabel.setForeground(new Color(70, 50, 100));
+    formPanel.add(emailLabel);
 
-        JLabel emailLabel = new JLabel("Email:");
-        emailLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        emailLabel.setForeground(new Color(70, 50, 100));
-        formPanel.add(emailLabel);
+    JTextField emailField = new JTextField(salesmanData[3]); // Email from data
+    styleTextField(emailField);
+    formPanel.add(emailField);
 
-        JTextField emailField = new JTextField("sha@example.com");
-        styleTextField(emailField);
-        formPanel.add(emailField);
+    JLabel phoneLabel = new JLabel("Phone:");
+    phoneLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    phoneLabel.setForeground(new Color(70, 50, 100));
+    formPanel.add(phoneLabel);
 
-        JLabel phoneLabel = new JLabel("Phone:");
-        phoneLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        phoneLabel.setForeground(new Color(70, 50, 100));
-        formPanel.add(phoneLabel);
+    JTextField phoneField = new JTextField(salesmanData[2]); // Phone from data
+    styleTextField(phoneField);
+    formPanel.add(phoneField);
 
-        JTextField phoneField = new JTextField("012-3456789");
-        styleTextField(phoneField);
-        formPanel.add(phoneField);
+    JLabel pwLabel = new JLabel("Password:");
+    pwLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+    pwLabel.setForeground(new Color(70, 50, 100));
+    formPanel.add(pwLabel);
 
-        JLabel pwLabel = new JLabel("password:");
-        pwLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        pwLabel.setForeground(new Color(70, 50, 100));
-        formPanel.add(pwLabel);
-
-        JTextArea pwArea = new JTextArea("****");
+        JTextArea pwArea = new JTextArea("");
         pwArea.setLineWrap(true);
         pwArea.setWrapStyleWord(true);
         pwArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -238,7 +241,7 @@ public class SalesmanMenu extends JFrame {
         return panel;
     }
 
-    private JPanel createPaymentPanel() {
+     private JPanel createPaymentPanel() {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -314,7 +317,7 @@ public class SalesmanMenu extends JFrame {
         formPanel.add(dateLabel);
 
 
-        JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
+         JTextField dateField = new JTextField(java.time.LocalDate.now().toString());
         styleTextField(dateField);
         dateField.setEditable(false);
         formPanel.add(dateField);
@@ -377,8 +380,8 @@ public class SalesmanMenu extends JFrame {
 
         return panel;
     }
-
-      private JPanel createFeedbackPanel() {
+     
+    private JPanel createFeedbackPanel() {
         JPanel panel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -393,71 +396,48 @@ public class SalesmanMenu extends JFrame {
         backButton.addActionListener(e -> switchToWelcome());
         panel.add(backButton);
 
-        JLabel titleLabel = new JLabel("Ratings/Feedback");
+        JLabel titleLabel = new JLabel("Customer Feedback");
         titleLabel.setFont(new Font("Lucida Handwriting", Font.PLAIN, 24));
         titleLabel.setForeground(new Color(70, 50, 100));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        titleLabel.setBounds(200, 20, 300, 30);
+        titleLabel.setBounds(150, 20, 300, 30);
         panel.add(titleLabel);
 
-        JPanel entryPanel = new JPanel();
-        entryPanel.setLayout(new BorderLayout(10, 10));
-        entryPanel.setBounds(50, 70, 550, 350);
-        entryPanel.setOpaque(false);
+        // Main content panel
+        JPanel contentPanel = new JPanel(null);
+        contentPanel.setBounds(50, 70, 550, 400);
+        contentPanel.setOpaque(false);
+        panel.add(contentPanel);
 
-        // Car selection panel
-        JPanel carPanel = new JPanel(new BorderLayout(10, 5));
-        carPanel.setOpaque(false);
-
+        // Car selection
         JLabel carLabel = new JLabel("Select Car:");
         carLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         carLabel.setForeground(new Color(70, 50, 100));
-        carPanel.add(carLabel, BorderLayout.NORTH);
+        carLabel.setBounds(50, 20, 150, 25);
+        contentPanel.add(carLabel);
 
         JComboBox<String> carComboBox = new JComboBox<>();
         populateCarComboBoxForFeedback(carComboBox);
         carComboBox.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         carComboBox.setBackground(new Color(255, 255, 255, 180));
         carComboBox.setBorder(BorderFactory.createLineBorder(new Color(200, 180, 220), 1));
-        carComboBox.setPreferredSize(new Dimension(400, 30));
-        carComboBox.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value != null) {
-                    // Display just the car name without the ID
-                    String fullText = value.toString();
-                    setText(fullText.substring(0, fullText.lastIndexOf("(")).trim());
-                }
-                return this;
-            }
-        });
-        carPanel.add(carComboBox, BorderLayout.CENTER);
-
-        entryPanel.add(carPanel, BorderLayout.NORTH);
-
-        // Rating and feedback panel
-        JPanel ratingFeedbackPanel = new JPanel();
-        ratingFeedbackPanel.setLayout(new BoxLayout(ratingFeedbackPanel, BoxLayout.Y_AXIS));
-        ratingFeedbackPanel.setOpaque(false);
+        carComboBox.setBounds(200, 20, 300, 25);
+        contentPanel.add(carComboBox);
 
         // Rating section
-        JPanel ratingPanel = new JPanel(new BorderLayout(10, 5));
-        ratingPanel.setOpaque(false);
-        ratingPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-
-        JLabel ratingLabel = new JLabel("Rating (1-5 stars) *:");
+        JLabel ratingLabel = new JLabel("Rating (1-5 stars):");
         ratingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         ratingLabel.setForeground(new Color(70, 50, 100));
-        ratingPanel.add(ratingLabel, BorderLayout.NORTH);
+        ratingLabel.setBounds(50, 70, 150, 25);
+        contentPanel.add(ratingLabel);
 
-        // Create star rating buttons
         JPanel starPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        starPanel.setBounds(200, 70, 300, 30);
         starPanel.setOpaque(false);
-        
+
         ButtonGroup ratingGroup = new ButtonGroup();
         JToggleButton[] starButtons = new JToggleButton[5];
-        
+
         for (int i = 0; i < 5; i++) {
             final int rating = i + 1;
             starButtons[i] = new JToggleButton("★");
@@ -465,40 +445,32 @@ public class SalesmanMenu extends JFrame {
             starButtons[i].setForeground(new Color(200, 200, 200));
             starButtons[i].setBackground(new Color(255, 255, 255, 180));
             starButtons[i].setFocusPainted(false);
-            starButtons[i].setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-            starButtons[i].setPreferredSize(new Dimension(50, 40));
-            
+            starButtons[i].setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+
             starButtons[i].addActionListener(e -> {
                 // Update star colors
                 for (int j = 0; j < 5; j++) {
                     if (j < rating) {
-                        starButtons[j].setForeground(new Color(255, 215, 0)); // Gold color
-                        starButtons[j].setSelected(true);
+                        starButtons[j].setForeground(new Color(255, 215, 0)); // Gold
                     } else {
-                        starButtons[j].setForeground(new Color(200, 200, 200)); // Gray color
-                        starButtons[j].setSelected(false);
+                        starButtons[j].setForeground(new Color(200, 200, 200)); // Gray
                     }
                 }
             });
-            
+
             ratingGroup.add(starButtons[i]);
             starPanel.add(starButtons[i]);
         }
-        
-        ratingPanel.add(starPanel, BorderLayout.CENTER);
-        ratingFeedbackPanel.add(ratingPanel);
+        contentPanel.add(starPanel);
 
         // Feedback section
-        JPanel feedbackTextPanel = new JPanel(new BorderLayout(10, 5));
-        feedbackTextPanel.setOpaque(false);
-        feedbackTextPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
-
-        JLabel feedbackLabel = new JLabel("Feedback Comment (Optional):");
+        JLabel feedbackLabel = new JLabel("Feedback Comments:");
         feedbackLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         feedbackLabel.setForeground(new Color(70, 50, 100));
-        feedbackTextPanel.add(feedbackLabel, BorderLayout.NORTH);
+        feedbackLabel.setBounds(50, 120, 150, 25);
+        contentPanel.add(feedbackLabel);
 
-        JTextArea feedbackArea = new JTextArea(8, 30);
+        JTextArea feedbackArea = new JTextArea();
         feedbackArea.setLineWrap(true);
         feedbackArea.setWrapStyleWord(true);
         feedbackArea.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -508,115 +480,151 @@ public class SalesmanMenu extends JFrame {
             BorderFactory.createLineBorder(new Color(200, 180, 220), 1),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
-        JScrollPane scrollPane = new JScrollPane(feedbackArea);
-        feedbackTextPanel.add(scrollPane, BorderLayout.CENTER);
+        JScrollPane feedbackScroll = new JScrollPane(feedbackArea);
+        feedbackScroll.setBounds(50, 150, 450, 150);
+        contentPanel.add(feedbackScroll);
 
-        ratingFeedbackPanel.add(feedbackTextPanel);
-        entryPanel.add(ratingFeedbackPanel, BorderLayout.CENTER);
-
-        panel.add(entryPanel);
-
-        JButton submitBtn = new JButton("Save Feedback");
+        // Submit button
+        JButton submitBtn = new JButton("Submit Feedback");
         submitBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
         submitBtn.setForeground(Color.WHITE);
         submitBtn.setBackground(new Color(120, 80, 160));
-        submitBtn.setBounds(225, 450, 200, 40);
+        submitBtn.setBounds(200, 320, 200, 40);
         submitBtn.setFocusPainted(false);
         submitBtn.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        submitBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                submitBtn.setBackground(new Color(140, 100, 180));
-            }
-            @Override
-            public void mouseExited(MouseEvent e) {
-                submitBtn.setBackground(new Color(120, 80, 160));
-            }
-        });
         submitBtn.addActionListener(e -> {
             // Get selected rating
-            int selectedRating = 0;
+            int rating = 0;
             for (int i = 0; i < starButtons.length; i++) {
                 if (starButtons[i].isSelected()) {
-                    selectedRating = Math.max(selectedRating, i + 1);
+                    rating = i + 1;
                 }
             }
-            
-            saveFeedback(
-                (String) carComboBox.getSelectedItem(),
-                selectedRating,
-                feedbackArea.getText()
-            );
+
+            if (rating == 0) {
+                JOptionPane.showMessageDialog(this, "Please select a rating", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String carInfo = (String) carComboBox.getSelectedItem();
+            if (carInfo == null || carInfo.equals("No completed sales available")) {
+                JOptionPane.showMessageDialog(this, "Please select a car", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            saveFeedback(carInfo, rating, feedbackArea.getText());
         });
-        panel.add(submitBtn);
+        contentPanel.add(submitBtn);
 
         return panel;
     }
+
     
-     private void populateCarComboBoxForFeedback(JComboBox<String> comboBox) {
-    comboBox.removeAllItems();
-    
-    // Get cars that have been paid for (completed transactions)
-    List<String[]> cars = readCarData("data/Car.txt");
-    for (String[] car : cars) {
-        // Check if car belongs to current salesman and has been paid
-        if (car.length > 6 && car[6].equals(currentSalesmanID) && 
-            car[5].equalsIgnoreCase("paid")) {
-            // Format: "Make Model (CarID)"
-            comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
+    private void populateCarComboBoxForFeedback(JComboBox<String> comboBox) {
+        comboBox.removeAllItems();
+
+        // Get cars that have been paid for (completed transactions)
+        List<String[]> cars = readCarData("data/car.txt");
+        List<String[]> sales = readSalesData("data/sales.txt");
+
+        for (String[] car : cars) {
+            // Check if car belongs to current salesman and has been paid
+            if (car.length > 6 && car[6].equals(currentSalesmanID) && 
+                car[5].equalsIgnoreCase("paid")) {
+                // Check if this car has a sale record
+                boolean hasSale = false;
+                for (String[] sale : sales) {
+                    if (sale.length > 2 && sale[2].equals(car[0])) {
+                        hasSale = true;
+                        break;
+                    }
+                }
+
+                if (hasSale) {
+                    // Format: "Make Model (CarID)"
+                    comboBox.addItem(car[1] + " " + car[2] + " (" + car[0] + ")");
+                }
+            }
+        }
+
+        // If no paid cars found
+        if (comboBox.getItemCount() == 0) {
+            comboBox.addItem("No completed sales available");
         }
     }
-      
-   // If no paid cars found, you might want to add a placeholder
-    if (comboBox.getItemCount() == 0) {
-        comboBox.addItem("No completed sales available");
+    
+    private List<String[]> readSalesData(String filePath) {
+        List<String[]> salesList = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                salesList.add(line.split(","));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return salesList;
     }
-}
     
     private void saveFeedback(String carInfo, int rating, String feedbackText) {
-    if (carInfo == null || carInfo.equals("No completed sales available")) {
-        JOptionPane.showMessageDialog(this, "Please select a valid car", 
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+        try {
+            // Extract car ID from the selected item
+            String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+
+            // Find the sale ID for this car ID
+            String saleId = findSaleIdByCarId(carId);
+
+            if (saleId == null) {
+                JOptionPane.showMessageDialog(this, "Sale record not found for this car", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Create feedback record
+            String feedbackRecord = String.join(",",
+                saleId,
+                currentSalesmanID,
+                String.valueOf(rating),
+                feedbackText.replace(",", ";"), // Sanitize commas
+                java.time.LocalDate.now().toString()
+            );
+
+            // Save to feedback file
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/feedback.txt", true))) {
+                writer.write(feedbackRecord);
+                writer.newLine();
+            }
+
+            JOptionPane.showMessageDialog(this, 
+                "Feedback saved successfully!", 
+                "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            // Clear form and return to welcome screen
+            switchToWelcome();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error saving feedback: " + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
-    if (rating == 0) {
-        JOptionPane.showMessageDialog(this, "Please select a rating (1-5 stars)", 
-            "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    try {
-        // Extract car ID from the selected item
-        String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
-        
-        // Create feedback record string
-        // Format: CarID, SalesmanID, Rating, Feedback, Date
-        String feedbackRecord = String.format("%s,%s,%d,%s,%s", 
-            carId, 
-            currentSalesmanID, 
-            rating, 
-            feedbackText.replace(",", ";"), // Replace commas to avoid CSV issues
-            java.time.LocalDate.now().toString()
-        );
-        
-        // Save to feedback file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/feedback.txt", true))) {
-            writer.write(feedbackRecord);
-            writer.newLine();
+    // Add this helper method to find Sale ID by Car ID
+private String findSaleIdByCarId(String carId) {
+    try (BufferedReader br = new BufferedReader(new FileReader("data/sales.txt"))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",");
+            // Format: SaleID, CustomerID, CarID, SalesmanID, Price, Method, Date
+            if (parts.length >= 3 && parts[2].equals(carId) && parts[3].equals(currentSalesmanID)) {
+                return parts[0]; // Return Sale ID
+            }
         }
-        
-        JOptionPane.showMessageDialog(this, 
-            "Feedback saved successfully!\nRating: " + rating + " stars", 
-            "Success", JOptionPane.INFORMATION_MESSAGE);
-        
-        // Clear the form and return to welcome screen
-        switchToWelcome();
-        
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "Error saving feedback: " + e.getMessage(),
-            "Error", JOptionPane.ERROR_MESSAGE);
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+    return null; // Sale ID not found
 }
     
     private void showStatusUpdateDialog(String[] car) {
@@ -726,7 +734,7 @@ public class SalesmanMenu extends JFrame {
 
     private void updateCarStatus(String carID, String newStatus) {
         try {
-            List<String[]> cars = readCarData("data/Car.txt");
+            List<String[]> cars = readCarData("data/car.txt");
             
             for (String[] car : cars) {
                 if (car[0].equals(carID)) {
@@ -735,7 +743,7 @@ public class SalesmanMenu extends JFrame {
                 }
             }
             
-            writeCarData("data/Car.txt", cars);
+            writeCarData("data/car.txt", cars);
             
             JOptionPane.showMessageDialog(this, "Car status updated successfully!", 
                 "Success", JOptionPane.INFORMATION_MESSAGE);
@@ -788,7 +796,7 @@ public class SalesmanMenu extends JFrame {
     scrollPane.getViewport().setOpaque(false);
     carPanel.add(scrollPane);
 
-       List<String[]> carData = readCarData("data/Car.txt");
+       List<String[]> carData = readCarData("data/car.txt");
     
     // Filter cars to show only those assigned to the current salesman
     for (String[] car : carData) {
@@ -928,7 +936,7 @@ public class SalesmanMenu extends JFrame {
 
      private void populateCarComboBoxForComments(JComboBox<String> comboBox) {
          //Add cars from data file 
-        List<String[]> cars = readCarData("data/Car.txt");
+        List<String[]> cars = readCarData("data/car.txt");
         for (String[] car : cars) {
             if (car[5].equalsIgnoreCase("paid")) {
                 // Format: "Make Model (ID)"
@@ -1054,24 +1062,38 @@ private void writeAppointmentData(String filePath, List<String[]> appointments) 
     }
 }
     
-    
+   
+private void saveComment(String carInfo, String comment) {
+    if (comment.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Please enter a comment", 
+            "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
 
-    private void saveComment(String carInfo, String comment) {
-        if (comment.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter a comment", 
+    try {
+        // Extract car ID from the selected item
+        String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
+        
+        // Find the sale ID for this car ID in sales.txt
+        String saleId = findSaleIdByCarId(carId);
+        
+        if (saleId == null) {
+            JOptionPane.showMessageDialog(this, "Sale record not found for this car", 
                 "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        try {
-            String carId = carInfo.substring(carInfo.lastIndexOf("(") + 1, carInfo.length() - 1);
-            
-            // Create comment record string
-        String commentRecord = String.format("%s,%s,%s,%s", 
-            carId, currentSalesmanID, java.time.LocalDate.now().toString(), comment);
         
-            // Save to Sales Comment.txt
-           try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Sales Comment.txt", true))) {
+        // Create comment record string
+        // Format: SaleID, SalesmanID, Comment, Date
+        String commentRecord = String.format("%s,%s,%s,%s", 
+            saleId, 
+            currentSalesmanID, 
+            comment.replace(",", " "), // Replace commas to avoid CSV issues
+            java.time.LocalDate.now().toString()
+        );
+        
+        // Save to Sales Comment.txt
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/Sales Comment.txt", true))) {
             writer.write(commentRecord);
             writer.newLine();
         }
@@ -1230,5 +1252,23 @@ private void writeAppointmentData(String filePath, List<String[]> appointments) 
         // Force UI update
         revalidate();
         repaint();
+    }
+    
+    private String[] getSalesmanData(String salesmanID) {
+        try (BufferedReader br = new BufferedReader(new FileReader("data/salesman.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 5 && parts[0].equals(salesmanID)) {
+                    return parts;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Return default values if file can't be read
+            return new String[]{salesmanID, "Salesman", "0123456789", "salesman@example.com", "password123"};
+        }
+        // Return default values if salesman not found
+        return new String[]{salesmanID, "Salesman", "0123456789", "salesman@example.com", "password123"};
     }
 }

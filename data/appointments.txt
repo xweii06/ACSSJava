@@ -1,1 +1,5 @@
 d786a05a,C0001,CAR01,Perodua Myvi,45555,2025-06-13,paid
+b0ce4030,C0001,CAR02,Perodua Axia,59500,2025-05-29,cancelled
+f7322100,C0001,CAR02,Perodua Axia,59500,2025-06-02,pending
+f0dc971e,C0002,CAR03,Proton Saga,40000,2025-06-02,pending
+9ec7700c,C0002,CAR04,Toyota Vios,89000,2025-06-02,paid

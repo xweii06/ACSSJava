@@ -19,7 +19,6 @@ public class FeedbackPanel extends JPanel {
     private JButton prevButton;
     private JButton nextButton;
     private JLabel feedbackIDLabel;
-    private JLabel saleIDLabel;
     private JLabel userIDLabel;
     private JLabel ratingLabel;
     private JTextArea commentsArea;
@@ -48,7 +47,7 @@ public class FeedbackPanel extends JPanel {
         searchButton = new JButton("Search");
         searchButton.addActionListener(this::performSearch);
         
-        searchPanel.add(new JLabel("Sale/Feedback ID or User:"), BorderLayout.WEST);
+        searchPanel.add(new JLabel("Feedback ID or User:"), BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(searchButton, BorderLayout.EAST);
         
@@ -65,10 +64,6 @@ public class FeedbackPanel extends JPanel {
         detailsPanel.add(new JLabel("Feedback ID:"));
         feedbackIDLabel = new JLabel();
         detailsPanel.add(feedbackIDLabel);
-        
-        detailsPanel.add(new JLabel("Sale ID:"));
-        saleIDLabel = new JLabel();
-        detailsPanel.add(saleIDLabel);
         
         detailsPanel.add(new JLabel("User ID:"));
         userIDLabel = new JLabel();
@@ -196,7 +191,6 @@ public class FeedbackPanel extends JPanel {
 
     private void clearDisplay() {
         feedbackIDLabel.setText("");
-        saleIDLabel.setText("");
         userIDLabel.setText("");
         ratingLabel.setText("");
         commentsArea.setText("");

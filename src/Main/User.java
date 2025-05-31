@@ -11,7 +11,6 @@ public abstract class User {
         this.password = password;
     }
 
-    // Common getters (encapsulation)
     public String getId() {
         return id;
     }
@@ -22,7 +21,6 @@ public abstract class User {
         return password;
     }
     
-    // Common setters (encapsulation)
     public void setId(String id) {
         this.id = id;
     }

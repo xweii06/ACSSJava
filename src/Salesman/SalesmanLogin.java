@@ -157,7 +157,7 @@ public class SalesmanLogin extends JFrame {
             "Welcome back, " + salesmanName,
             "Login Successful", JOptionPane.INFORMATION_MESSAGE);
         System.out.println("SalesmanID [" + salesmanID + "] logged in.");
-        FrameManager.showFrame(new SalesmanMenu());
+        FrameManager.showFrame(new SalesmanMenu(salesmanID));
     }
 
     private void handleFailedLogin(String salesmanID) {

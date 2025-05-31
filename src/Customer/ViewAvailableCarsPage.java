@@ -20,6 +20,7 @@ public class ViewAvailableCarsPage extends JFrame {
     private JTextField searchField;
     private List<String[]> allCars;
     private Timer autoRefreshTimer;
+    private ViewAppointmentsFrame appointmentsFrame;
 
     public ViewAvailableCarsPage(Customer customer) {
         this.customer = customer;
@@ -140,7 +141,17 @@ public class ViewAvailableCarsPage extends JFrame {
 
         JButton bookBtn = new JButton("Book");
         styleButton(bookBtn);
-        bookBtn.addActionListener(e -> new BookAppointmentPage(customer, car));
+        bookBtn.addActionListener(e -> {
+            // Create callback to refresh appointments after booking
+            Runnable onBookingConfirmed = () -> {
+                // Refresh appointments page if it's open
+                if (appointmentsFrame != null && appointmentsFrame.isDisplayable()) {
+                    appointmentsFrame.refreshAppointments();
+                }
+            };
+            // Create BookAppointmentPage with callback
+            new BookAppointmentPage(customer, car, onBookingConfirmed);
+        });
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         btnPanel.setOpaque(false);
@@ -213,13 +224,32 @@ public class ViewAvailableCarsPage extends JFrame {
 }
 
 class ViewAppointmentsFrame extends JFrame {
+    private ViewAppointmentsPage appointmentsPage;
+    
     public ViewAppointmentsFrame(Customer customer) {
         setTitle("My Appointments");
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        add(new ViewAppointmentsPage(customer), BorderLayout.CENTER);
+        
+        appointmentsPage = new ViewAppointmentsPage(customer);
+        add(appointmentsPage, BorderLayout.CENTER);
         setVisible(true);
+    }
+    
+    // Method to refresh appointments from outside
+    public void refreshAppointments() {
+        if (appointmentsPage != null) {
+            appointmentsPage.refreshAppointments();
+        }
+    }
+    
+    @Override
+    public void dispose() {
+        if (appointmentsPage != null) {
+            appointmentsPage.stopAutoRefresh();
+        }
+        super.dispose();
     }
 }

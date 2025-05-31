@@ -6,6 +6,11 @@ import Staff.StaffLogin;
 import Salesman.SalesmanLogin;
 
 import java.awt.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import javax.swing.*;
 
 public class MainMenu extends JFrame {
@@ -20,6 +25,7 @@ public class MainMenu extends JFrame {
     private JLabel instructionText;
     
     public MainMenu(){
+        initializeSuperAdmin();
         // Frame setup
         this.setTitle("APU Car Sales System");
         this.setSize(500, 250); // size can change
@@ -80,5 +86,28 @@ public class MainMenu extends JFrame {
     
     public static void main(String[] args) {
         FrameManager.showFrame(new MainMenu());   
+    }
+    
+    private void initializeSuperAdmin() {
+        Path staffFilePath = Paths.get("data/staff.txt");
+        String superAdminData = "M00,Name,SuperAdmin,8888\n";
+        try {
+            if (Files.notExists(staffFilePath) || Files.size(staffFilePath) == 0) {
+                Files.createDirectories(staffFilePath.getParent());
+                
+                Files.write(staffFilePath, superAdminData.getBytes());
+                System.out.println("SuperAdmin created.");
+            } else {
+                // check if a SuperAdmin record already exists inside the file
+                boolean superAdminExists = Files.lines(staffFilePath)
+                    .anyMatch(line -> line.contains("SuperAdmin"));
+                if (!superAdminExists) {
+                    Files.write(staffFilePath, superAdminData.getBytes(), StandardOpenOption.APPEND);
+                    System.out.println("SuperAdmin added.");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

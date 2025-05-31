@@ -8,6 +8,7 @@ import java.util.List;
 
 public class AppointmentManager {
     private static final String FILE_PATH = "data/appointments.txt";
+    private static final String CAR_FILE_PATH = "data/Car.txt";
 
     // Save a new appointment to file
     public static void saveAppointment(String orderId, String customerId, String carId, String model,
@@ -17,11 +18,40 @@ public class AppointmentManager {
             String line = String.join(",", orderId, customerId, carId, model, price, dueDate, "pending");
             writer.write(line);
             writer.newLine();
+            updateCarStatus(carId, "booked");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+    
+    private static void updateCarStatus(String carId, String newStatus) {
+        List<String[]> cars = new ArrayList<>();
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(CAR_FILE_PATH))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 7 && parts[0].equals(carId)) {
+                    parts[5] = newStatus; // Update car status (assuming status is at index 5)
+                }
+                cars.add(parts);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
+        // Write updated cars back to file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CAR_FILE_PATH))) {
+            for (String[] car : cars) {
+                writer.write(String.join(",", car));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     // Read all appointments for a customer
     public static List<String[]> readAppointments(String customerId) {
         List<String[]> list = new ArrayList<>();
@@ -62,7 +92,7 @@ public class AppointmentManager {
                         String status = parts[6];
 
                         if (status.equalsIgnoreCase("pending") && today.isAfter(dueDate)) {
-                            parts[6] = "overdue";
+                            parts[6] = "cancelled";
                         }
                     } catch (DateTimeParseException ex) {
                         System.err.println("Invalid date format in: " + line);

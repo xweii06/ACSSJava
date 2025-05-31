@@ -1,6 +1,6 @@
-CAR01,Perodua Myvi,2022,red,45555,Paid,S01,data\carImg\car_CAR01.png
-CAR02,Perodua Axia,2024,blue,59500,available,S02,data\carImg\car_CAR02.png
-CAR03,Proton Saga,2025,red,40000,available,S03,data\carImg\car_CAR03.png
-CAR04,Toyota Vios,2025,white,89000,available,S03,data\carImg\car_CAR04.png
+CAR01,Perodua Myvi,2022,red,45555,paid,S01,data\carImg\car_CAR01.png
+CAR02,Perodua Axia,2024,blue,59500,booked,S02,data\carImg\car_CAR02.png
+CAR03,Proton Saga,2025,red,40000,booked,S03,data\carImg\car_CAR03.png
+CAR04,Toyota Vios,2025,white,89000,paid,S03,data\carImg\car_CAR04.png
 CAR05,Perodua Bezza,2025,black,53980,available,S01,data\carImg\car_CAR05.jpg
 CAR06,Honda Civic,2025,black,123000,available,S01,data\carImg\car_CAR06.png

@@ -66,16 +66,16 @@ public class Feedback {
             if (line.isEmpty()) continue;
 
             // Use regex to split on commas not inside quotes
-            String[] parts = line.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            String[] parts = line.split(",");
 
-            if (parts.length != 5) {
+            if (parts.length != 4) {
                 System.err.println("Skipping malformed feedback record: " + line);
                 continue;
             }
 
             try {
                 // Unescape comments
-                String comments = parts[4].trim();
+                String comments = parts[3].trim();
                 if (comments.startsWith("\"") && comments.endsWith("\"")) {
                     comments = comments.substring(1, comments.length()-1)
                                      .replace("\"\"", "\"");
@@ -98,15 +98,14 @@ public class Feedback {
     
     @Override
     public String toString() {
-        // Handle null comments
-        String safeComments = comments != null ? 
-            "\"" + comments.replace("\"", "\"\"") + "\"" : "";
+        String escapedComments = comments != null ? 
+            "\"" + comments.replace("\"", "\"\"") + "\"" : "\"\"";
 
         return String.join(",",
             feedbackID,
             userID,
             String.valueOf(rating),
-            safeComments
+            escapedComments
         );
     }
 }
