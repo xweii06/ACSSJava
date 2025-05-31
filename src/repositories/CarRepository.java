@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CarRepository {
-    private static final String IMAGE_DIR = "data/car_Img";
     private static final String CAR_FILE = "car.txt";
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"};
@@ -32,7 +31,8 @@ public class CarRepository {
                     }
                     if (parts.length >= 7) {
                         Car car = new Car(
-                            parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], imagePath
+                                parts[0], parts[1], parts[2], parts[3], parts[4], parts[5], parts[6], 
+                                imagePath.isEmpty() ? null : imagePath
                         );
                         cars.add(car);
                     }
@@ -122,6 +122,7 @@ public class CarRepository {
     }
     
     public static void validateImageFile(File file) throws IOException {
+        if (file == null) return;
         if (!file.exists()) {
             throw new IOException("Selected file does not exist");
         }

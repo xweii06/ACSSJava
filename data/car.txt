@@ -4,3 +4,6 @@ CAR03,Proton Saga,2025,red,40000,booked,S03,data\carImg\car_CAR03.png
 CAR04,Toyota Vios,2025,white,89000,paid,S03,data\carImg\car_CAR04.png
 CAR05,Perodua Bezza,2025,black,53980,available,S01,data\carImg\car_CAR05.jpg
 CAR06,Honda Civic,2025,black,123000,available,S01,data\carImg\car_CAR06.png
+CAR07,Perodua Viva,2023,silver,138000,available,S02,
+CAR08,Toyota Camry,2024,silver,212300,available,S01,
+CAR09,Proton X70,2024,blue,120080,available,S03,

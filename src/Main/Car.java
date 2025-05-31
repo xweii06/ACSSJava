@@ -34,6 +34,6 @@ public class Car {
     
     public String toDataString() {
         return String.join(",",carID,model,year,color,
-                price,status, assignedSMID,imagePath);
+                price,status, assignedSMID, imagePath != null ? imagePath : "");
     }
 }

@@ -40,7 +40,7 @@ public class Sale {
     public void setPrice(double price) { this.price = price; }
 
     public String getPaymentMethod() { return paymentMethod; }
-    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; } // Fixed: Added missing closing brace
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
 
     public Date getSaleDate() { return saleDate; }
     public void setSaleDate(Date saleDate) { this.saleDate = saleDate; }

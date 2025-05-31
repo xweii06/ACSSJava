@@ -8,7 +8,7 @@ public class Staff extends User {
     
     public Staff(String id, String name, String role, String password) {
         super(id,name,password);
-        this.setRole(role);
+        this.role = role;
     }
     
     public String getRole() {

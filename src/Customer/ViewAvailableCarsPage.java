@@ -119,12 +119,31 @@ public class ViewAvailableCarsPage extends JFrame {
         JPanel card = new JPanel(new BorderLayout());
         card.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         card.setBackground(Color.WHITE);
-
-        ImageIcon icon = new ImageIcon(car[7]);
-        Image scaledImage = icon.getImage().getScaledInstance(200, 120, Image.SCALE_SMOOTH);
-        JLabel carImage = new JLabel(new ImageIcon(scaledImage));
-        carImage.setHorizontalAlignment(JLabel.CENTER);
-        card.add(carImage, BorderLayout.CENTER);
+        
+        JLabel imageLabel;
+        if (car.length < 8) {
+            imageLabel = createNoImageLabel();
+        } else {
+            String imagePath = car[7].trim();
+            if (imagePath != null) {
+                try {
+                    File imageFile = new File(imagePath);
+                    if (imageFile.exists() && imageFile.canRead()) {
+                        ImageIcon icon = new ImageIcon(imagePath);
+                        Image scaledImage = icon.getImage().getScaledInstance(200, 120, Image.SCALE_SMOOTH);
+                        imageLabel = new JLabel(new ImageIcon(scaledImage));
+                    } else {
+                        imageLabel = createNoImageLabel();
+                    }
+                } catch (Exception e) {
+                    imageLabel = createNoImageLabel();
+                }
+            } else {
+                imageLabel = createNoImageLabel();
+            }
+        }
+        imageLabel.setHorizontalAlignment(JLabel.CENTER);
+        card.add(imageLabel, BorderLayout.CENTER);
 
         JLabel title = new JLabel(car[1] + " - " + car[2], JLabel.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -142,14 +161,11 @@ public class ViewAvailableCarsPage extends JFrame {
         JButton bookBtn = new JButton("Book");
         styleButton(bookBtn);
         bookBtn.addActionListener(e -> {
-            // Create callback to refresh appointments after booking
             Runnable onBookingConfirmed = () -> {
-                // Refresh appointments page if it's open
                 if (appointmentsFrame != null && appointmentsFrame.isDisplayable()) {
                     appointmentsFrame.refreshAppointments();
                 }
             };
-            // Create BookAppointmentPage with callback
             new BookAppointmentPage(customer, car, onBookingConfirmed);
         });
 
@@ -163,6 +179,12 @@ public class ViewAvailableCarsPage extends JFrame {
         card.add(bottom, BorderLayout.SOUTH);
 
         return card;
+    }
+
+    private JLabel createNoImageLabel() {
+        ImageIcon icon = new ImageIcon("src/resources/noCar.png");
+        JLabel imageLabel = new JLabel(icon);
+        return imageLabel;
     }
 
     private void styleButton(JButton button) {
@@ -189,7 +211,7 @@ public class ViewAvailableCarsPage extends JFrame {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length >= 8) {
+                if (parts.length >= 7) {
                     String carId = parts[0];
                     String status = parts[5].trim();
                     if ("Available".equalsIgnoreCase(status) && !bookedCarIds.contains(carId)) {

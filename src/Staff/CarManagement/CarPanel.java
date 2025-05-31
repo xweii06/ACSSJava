@@ -204,7 +204,7 @@ public class CarPanel extends JPanel {
     private void showImageInFrame(Car car) {
         String imagePath = car.getImagePath();
         
-        if (imagePath == null || imagePath.isEmpty()) {
+        if (imagePath == null) {
             JOptionPane.showMessageDialog(this, 
                 "No image available for this car", 
                 "Image Not Found", JOptionPane.INFORMATION_MESSAGE);

@@ -117,6 +117,8 @@ public class CarDialog extends JDialog {
         
         if (car != null) {
             imagePath = car.getImagePath();
+        } else {
+            imagePath = null;
         }
         
         // Buttons
@@ -149,11 +151,14 @@ public class CarDialog extends JDialog {
     private void chooseImage(ActionEvent e) {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
-            "Image files", "jpg", "jpeg", "png", "gif");
+            "Image files", "jpg", "jpeg", "png");
         fileChooser.setFileFilter(filter);
         
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
+            if (selectedFile == null) {
+                imagePathLabel.setText("No image selected");
+            }
             try {
                 CarRepository.validateImageFile(selectedFile);
                 String extension = getFileExtension(selectedFile.getName());
@@ -164,19 +169,22 @@ public class CarDialog extends JDialog {
                     ex.getMessage(),
                     "Image Error", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            imagePath = null;
+            imagePathLabel.setText("No image selected");
         }
     }
     
     public static String getFileExtension(String filename) {
         if (filename == null || filename.isEmpty()) {
-            return "";
+            return " ";
         }
 
         int dotIndex = filename.lastIndexOf('.');
         if (dotIndex > 0 && dotIndex < filename.length() - 1) {
             return filename.substring(dotIndex + 1).toLowerCase();
         }
-        return "";
+        return " ";
     }
     
     public Car getCar() {
@@ -188,7 +196,7 @@ public class CarDialog extends JDialog {
             priceField.getText().trim(),
             statusField.getText().trim(),
             (String) assignedSMIDComboBox.getSelectedItem(),
-            imagePath
+            "".equals(imagePath) ? null : imagePath
         );
     }
     

@@ -10,18 +10,14 @@ import java.io.IOException;
 import java.time.Year;
 import java.util.List;
 import repositories.CustomerRepository;
-import repositories.SaleRepository;
-
 
 public class CarService {
     private final CarRepository repository;
     private final SalesmanRepository salesmanRepo;
-    private final SaleRepository saleRepo;
 
     public CarService(CarRepository repository) {
         this.repository = repository;
         this.salesmanRepo = new SalesmanRepository();
-        this.saleRepo = new SaleRepository();
     }
 
     public List<Car> getAllCars() throws IOException {
