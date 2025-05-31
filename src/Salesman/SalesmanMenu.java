@@ -587,8 +587,7 @@ public class SalesmanMenu extends JFrame {
                 saleId,
                 currentSalesmanID,
                 String.valueOf(rating),
-                feedbackText.replace(",", ";"), // Sanitize commas
-                java.time.LocalDate.now().toString()
+                feedbackText.replace(",", " ") // Sanitize commas
             );
 
             // Save to feedback file
@@ -628,20 +627,20 @@ private String findSaleIdByCarId(String carId) {
 }
     
     private void showStatusUpdateDialog(String[] car) {
-    // First show password verification dialog
-    String password = JOptionPane.showInputDialog(this, 
-        "Enter Salesman Password to Update Status:", 
-        "Password Verification", 
-        JOptionPane.PLAIN_MESSAGE);
-    
-    // Verify password (using "0123" as the salesman password)
-    if (password == null || !password.equals("0123")) {
-        JOptionPane.showMessageDialog(this, 
-            "Incorrect password. Only authorized salesman can update car status.",
-            "Access Denied", 
-            JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+        // First show password verification dialog
+        String password = JOptionPane.showInputDialog(this, 
+            "Enter Salesman Password to Update Status:", 
+            "Password Verification", 
+            JOptionPane.PLAIN_MESSAGE);
+
+        // Verify password (using "0123" as the salesman password)
+        if (password == null || !password.equals("0123")) {
+            JOptionPane.showMessageDialog(this, 
+                "Incorrect password. Only authorized salesman can update car status.",
+                "Access Denied", 
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
       // Proceed with status update dialog if password is correct
     JDialog dialog = new JDialog(this, "Update Car Status", true);
     dialog.setSize(400, 300);
