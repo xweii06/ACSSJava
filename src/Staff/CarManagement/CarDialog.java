@@ -93,7 +93,7 @@ public class CarDialog extends JDialog {
         formPanel.add(new JLabel("Salesman ID:"));
         try {
             List<String> salesmanIDs = carService.getAllSalesmanIDs();
-            assignedSMIDComboBox = new JComboBox<>(salesmanIDs.toArray(new String[0]));
+            assignedSMIDComboBox = new JComboBox<>(salesmanIDs.toArray(String[]::new));
             if (car != null && car.getAssignedSalesmanID() != null) {
                 assignedSMIDComboBox.setSelectedItem(car.getAssignedSalesmanID());
             }

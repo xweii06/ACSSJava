@@ -1,6 +1,5 @@
 package repositories;
 
-import repositories.CustomerRepository;
 import Customer.Customer;
 import Staff.CustomerManagement.PendingCustomer;
 import utils.DataIO;

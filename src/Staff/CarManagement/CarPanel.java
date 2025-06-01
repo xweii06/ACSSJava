@@ -277,16 +277,16 @@ public class CarPanel extends JPanel {
         @Override
         public Object getValueAt(int row, int column) {
             Car car = cars.get(row);
-            switch (column) {
-                case 0: return car.getCarID();
-                case 1: return car.getModel();
-                case 2: return car.getYear();
-                case 3: return car.getColor();
-                case 4: return car.getPrice();
-                case 5: return car.getStatus();
-                case 6: return car.getAssignedSalesmanID();
-                default: return null;
-            }
+            return switch (column) {
+                case 0 -> car.getCarID();
+                case 1 -> car.getModel();
+                case 2 -> car.getYear();
+                case 3 -> car.getColor();
+                case 4 -> car.getPrice();
+                case 5 -> car.getStatus();
+                case 6 -> car.getAssignedSalesmanID();
+                default -> null;
+            };
         }
     }
 }

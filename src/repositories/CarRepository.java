@@ -5,9 +5,6 @@ import Staff.CarManagement.CarDialog;
 import java.io.File;
 import utils.DataIO;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +13,6 @@ public class CarRepository {
     private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
     private static final String[] ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"};
     
-
     public List<Car> getAllCars() throws IOException {
         List<Car> cars = new ArrayList<>();
         String data = DataIO.readFile(CAR_FILE);
@@ -73,7 +69,7 @@ public class CarRepository {
     public void deleteCar(String carID) throws IOException {
         Car car = getCarByID(carID);
         if (car != null && car.getImagePath() != null) {
-            deleteCarImage(car.getImagePath());
+            DataIO.deleteCarImage(car.getImagePath());
         }
         
         List<Car> cars = getAllCars();
@@ -89,25 +85,7 @@ public class CarRepository {
         
         // Delete the associated image file
         if (imagePathToDelete != null) {
-            deleteCarImage(imagePathToDelete);
-        }
-    }
-    
-    private void deleteCarImage(String imagePath) {
-        if (imagePath == null || imagePath.trim().isEmpty()) {
-            return;
-        }
-        try {
-            Path imageFile = Paths.get(imagePath).normalize();
-            if (Files.exists(imageFile)) {
-                Files.delete(imageFile);
-                System.out.println("Successfully deleted image: " + imageFile.toAbsolutePath());
-            } else {
-                System.out.println("Image file not found: " + imageFile.toAbsolutePath());
-            }
-        } catch (Exception ex) {
-            System.err.println("Exception when deleting image: " + ex.getMessage());
-            ex.printStackTrace();
+            DataIO.deleteCarImage(imagePathToDelete);
         }
     }
     

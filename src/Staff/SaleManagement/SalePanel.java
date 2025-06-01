@@ -3,6 +3,7 @@ package Staff.SaleManagement;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.ArrayList;
@@ -73,7 +74,7 @@ public class SalePanel extends JPanel {
         try {
             List<Sale> sales = repository.getAllSales();
             tableModel.setSales(sales);
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Error loading sales data: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -107,16 +108,16 @@ public class SalePanel extends JPanel {
         @Override
         public Object getValueAt(int row, int column) {
             Sale sale = sales.get(row);
-            switch (column) {
-                case 0: return sale.getSaleID();
-                case 1: return sale.getCustomerID();
-                case 2: return sale.getCarID();
-                case 3: return sale.getSalesmanID();
-                case 4: return sale.getPrice();
-                case 5: return sale.getPaymentMethod();
-                case 6: return new SimpleDateFormat("yyyy-MM-dd").format(sale.getSaleDate());
-                default: return null;
-            }
+            return switch (column) {
+                case 0 -> sale.getSaleID();
+                case 1 -> sale.getCustomerID();
+                case 2 -> sale.getCarID();
+                case 3 -> sale.getSalesmanID();
+                case 4 -> sale.getPrice();
+                case 5 -> sale.getPaymentMethod();
+                case 6 -> new SimpleDateFormat("yyyy-MM-dd").format(sale.getSaleDate());
+                default -> null;
+            };
         }
 
         @Override

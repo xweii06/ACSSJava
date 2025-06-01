@@ -48,7 +48,7 @@ public class ReportsPanel extends JPanel {
             ((JLabel)((JPanel)cards[3]).getComponent(1)).setText(
                     activeCustomer != null ? activeCustomer : "No data");
             
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, 
                 "Error loading report data: " + ex.getMessage(),
                 "Error", JOptionPane.ERROR_MESSAGE);

@@ -123,25 +123,25 @@ public class AppointmentPanel extends JPanel {
         public Object getValueAt(int row, int column) {
             Appointment appointment = appointments.get(row);
             
-            switch (column) {
-                case 0: return appointment.getOrderID();
-                case 1: return appointment.getCustomerID();
-                case 2: return appointment.getCarID();
-                case 3: return appointment.getModel();
-                case 4: return appointment.getPrice();
-                case 5: return appointment.getDueDate();
-                case 6: return appointment.getStatus();
-                default: return null;
-            }
+            return switch (column) {
+                case 0 -> appointment.getOrderID();
+                case 1 -> appointment.getCustomerID();
+                case 2 -> appointment.getCarID();
+                case 3 -> appointment.getModel();
+                case 4 -> appointment.getPrice();
+                case 5 -> appointment.getDueDate();
+                case 6 -> appointment.getStatus();
+                default -> null;
+            };
         }
         
         @Override
         public Class<?> getColumnClass(int columnIndex) {
-            switch (columnIndex) {
-                case 4: return Double.class;
-                case 5: return LocalDate.class;
-                default: return String.class;
-            }
+            return switch (columnIndex) {
+                case 4 -> Double.class;
+                case 5 -> LocalDate.class;
+                default -> String.class;
+            };
         }
     }
 }

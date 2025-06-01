@@ -5,6 +5,7 @@ import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import utils.TableUtils;
@@ -74,7 +75,7 @@ public class CustomerPanel extends JPanel {
         try {
             List<Customer> customers = service.getAllCustomers();
             tableModel.setCustomers(customers);
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Error loading customer data: " + e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -166,13 +167,13 @@ public class CustomerPanel extends JPanel {
         @Override
         public Object getValueAt(int row, int column) {
             Customer customer = customers.get(row);
-            switch (column) {
-                case 0: return customer.getId();
-                case 1: return customer.getName();
-                case 2: return customer.getPhone();
-                case 3: return customer.getEmail();
-                default: return null;
-            }
+            return switch (column) {
+                case 0 -> customer.getId();
+                case 1 -> customer.getName();
+                case 2 -> customer.getPhone();
+                case 3 -> customer.getEmail();
+                default -> null;
+            };
         }
     }
 }

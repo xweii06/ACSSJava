@@ -101,7 +101,6 @@ public class SalesmanService {
                     maxID = currentID;
                 }
             } catch (NumberFormatException ex) {
-                continue;
             }
         }
         

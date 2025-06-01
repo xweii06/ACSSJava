@@ -118,7 +118,6 @@ public class CarService {
                     maxID = currentID;
                 }
             } catch (NumberFormatException ex) {
-                continue;
             }
         }
         return "CAR" + String.format("%02d", maxID + 1);

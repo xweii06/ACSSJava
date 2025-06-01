@@ -35,7 +35,6 @@ public class AppointmentRepository {
                 }
             } catch (Exception ex) {
                 System.err.println("Error parsing appointment record: " + line);
-                ex.printStackTrace();
             }
         }
         return appointments;
@@ -135,7 +134,6 @@ public class AppointmentRepository {
             );
         } catch (NumberFormatException | java.time.format.DateTimeParseException ex) {
             System.err.println("Error parsing appointment fields: " + line);
-            ex.printStackTrace();
             return null;
         }
     }

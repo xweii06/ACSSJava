@@ -17,7 +17,6 @@ public class FeedbackManager {
                 }
             }
         } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
         }
         return map;
     }

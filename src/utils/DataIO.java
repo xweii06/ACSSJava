@@ -64,7 +64,6 @@ public class DataIO {
                 return new ImageIcon(ImageIO.read(is));
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
         }
         return new ImageIcon();
     }
@@ -93,6 +92,25 @@ public class DataIO {
 
         } catch (IOException ex) {
             throw new IOException("Failed to save image: " + ex.getMessage());
+        }
+    }
+    
+    // for deleting car img
+    public static void deleteCarImage(String imagePath) {
+        if (imagePath == null || imagePath.trim().isEmpty()) {
+            return;
+        }
+        try {
+            Path imageFile = Paths.get(imagePath).normalize();
+            if (Files.exists(imageFile)) {
+                Files.delete(imageFile);
+                System.out.println("Successfully deleted image: " + imageFile.toAbsolutePath());
+            } else {
+                System.out.println("Image file not found: " + imageFile.toAbsolutePath());
+            }
+        } catch (Exception ex) {
+            System.err.println("Exception when deleting image: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 }

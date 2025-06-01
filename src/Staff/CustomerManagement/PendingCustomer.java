@@ -3,8 +3,8 @@ package Staff.CustomerManagement;
 import Main.User;
 
 public class PendingCustomer extends User {
-    private String phone;
-    private String email;
+    private final String phone;
+    private final String email;
 
     public PendingCustomer(String id, String name, String phone, String email, String password) {
         super(id, name, password);

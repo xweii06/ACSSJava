@@ -26,15 +26,14 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import javax.swing.border.Border;
-
 import utils.DataIO;
 
 public class StaffMenu extends JFrame {
     
-    private StaffService staffService;
-    private SalesmanService salesmanService;
-    private CustomerService customerService;
-    private CarService carService;
+    private final StaffService staffService;
+    private final SalesmanService salesmanService;
+    private final CustomerService customerService;
+    private final CarService carService;
     
     private Staff currentStaff;
     private static final String EXITPIN_FILE = "exitPIN.txt";
@@ -43,7 +42,6 @@ public class StaffMenu extends JFrame {
     
     private JPanel mainPanel, sidebar, contentPanel, titlePanel, subMenuPanel;
     private JLabel pageTitle, titleLabel;
-    private JTable recordsTable;
     private JButton currentlySelectedButton = null; 
     
     public StaffMenu(Staff staff, StaffRepository staffRepo, SalesmanRepository salesmanRepo,
@@ -174,19 +172,11 @@ public class StaffMenu extends JFrame {
         } 
         
         switch(menuItem) {
-            case "Staff Management":
-                contentPanel.add(new StaffPanel(staffService));
-                break;
-            case "Salesman Management":
-                contentPanel.add(new SalesmanPanel(salesmanService));
-                break;
-            case "Car Management":
-                contentPanel.add(new CarPanel(carService));
-                break;
-            case "Customer Management":
-                contentPanel.add(new CustomerPanel(customerService));
-                break;
-            case "Payment & Feedback":
+            case "Staff Management" -> contentPanel.add(new StaffPanel(staffService));
+            case "Salesman Management" -> contentPanel.add(new SalesmanPanel(salesmanService));
+            case "Car Management" -> contentPanel.add(new CarPanel(carService));
+            case "Customer Management" -> contentPanel.add(new CustomerPanel(customerService));
+            case "Payment & Feedback" -> {
                 addSubMenuButton(subMenuPanel, "Booking Records",
                         DataIO.loadIcon(PENDING_PNG),
                         e -> showPanelInFrame(
@@ -204,18 +194,16 @@ public class StaffMenu extends JFrame {
                         e -> showPanelInFrame(
                                 "All Feedbacks", 
                                 new FeedbackPanel())
-                        );
+                );
                 addSubMenuButton(subMenuPanel, "Analysis",
                         DataIO.loadIcon(ANALYSIS_PNG),
                         e -> showPanelInFrame(
                                 "Analysis", 
                                 new AnalysisPanel())
-                        );
+                );
                 contentPanel.add(subMenuPanel);
-                break;
-            case "Reports":
-                contentPanel.add(new ReportsPanel(), BorderLayout.CENTER);
-                break;
+            }
+            case "Reports" -> contentPanel.add(new ReportsPanel(), BorderLayout.CENTER);
         }
         contentPanel.revalidate();
         contentPanel.repaint();

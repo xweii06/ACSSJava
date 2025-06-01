@@ -11,7 +11,7 @@ import utils.DataIO;
 public class ApproveCus {
     private JFrame frame;
     private JPanel contentPanel;
-    private PendingCustomerRepository repository;
+    private final PendingCustomerRepository repository;
 
     public ApproveCus() {
         this.repository = new PendingCustomerRepository();

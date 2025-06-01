@@ -3,6 +3,7 @@ package Staff.SaleManagement;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import javax.swing.border.Border;
@@ -108,7 +109,7 @@ public class FeedbackPanel extends JPanel {
                 currentIndex = 0;
                 displayCurrentFeedback();
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             allFeedbacks = new ArrayList<>(); // Ensure list is never null
             JOptionPane.showMessageDialog(this, 
                 "Error loading feedback data: " + ex.getMessage(),

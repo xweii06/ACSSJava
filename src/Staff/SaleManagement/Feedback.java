@@ -88,9 +88,8 @@ public class Feedback {
                     comments.isEmpty() ? null : comments  // comments
                 );
                 feedbackList.add(feedback);
-            } catch (Exception ex) {
+            } catch (NumberFormatException ex) {
                 System.err.println("Error parsing feedback record: " + line);
-                ex.printStackTrace();
             }
         }
         return feedbackList;

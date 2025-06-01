@@ -62,7 +62,6 @@ public class StaffService {
                     maxID = currentID;
                 }
             } catch (NumberFormatException ex) {
-                continue;
             }
         }
         

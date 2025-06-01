@@ -15,8 +15,9 @@ public class StaffLogin extends JFrame {
     
     private static final String STAFF_FILE = "staff.txt";
     
-    private JButton loginButton, backButton;
-    private JTextField idField;
+    private final JButton loginButton;
+    private final JButton backButton;
+    private final JTextField idField;
     private static JPasswordField pwField;
     private static JCheckBox showPW;
     private static int loginAttempts = 0;
@@ -108,7 +109,7 @@ public class StaffLogin extends JFrame {
             } else {
                 handleFailedLogin(staffID);
             }
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this,
                 "Error during login: " + ex.getMessage(),
                 "Login Error",

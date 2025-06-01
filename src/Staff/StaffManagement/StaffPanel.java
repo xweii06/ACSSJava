@@ -176,12 +176,12 @@ public class StaffPanel extends JPanel {
         @Override
         public Object getValueAt(int row, int column) {
             Staff staff = staffList.get(row);
-            switch (column) {
-                case 0: return staff.getId();
-                case 1: return staff.getName();
-                case 2: return staff.getRole();
-                default: return null;
-            }
+            return switch (column) {
+                case 0 -> staff.getId();
+                case 1 -> staff.getName();
+                case 2 -> staff.getRole();
+                default -> null;
+            };
         }
     }
 }
