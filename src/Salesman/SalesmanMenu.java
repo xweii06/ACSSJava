@@ -828,12 +828,28 @@ private String findSaleIdByCarId(String carId) {
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
         card.setMaximumSize(new Dimension(250, 300));
-
-        ImageIcon carIcon = new ImageIcon(car[7]);
-        JLabel carImage = new JLabel(new ImageIcon(carIcon.getImage().getScaledInstance(200, 120, Image.SCALE_SMOOTH)));
-        carImage.setAlignmentX(Component.CENTER_ALIGNMENT);
-        carImage.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        card.add(carImage);
+        
+        JLabel imageLabel;
+        if (car.length > 7 && car[7] != null && !car[7].isEmpty()) {
+            try {
+                File imageFile = new File(car[7]);
+                if (imageFile.exists()) {
+                    ImageIcon icon = new ImageIcon(car[7]);
+                    Image scaledImage = icon.getImage().getScaledInstance(200, 120, Image.SCALE_SMOOTH);
+                    imageLabel = new JLabel(new ImageIcon(scaledImage));
+                    imageLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+                } else {
+                    imageLabel = createNoImageLabel();
+                }
+            } catch (Exception e) {
+                imageLabel = createNoImageLabel();
+            }
+        } else {
+            imageLabel = createNoImageLabel();
+        }
+        
+        imageLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        card.add(imageLabel, BorderLayout.CENTER);
 
         JPanel detailsPanel = new JPanel();
         detailsPanel.setLayout(new BoxLayout(detailsPanel, BoxLayout.Y_AXIS));
@@ -896,6 +912,13 @@ private String findSaleIdByCarId(String carId) {
         card.add(buttonPanel);
 
         return card;
+    }
+   
+    private JLabel createNoImageLabel() {
+        ImageIcon icon = new ImageIcon("src/resources/noCar.png");
+        JLabel imageLabel = new JLabel(icon);
+        imageLabel.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
+        return imageLabel;
     }
 
     private JButton createCardButton(String text, Color bgColor) {

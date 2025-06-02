@@ -1,4 +1,3 @@
 M00,XW,SuperAdmin,8888
 M01,Tian,Staff,1234
 M02,Sha,Staff,2345
-M03,Yoon,Staff,3456
