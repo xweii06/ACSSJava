@@ -1,4 +1,4 @@
-# APU Car Sales System (ACSS) - 
+# APU Car Sales System (ACSS) 
 
 Java-based desktop application developed using basic **Java Swing (GUI)**. 
 
