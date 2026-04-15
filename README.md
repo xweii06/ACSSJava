@@ -35,10 +35,12 @@ The system supports role-based access control and is built to improve efficiency
 
 ---
 
-## ⚙️ Note
+## ⚙️ Notes
 
-The close button is disabled. To exit the program, 
+- The dataset used in this project consists of **dummy data only** and is intended strictly for development, testing, and demonstration purposes.
 
-1. Log in as **Managing Staff** (ID: `M01` PSW: `1234`)
-2. Click on 'End Program' on the sidebar
-3. Enter Exit PIN: `000` to exit
+- The close button is disabled. To exit the program, 
+
+  1. Log in as **Managing Staff** (ID: `M01` PSW: `1234`)
+  2. Click on 'End Program' on the sidebar
+  3. Enter Exit PIN: `000` to exit
